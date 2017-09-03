@@ -24,14 +24,14 @@
     "homepage": "https://github.com/FelixRilling/di-ngy#readme",
     "dependencies": {
         "cli-ngy": "^6.1.1",
-        "discord.js": "^11.1.0",
+        "discord.js": "^11.2.1",
         "flat-cache": "^1.2.2",
         "lodash": "^4.17.4",
         "log": "^1.4.0",
         "node-fetch": "^1.7.2"
     },
     "devDependencies": {
-        "eslint": "^4.5.0",
+        "eslint": "^4.6.1",
         "eslint-plugin-unicorn": "^2.1.2"
     },
     "optionalDependencies": {
