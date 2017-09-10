@@ -75,6 +75,15 @@ const commands = {
                     long: "Test args"
                 }
             },
+            attachment: {
+                fn: () => ["success", false, ["http://lorempixel.com/output/food-q-c-640-480-10.jpg"]],
+                alias: [],
+                args: [],
+                help: {
+                    short: "Test attachment",
+                    long: "Test attachment"
+                }
+            }
         }
     },
 };
