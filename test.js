@@ -83,7 +83,7 @@ const commands = {
                     short: "Test attachment",
                     long: "Test attachment"
                 }
-            }
+            },
         }
     },
 };
