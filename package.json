@@ -4,8 +4,9 @@
     "description": "A small discord.js + cli-ngy boilerplate",
     "main": "index.js",
     "scripts": {
-        "start": "npm-run-all lint test",
-        "lint": "eslint index.js lib/"
+        "start": "node index.js",
+        "test": "node test.js",
+        "lint": "eslint index.js lib/**/*.js"
     },
     "repository": {
         "type": "git",
@@ -23,7 +24,7 @@
     },
     "homepage": "https://github.com/FelixRilling/di-ngy#readme",
     "dependencies": {
-        "cli-ngy": "^6.1.1",
+        "cli-ngy": "^6.1.2",
         "discord.js": "^11.2.1",
         "flat-cache": "^1.2.2",
         "lodash": "^4.17.4",
