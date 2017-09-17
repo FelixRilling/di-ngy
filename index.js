@@ -6,8 +6,9 @@ const Log = require("log");
 const Clingy = require("cli-ngy");
 const Discord = require("discord.js");
 const flatCache = require("flat-cache");
-const merge = require("lodash/merge");
-
+const {
+    defaultsDeep
+} = require("lodash");
 const configDefault = require("./lib/defaults/config.default");
 const stringsDefault = require("./lib/defaults/strings.default");
 const commandsDefault = require("./lib/defaults/commands.default");
@@ -17,6 +18,7 @@ const onMessage = require("./lib/events/onMessage");
 
 /**
  * Di-ngy class
+ *
  * @class
  */
 module.exports = class {
@@ -34,6 +36,7 @@ module.exports = class {
      *   data,          //Runtime Data
      *   dataPersisted  //Persisted Data (As JSON)
      * }
+     *
      * @constructor
      * @param {Object} config
      * @param {Object} commands
@@ -53,15 +56,15 @@ module.exports = class {
         /**
          * Stores instance config
          */
-        app.config = merge(configDefault(), config);
-        app.strings = merge(stringsDefault(), strings);
-        app.userEvents = merge(userEventsDefault(), userEvents);
+        app.config = defaultsDeep(config, configDefault);
+        app.strings = defaultsDeep(strings, stringsDefault);
+        app.userEvents = defaultsDeep(userEvents, userEventsDefault);
 
         app.log = new Log(app.config.options.logLevel);
         app.log.debug("Init", "Loaded Config");
 
         app.cli = new Clingy(
-            app.config.options.enableDefaultCommands ? merge(commandsDefault(), commands) : commands, {
+            app.config.options.enableDefaultCommands ? defaultsDeep(commands, commandsDefault) : commands, {
                 lookup: {
                     namesAreCaseSensitive: app.config.options.namesAreCaseSensitive
                 },
