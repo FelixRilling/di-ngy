@@ -1,6 +1,6 @@
 {
     "name": "di-ngy",
-    "version": "3.13.5",
+    "version": "3.13.6",
     "description": "A small discord.js + cli-ngy boilerplate",
     "main": "index.js",
     "scripts": {
