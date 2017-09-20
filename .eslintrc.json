@@ -1,11 +1,13 @@
 {
     "plugins": [
+        "node",
         "unicorn"
     ],
-    "extends": "plugin:unicorn/recommended",
+    "extends": ["eslint:recommended", "plugin:node/recommended", "plugin:unicorn/recommended"],
     "env": {
         "es6": true,
-        "node": true
+        "node": true,
+        "jasmine": true
     },
     "parserOptions": {
         "sourceType": "script",
@@ -21,7 +23,6 @@
         "unicorn/filename-case": ["warn", {
             "case": "camelCase"
         }],
-
         "unicorn/no-process-exit": "off"
     }
 }

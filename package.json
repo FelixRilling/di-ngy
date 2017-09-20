@@ -32,11 +32,11 @@
         "node-fetch": "^1.7.3"
     },
     "devDependencies": {
-        "eslint": "^4.7.0",
+        "eslint": "^4.7.1",
+        "eslint-plugin-node": "^5.1.1",
         "eslint-plugin-unicorn": "^2.1.2"
     },
-    "optionalDependencies": {},
     "engines": {
-        "node": ">=8.x"
+        "node": "v8.x"
     }
 }
