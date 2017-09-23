@@ -117,15 +117,15 @@ module.exports = class {
 
         app.bot
             .login(app.config.token)
-            .catch(err => {
-                app.log.error("Connect", "Failure");
-
-                throw new Error("An error occured connecting to the Discord-API", err);
-            })
             .then(() => {
                 app.log.info("Connect", "Success");
                 app.bot.user.setGame(app.strings.currentlyPlaying);
                 app.userEvents.onConnect(app);
+            })
+            .catch(err => {
+                app.log.error("Connect", "Failure");
+
+                throw new Error("An error occured connecting to the Discord-API", err);
             });
     }
 };

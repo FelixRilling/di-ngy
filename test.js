@@ -84,6 +84,17 @@ const commands = {
                     long: "Test attachment"
                 }
             },
+            event: {
+                fn: () => ["baaaaaaa", false, [], {
+                    onSend: msg => msg.react("128985967875850240")
+                }],
+                alias: ["events"],
+                args: [],
+                help: {
+                    short: "Test event",
+                    long: "Test event"
+                }
+            },
         }
     },
 };
