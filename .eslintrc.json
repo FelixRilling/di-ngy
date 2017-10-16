@@ -1,13 +1,11 @@
 {
     "plugins": [
-        "node",
-        "unicorn"
+        "node"
     ],
-    "extends": ["eslint:recommended", "plugin:node/recommended", "plugin:unicorn/recommended"],
+    "extends": ["eslint:recommended", "plugin:node/recommended"],
     "env": {
         "es6": true,
-        "node": true,
-        "jasmine": true
+        "node": true
     },
     "parserOptions": {
         "sourceType": "script",
@@ -18,11 +16,6 @@
         "linebreak-style": ["error", "unix"],
         "quotes": ["error", "double"],
         "semi": ["error", "always"],
-        "no-console": "warn",
-
-        "unicorn/filename-case": ["warn", {
-            "case": "camelCase"
-        }],
-        "unicorn/no-process-exit": "off"
+        "no-console": "warn"
     }
 }
