@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
-        "mock": "node test.js",
+        "mock": "node test/",
         "lint": "eslint index.js lib/**/*.js"
     },
     "repository": {

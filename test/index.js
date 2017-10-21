@@ -1,6 +1,6 @@
 "use strict";
 
-const Dingy = require("./index");
+const Dingy = require("../index");
 
 const config = {
     name: "lisa-beta",
