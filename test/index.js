@@ -5,13 +5,21 @@ const Dingy = require("../index");
 const config = {
     name: "lisa-beta",
     prefix: "$$",
-    token: process.env.DISCORD_KEY,
-    adminIds: [
-        "128985967875850240"
-    ],
+    token: process.env.DISCORD_KEY_TEST,
     options: {
         logLevel: "debug"
-    }
+    },
+    roles: [{
+        name: "Admin",
+        power: 10,
+        assignable: false,
+        check: (member) => ["128985967875850240"].includes(member.user.id)
+    }, {
+        name: "User",
+        power: 1,
+        assignable: true,
+        check: () => true
+    }],
 };
 
 const commands = {
@@ -28,6 +36,7 @@ const commands = {
                 fn: () => true,
                 alias: [],
                 args: [],
+                powerRequired: 0,
                 help: {
                     short: "Test weirdtype",
                     long: "Test weirdtype"
@@ -39,6 +48,7 @@ const commands = {
                 }, 2000)),
                 alias: [],
                 args: [],
+                powerRequired: 0,
                 help: {
                     short: "Test async",
                     long: "Test async"
@@ -48,6 +58,7 @@ const commands = {
                 fn: () => "a".repeat(3000),
                 alias: [],
                 args: [],
+                powerRequired: 0,
                 help: {
                     short: "Test long",
                     long: "Test long"
@@ -57,10 +68,20 @@ const commands = {
                 fn: () => "success",
                 alias: [],
                 args: [],
-                admin: true,
+                powerRequired: 10,
                 help: {
                     short: "Test admin",
                     long: "Test admin"
+                }
+            },
+            adminMax: {
+                fn: () => "success",
+                alias: [],
+                args: [],
+                powerRequired: 11,
+                help: {
+                    short: "Test admin max",
+                    long: "Test admin max"
                 }
             },
             args: {
@@ -70,6 +91,7 @@ const commands = {
                     name: "foo",
                     required: true
                 }],
+                powerRequired: 0,
                 help: {
                     short: "Test args",
                     long: "Test args"
@@ -79,6 +101,7 @@ const commands = {
                 fn: () => ["success", false, ["http://lorempixel.com/output/food-q-c-640-480-10.jpg"]],
                 alias: [],
                 args: [],
+                powerRequired: 0,
                 help: {
                     short: "Test attachment",
                     long: "Test attachment"
@@ -90,6 +113,7 @@ const commands = {
                 }],
                 alias: ["events"],
                 args: [],
+                powerRequired: 0,
                 help: {
                     short: "Test event",
                     long: "Test event"

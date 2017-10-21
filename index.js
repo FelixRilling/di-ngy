@@ -49,9 +49,6 @@ module.exports = class {
         if (!config.token) {
             throw new Error("No token provided!");
         }
-        if (config.adminIds.length === 0) {
-            throw new Error("No admin-IDs provided!");
-        }
 
         /**
          * Stores instance config
