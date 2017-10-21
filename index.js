@@ -2,20 +2,19 @@
 
 const RECONNECT_TIMEOUT = 10000;
 
+const {
+    defaultsDeep
+} = require("lodash");
 const Log = require("log");
 const Clingy = require("cli-ngy");
 const Discord = require("discord.js");
 const flatCache = require("flat-cache");
-const {
-    defaultsDeep
-} = require("lodash");
+const mapCommands = require("./lib/events/lib/mapCommands");
+const onMessage = require("./lib/events/onMessage");
 const configDefault = require("./lib/defaults/config.default");
 const stringsDefault = require("./lib/defaults/strings.default");
 const commandsDefault = require("./lib/defaults/commands.default");
 const userEventsDefault = require("./lib/defaults/userEvents.default");
-
-const onMessage = require("./lib/events/onMessage");
-
 /**
  * Di-ngy class
  *
@@ -61,7 +60,7 @@ module.exports = class {
         app.log.debug("Init", "Loaded Config");
 
         app.cli = new Clingy(
-            app.config.options.enableDefaultCommands ? defaultsDeep(commands, commandsDefault) : commands, {
+            mapCommands(app.config.options.enableDefaultCommands ? defaultsDeep(commands, commandsDefault) : commands), {
                 lookup: {
                     namesAreCaseSensitive: app.config.options.namesAreCaseSensitive
                 },
@@ -69,8 +68,7 @@ module.exports = class {
                     allowQuotedStrings: app.config.options.allowQuotedStrings,
                     validQuotes: app.config.options.validQuotes,
                 }
-            }
-        );
+            });
         app.log.debug("Init", "Created Clingy");
 
         /**
