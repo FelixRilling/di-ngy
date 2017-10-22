@@ -31,7 +31,7 @@ const commands = {
             },
             async: {
                 fn: () => new Promise(resolve => setTimeout(() => {
-                    resolve("success");
+                    resolve(["success", "yaml"]);
                 }, 2000))
             },
             long: {
