@@ -3,7 +3,8 @@
 const RECONNECT_TIMEOUT = 10000;
 
 const {
-    defaultsDeep
+    defaultsDeep,
+    isUndefined
 } = require("lodash");
 const Log = require("log");
 const Clingy = require("cli-ngy");
@@ -11,6 +12,7 @@ const Discord = require("discord.js");
 const flatCache = require("flat-cache");
 const mapCommands = require("./lib/events/lib/mapCommands");
 const onMessage = require("./lib/events/onMessage");
+
 const configDefault = require("./lib/defaults/config.default");
 const stringsDefault = require("./lib/defaults/strings.default");
 const commandsDefault = require("./lib/defaults/commands.default");
@@ -45,7 +47,7 @@ module.exports = class {
     constructor(config, commands = {}, strings = {}, userEvents = {}) {
         const app = this;
 
-        if (!config.token) {
+        if (isUndefined(config.token)) {
             throw new Error("No token provided!");
         }
 
@@ -94,6 +96,7 @@ module.exports = class {
         });
         app.bot.on("disconnect", err => {
             app.log.error("Disconnect", err);
+            app.log.error("Reconnect", `Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
             app.bot.setTimeout(() => {
                 app.connect();
             }, RECONNECT_TIMEOUT);

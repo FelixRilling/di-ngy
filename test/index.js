@@ -3,9 +3,8 @@
 const Dingy = require("../index");
 
 const config = {
-    name: "lisa-beta",
+    token: process.env.DISCORD_TOKEN_TEST,
     prefix: "$$",
-    token: process.env.DISCORD_KEY_TEST,
     options: {
         logLevel: "debug"
     },
