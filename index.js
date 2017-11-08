@@ -63,13 +63,8 @@ module.exports = class {
 
         app.cli = new Clingy(
             mapCommands(app.config.options.enableDefaultCommands ? defaultsDeep(commands, commandsDefault) : commands), {
-                lookup: {
-                    namesAreCaseSensitive: app.config.options.namesAreCaseSensitive
-                },
-                parser: {
-                    allowQuotedStrings: app.config.options.allowQuotedStrings,
-                    validQuotes: app.config.options.validQuotes,
-                }
+                caseSensitive: app.config.options.namesAreCaseSensitive,
+                validQuotes: app.config.options.validQuotes,
             });
         app.log.debug("Init", "Created Clingy");
 
