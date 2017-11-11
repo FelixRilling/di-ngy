@@ -1,7 +1,5 @@
 "use strict";
 
-const RECONNECT_TIMEOUT = 10000;
-
 const {
     defaultsDeep,
     isUndefined
@@ -10,8 +8,10 @@ const Log = require("log");
 const Clingy = require("cli-ngy");
 const Discord = require("discord.js");
 const flatCache = require("flat-cache");
+
 const mapCommands = require("./lib/events/lib/mapCommands");
 const onMessage = require("./lib/events/onMessage");
+const onError = require("./lib/events/onError");
 
 const configDefault = require("./lib/defaults/config.default");
 const stringsDefault = require("./lib/defaults/strings.default");
@@ -45,8 +45,6 @@ module.exports = class {
      * @param {Object} userEvents
      */
     constructor(config, commands = {}, strings = {}, userEvents = {}) {
-        const app = this;
-
         if (isUndefined(config.token)) {
             throw new Error("No token provided!");
         }
@@ -54,69 +52,68 @@ module.exports = class {
         /**
          * Stores instance config
          */
-        app.config = defaultsDeep(config, configDefault);
-        app.strings = defaultsDeep(strings, stringsDefault);
-        app.userEvents = defaultsDeep(userEvents, userEventsDefault);
+        this.config = defaultsDeep(config, configDefault);
+        this.strings = defaultsDeep(strings, stringsDefault);
+        this.userEvents = defaultsDeep(userEvents, userEventsDefault);
 
-        app.log = new Log(app.config.options.logLevel);
-        app.log.debug("Init", "Loaded Config");
+        this.log = new Log(this.config.options.logLevel);
+        this.log.debug("Init", "Loaded Config");
 
-        app.cli = new Clingy(
-            mapCommands(app.config.options.enableDefaultCommands ? defaultsDeep(commands, commandsDefault) : commands), {
-                caseSensitive: app.config.options.namesAreCaseSensitive,
-                validQuotes: app.config.options.validQuotes,
+        this.cli = new Clingy(
+            mapCommands(this.config.options.enableDefaultCommands ? defaultsDeep(commands, commandsDefault) : commands), {
+                caseSensitive: this.config.options.namesAreCaseSensitive,
+                validQuotes: this.config.options.validQuotes,
             });
-        app.log.debug("Init", "Created Clingy");
+        this.log.debug("Init", "Created Clingy");
 
         /**
          * Bootstraps Client
          */
-        app.bot = new Discord.Client();
-        app.log.debug("Init", "Created Discord Client");
+        this.bot = new Discord.Client();
+        this.log.debug("Init", "Created Discord Client");
 
-        app.data = {};
-        app.dataPersisted = {};
+        this.data = {};
+        this.dataPersisted = {};
 
-        app.config.dataPersisted.files.forEach(fileName => {
-            app.dataPersisted[fileName] = flatCache.load(`${fileName}.json`, app.config.dataPersisted.dir);
+        this.config.dataPersisted.files.forEach(fileName => {
+            this.dataPersisted[fileName] = flatCache.load(`${fileName}.json`, this.config.dataPersisted.dir);
         });
-        app.log.debug("Init", "Loaded Data");
+        this.log.debug("Init", "Loaded Data");
 
         /**
          * Binds events
          */
-        app.bot.on("message", msg => {
-            onMessage(msg, app);
-            app.userEvents.onMessage(msg, app);
+        this.bot.on("message", msg => {
+            onMessage(msg, this);
+            this.userEvents.onMessage(msg, this);
         });
-        app.bot.on("disconnect", err => {
-            app.log.error("Disconnect", err);
-            app.log.error("Reconnect", `Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
-            app.bot.setTimeout(() => {
-                app.connect();
-            }, RECONNECT_TIMEOUT);
+        this.bot.on("disconnect", err => {
+            this.log.warning("Disconnect", err);
+            onError(err, this);
+        });
+        this.bot.on("error", err => {
+            this.log.error("Error", err);
+            onError(err, this);
         });
 
-        app.log.info("Init", "Success");
-        app.userEvents.onInit(app);
+        this.log.info("Init", "Success");
+        this.userEvents.onInit(this);
     }
     /**
      * Connect to the Discord API
      */
     connect() {
-        const app = this;
+        this.log.info("Connect", "Starting");
 
-        app.log.info("Connect", "Starting");
-
-        app.bot
-            .login(app.config.token)
+        this.bot
+            .login(this.config.token)
             .then(() => {
-                app.log.info("Connect", "Success");
-                app.bot.user.setGame(app.strings.currentlyPlaying);
-                app.userEvents.onConnect(app);
+                this.log.info("Connect", "Success");
+                this.bot.user.setGame(this.strings.currentlyPlaying);
+                this.userEvents.onConnect(this);
             })
             .catch(err => {
-                app.log.error("Connect", "Failure");
+                this.log.error("Connect", "Failure");
 
                 throw new Error("An error occured connecting to the Discord-API", err);
             });
