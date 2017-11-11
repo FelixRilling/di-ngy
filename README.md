@@ -11,10 +11,22 @@ const Dingy = require("di-ngy");
 
 //new Dingy({config},{commands},{strings},{events});
 const bot = new Dingy({
-    name: "myBot",                  //Name of the bot
-    token: "#botToken#",            //Bot-token, should be secret! (Using ENV-vars to store this is recommended)
-    prefix: "$",                    //Prefix to respond to: prefix:'foo' => responds to "foo help"
-    adminIds: ["123456789101112"]   //User-IDs of people with admin access, aloowing dangerous commands
+    token: "#botToken#", //Bot-token, should be secret! (Using ENV-vars to store this is recommended)
+    prefix: "$", //Prefix to respond to: prefix:'foo' => responds to "foo help"
+        options: {
+        logLevel: "debug"
+    },
+    roles: [{
+        name: "Admin",
+        power: 10,
+        assignable: false,
+        check: (member) => ["#yourId#"].includes(member.user.id)
+    }, {
+        name: "User",
+        power: 1,
+        assignable: true,
+        check: () => true
+    }],
 }, {
     foo: {
         fn: () => "bar",
