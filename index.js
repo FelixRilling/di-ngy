@@ -17,6 +17,7 @@ const configDefault = require("./lib/defaults/config.default");
 const stringsDefault = require("./lib/defaults/strings.default");
 const commandsDefault = require("./lib/defaults/commands.default");
 const userEventsDefault = require("./lib/defaults/userEvents.default");
+
 /**
  * Di-ngy class
  *
