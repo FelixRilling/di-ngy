@@ -1,9 +1,9 @@
 "use strict";
 
 const {
-    defaultsDeep,
+    objDefaultsDeep,
     isUndefined
-} = require("lodash");
+} = require("lightdash");
 const Log = require("log");
 const Clingy = require("cli-ngy");
 const Discord = require("discord.js");
@@ -53,15 +53,15 @@ module.exports = class {
         /**
          * Stores instance config
          */
-        this.config = defaultsDeep(config, configDefault);
-        this.strings = defaultsDeep(strings, stringsDefault);
-        this.userEvents = defaultsDeep(userEvents, userEventsDefault);
+        this.config = objDefaultsDeep(config, configDefault);
+        this.strings = objDefaultsDeep(strings, stringsDefault);
+        this.userEvents = objDefaultsDeep(userEvents, userEventsDefault);
 
         this.log = new Log(this.config.options.logLevel);
         this.log.debug("Init", "Loaded Config");
 
         this.cli = new Clingy(
-            mapCommands(this.config.options.enableDefaultCommands ? defaultsDeep(commands, commandsDefault) : commands), {
+            mapCommands(this.config.options.enableDefaultCommands ? objDefaultsDeep(commands, commandsDefault) : commands), {
                 caseSensitive: this.config.options.namesAreCaseSensitive,
                 validQuotes: this.config.options.validQuotes,
             });
