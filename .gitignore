@@ -36,3 +36,4 @@ npm-debug.*
 
 # Data Files
 data/
+.cache/

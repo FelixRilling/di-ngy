@@ -1,6 +1,8 @@
 "use strict";
 
 const Dingy = require("../index");
+const loadAttachment = require("../lib/util/loadAttachment")
+
 
 const config = {
     token: process.env.DISCORD_TOKEN_TEST,
@@ -53,6 +55,21 @@ const commands = {
             },
             attachment: {
                 fn: () => ["success", false, ["http://lorempixel.com/output/food-q-c-640-480-10.jpg"]],
+            },
+            attachmentLoad: {
+                fn: (args, msg) => new Promise((resolve, reject) => {
+                    const attachments = msg.attachments.array();
+
+                    if (attachments.length < 1) {
+                        reject("No attachment found");
+                    } else {
+                        loadAttachment(attachments[0])
+                            .then(console.log)
+                            .catch(console.log);
+
+                        resolve("OK!");
+                    }
+                }),
             },
             event: {
                 fn: () => ["baaaaaaa", false, [], {
