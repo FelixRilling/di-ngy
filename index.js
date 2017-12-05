@@ -110,7 +110,7 @@ module.exports = class {
             .login(this.config.token)
             .then(() => {
                 this.log.info("Connect", "Success");
-                this.bot.user.setGame(this.strings.currentlyPlaying);
+                this.bot.user.setActivity(this.strings.currentlyPlaying);
                 this.userEvents.onConnect(this);
             })
             .catch(err => {
