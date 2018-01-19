@@ -1,43 +1,38 @@
 "use strict";
 
-const {
-    objDefaultsDeep,
-    isUndefined
-} = require("lightdash");
-const Log = require("log");
-const Clingy = require("cli-ngy");
-const Discord = require("discord.js");
-const flatCache = require("flat-cache");
+import { objDefaultsDeep, isUndefined } from "lightdash";
+import Log from "log";
+import Clingy from "cli-ngy";
+import Discord from "discord.js";
+import flatCache from "flat-cache";
 
-const mapCommands = require("./lib/events/lib/mapCommands");
-const onMessage = require("./lib/events/onMessage");
-const onError = require("./lib/events/onError");
+import mapCommands from "./lib/events/lib/mapCommands";
+import onMessage from "./lib/events/onMessage";
+import onError from "./lib/events/onError";
 
-const configDefault = require("./lib/defaults/config.default");
-const stringsDefault = require("./lib/defaults/strings.default");
-const commandsDefault = require("./lib/defaults/commands.default");
-const userEventsDefault = require("./lib/defaults/userEvents.default");
+import configDefault from "./lib/defaults/config.default";
+import stringsDefault from "./lib/defaults/strings.default";
+import commandsDefault from "./lib/defaults/commands.default";
+import userEventsDefault from "./lib/defaults/userEvents.default";
 
 /**
  * Di-ngy class
  *
  * @class
  */
-module.exports = class {
+const Dingy = class {
+    public config: any;
+    public strings: any;
+    public userEvents: any;
+    public data: any;
+    public dataPersisted: any;
+
+    public cli: any;
+    public log: any;
+    public bot: any;
+
     /**
      * Creates Di-ngy instance
-     * {
-     *   bot,           //Discord.js instance
-     *   cli,           //Cli-ngy command parser
-     *   log,           //Logger
-     *
-     *   strings,       //String object
-     *   config,        //Config object
-     *   userEvents     //Even object
-     *
-     *   data,          //Runtime Data
-     *   dataPersisted  //Persisted Data (As JSON)
-     * }
      *
      * @constructor
      * @param {Object} config
@@ -61,10 +56,16 @@ module.exports = class {
         this.log.debug("Init", "Loaded Config");
 
         this.cli = new Clingy(
-            mapCommands(this.config.options.enableDefaultCommands ? objDefaultsDeep(commands, commandsDefault) : commands), {
+            mapCommands(
+                this.config.options.enableDefaultCommands
+                    ? objDefaultsDeep(commands, commandsDefault)
+                    : commands
+            ),
+            {
                 caseSensitive: this.config.options.namesAreCaseSensitive,
-                validQuotes: this.config.options.validQuotes,
-            });
+                validQuotes: this.config.options.validQuotes
+            }
+        );
         this.log.debug("Init", "Created Clingy");
 
         /**
@@ -77,7 +78,10 @@ module.exports = class {
         this.dataPersisted = {};
 
         this.config.dataPersisted.files.forEach(fileName => {
-            this.dataPersisted[fileName] = flatCache.load(`${fileName}.json`, this.config.dataPersisted.dir);
+            this.dataPersisted[fileName] = flatCache.load(
+                `${fileName}.json`,
+                this.config.dataPersisted.dir
+            );
         });
         this.log.debug("Init", "Loaded Data");
 
@@ -113,10 +117,14 @@ module.exports = class {
                 this.bot.user.setActivity(this.strings.currentlyPlaying);
                 this.userEvents.onConnect(this);
             })
-            .catch(err => {
+            .catch(() => {
                 this.log.error("Connect", "Failure");
 
-                throw new Error("An error ocurred connecting to the Discord-API", err);
+                throw new Error(
+                    "An error ocurred connecting to the Discord-API"
+                );
             });
     }
 };
+
+export default Dingy;
