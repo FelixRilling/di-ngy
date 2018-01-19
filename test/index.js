@@ -1,6 +1,6 @@
 "use strict";
 
-const Dingy = require("../index");
+const Dingy = require("./dist/dingy.common");
 const loadAttachment = require("../lib/util/loadAttachment");
 
 const config = {

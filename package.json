@@ -2,7 +2,23 @@
     "name": "di-ngy",
     "version": "4.0.12",
     "description": "A small discord.js + cli-ngy boilerplate",
-    "main": "index.js",
+    "main": "dist/dingy.common.js",
+    "module": "dist/dingy.esm.js",
+    "types": "types/main.d.ts",
+    "settings": {
+        "input": "main.ts",
+        "namespace": {
+            "module": "dingy",
+            "file": "dingy"
+        },
+        "external": [
+            "lightdash",
+            "cli-ngy",
+            "flat-cache",
+            "log",
+            "make-fetch-happen"
+        ]
+    },
     "scripts": {
         "start": "node index.js",
         "mock": "node test/",
@@ -32,8 +48,23 @@
         "make-fetch-happen": "^2.6.0"
     },
     "devDependencies": {
+        "@babel/core": "^7.0.0-beta.38",
+        "@babel/plugin-external-helpers": "^7.0.0-beta.38",
+        "@babel/preset-env": "^7.0.0-beta.38",
+        "docdash": "git+https://github.com/clenemt/docdash.git",
         "eslint": "^4.15.0",
-        "eslint-plugin-node": "^5.2.1"
+        "jasmine": "^2.8.0",
+        "jsdoc": "git+https://github.com/jsdoc3/jsdoc.git",
+        "npm-run-all": "^4.1.2",
+        "rollup": "^0.54.1",
+        "rollup-plugin-babel": "^4.0.0-beta.0",
+        "rollup-plugin-json": "^2.3.0",
+        "rollup-plugin-node-resolve": "^3.0.2",
+        "rollup-plugin-typescript2": "^0.10.0",
+        "rollup-plugin-uglify-es": "0.0.1",
+        "typescript": "^2.6.2",
+        "typescript-eslint-parser": "^12.0.0",
+        "uglify-es": "^3.3.7"
     },
     "engines": {
         "node": ">=8.0.0"
