@@ -116,7 +116,7 @@ module.exports = class {
             .catch(err => {
                 this.log.error("Connect", "Failure");
 
-                throw new Error("An error occured connecting to the Discord-API", err);
+                throw new Error("An error ocurred connecting to the Discord-API", err);
             });
     }
 };
