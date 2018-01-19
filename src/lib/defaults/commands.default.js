@@ -10,12 +10,14 @@ module.exports = {
     help: {
         fn: core_help,
         alias: ["man"],
-        args: [{
-            name: "command",
-            default: null,
-            required: false,
-            help: "Command to get help for"
-        }],
+        args: [
+            {
+                name: "command",
+                default: null,
+                required: false,
+                help: "Command to get help for"
+            }
+        ],
         powerRequired: 0,
         help: {
             short: "Shows help",
@@ -24,11 +26,13 @@ module.exports = {
     },
     eval: {
         fn: core_eval,
-        args: [{
-            name: "code",
-            required: true,
-            help: "Code to run "
-        }],
+        args: [
+            {
+                name: "code",
+                required: true,
+                help: "Code to run "
+            }
+        ],
         powerRequired: 10,
         hidden: true,
         help: {
@@ -38,11 +42,13 @@ module.exports = {
     },
     dump: {
         fn: core_dump,
-        args: [{
-            name: "code",
-            required: true,
-            help: "Code to run and dump"
-        }],
+        args: [
+            {
+                name: "code",
+                required: true,
+                help: "Code to run and dump"
+            }
+        ],
         powerRequired: 10,
         hidden: true,
         help: {
@@ -52,11 +58,13 @@ module.exports = {
     },
     echo: {
         fn: core_echo,
-        args: [{
-            name: "text",
-            required: true,
-            help: "Text to echo"
-        }],
+        args: [
+            {
+                name: "text",
+                required: true,
+                help: "Text to echo"
+            }
+        ],
         powerRequired: 8,
         hidden: true,
         help: {

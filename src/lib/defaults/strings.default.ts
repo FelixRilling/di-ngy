@@ -1,6 +1,6 @@
-"use strict";
+import { IDingyStrings } from "../../interface";
 
-module.exports = {
+const stringsDefault: IDingyStrings = {
     currentlyPlaying: "with bots",
 
     separator: "-".repeat(12),
@@ -14,5 +14,7 @@ module.exports = {
     errorMissingArgs: "Missing argument",
     errorPermission: "You don't have permissions to access this command",
     errorTooLong: "The output was too long to print or to send as a file",
-    errorInternal: "Internal error",
+    errorInternal: "Internal error"
 };
+
+export default stringsDefault;

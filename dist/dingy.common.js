@@ -1,36 +1,73 @@
-import { objDefaultsDeep, isUndefined } from "lightdash";
-import Log from "log";
-import Clingy from "cli-ngy";
-import { IClingy } from "cli-ngy/src/interfaces";
-import { Client } from "discord.js";
-import flatCache from "flat-cache";
+'use strict';
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var lightdash = require('lightdash');
+var Log = _interopDefault(require('log'));
+
+const configDefault = {
+    prefix: "myPrefix",
+    token: "#botToken#",
+    dataPersisted: {
+        dir: "./data/",
+        files: [] // File names, "foo" will be saved as "foo.json" and can be accessed with bot.dataPersisted.foo
+    },
+    roles: [
+        {
+            name: "Admin",
+            power: 10,
+            assignable: false,
+            check: member => [].includes(member.user.id)
+        },
+        {
+            name: "User",
+            power: 1,
+            assignable: true,
+            check: () => true
+        }
+    ],
+    options: {
+        enableDefaultCommands: true,
+        namesAreCaseSensitive: false,
+        validQuotes: ['"'],
+        answerToMissingCommand: false,
+        answerToMissingArgs: true,
+        answerToMissingPerms: true,
+        sendFilesForLongReply: true,
+        logLevel: "debug" // Level of log messages recommended to be either "debug" or "info", but can be any supported log-level
+    }
+};
+
+const stringsDefault = {
+    currentlyPlaying: "with bots",
+    separator: "-".repeat(12),
+    infoSimilar: "Did you mean",
+    infoEmpty: "Empty message",
+    infoTooLong: "The output was too long to print",
+    infoInternal: "Internal error",
+    errorUnknownCommand: "Unknown command",
+    errorMissingArgs: "Missing argument",
+    errorPermission: "You don't have permissions to access this command",
+    errorTooLong: "The output was too long to print or to send as a file",
+    errorInternal: "Internal error"
+};
+
+const userEventsDefault = {
+    onInit: () => { },
+    onMessage: () => { },
+    onConnect: () => { }
+};
 
 /* import mapCommands from "./lib/events/lib/mapCommands";
 import onMessage from "./lib/events/onMessage";
 import onError from "./lib/events/onError";
 import commandsDefault from "./lib/defaults/commands.default";*/
-
-import configDefault from "./lib/defaults/config.default";
-import stringsDefault from "./lib/defaults/strings.default";
-import userEventsDefault from "./lib/defaults/userEvents.default";
-import { IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interface";
-
 /**
  * Di-ngy class
  *
  * @class
  */
 const Dingy = class {
-    public config: IDingyConfig;
-    public strings: IDingyStrings;
-    public userEvents: IDingyUserEvents;
-    public data: object;
-    public dataPersisted: object;
-
-    public cli: IClingy;
-    public log: any;
-    public bot: Client;
-
     /**
      * Creates Di-ngy instance
      *
@@ -41,23 +78,17 @@ const Dingy = class {
      * @param {Object} userEvents
      */
     constructor(config, commands = {}, strings = {}, userEvents = {}) {
-        if (isUndefined(config.token)) {
+        if (lightdash.isUndefined(config.token)) {
             throw new Error("No token provided!");
         }
-
         /**
          * Stores instance config
          */
-        this.config = <IDingyConfig>objDefaultsDeep(config, configDefault);
-        this.strings = <IDingyStrings>objDefaultsDeep(strings, stringsDefault);
-        this.userEvents = <IDingyUserEvents>objDefaultsDeep(
-            userEvents,
-            userEventsDefault
-        );
-
+        this.config = lightdash.objDefaultsDeep(config, configDefault);
+        this.strings = lightdash.objDefaultsDeep(strings, stringsDefault);
+        this.userEvents = lightdash.objDefaultsDeep(userEvents, userEventsDefault);
         this.log = new Log(this.config.options.logLevel);
         this.log.debug("Init", "Loaded Config");
-
         /* this.cli = new Clingy(
             mapCommands(
                 this.config.options.enableDefaultCommands
@@ -70,7 +101,6 @@ const Dingy = class {
             }
         );
         this.log.debug("Init", "Created Clingy"); */
-
         /**
          * Bootstraps Client
          */
@@ -87,7 +117,6 @@ const Dingy = class {
             );
         });
         this.log.debug("Init", "Loaded Data"); */
-
         /**
          * Binds events
          */
@@ -130,4 +159,4 @@ const Dingy = class {
     }
 };
 
-export default Dingy;
+module.exports = Dingy;
