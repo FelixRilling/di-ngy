@@ -1,4 +1,4 @@
-import { IDingyStrings } from "../../interface";
+import { IDingyStrings } from "../../interfaces";
 
 const stringsDefault: IDingyStrings = {
     currentlyPlaying: "with bots",

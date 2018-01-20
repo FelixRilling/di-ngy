@@ -1,4 +1,4 @@
-import { IDingyConfig } from "../../interface";
+import { IDingyConfig } from "../../interfaces";
 
 const configDefault: IDingyConfig = {
     prefix: "myPrefix", // Prefix to respond to: prefix:'foo' => responds to "foo help"

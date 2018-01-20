@@ -1,6 +1,7 @@
-"use strict";
+import { commandFn } from "../../../types";
 
-const jsonToYaml = require("../../util/jsonToYaml");
+/*
+const jsonToYaml = require("../../util/jsonToYaml"); */
 
 /**
  * Turns an array into a humanized string
@@ -8,7 +9,7 @@ const jsonToYaml = require("../../util/jsonToYaml");
  * @param {Array<string>} arr
  * @returns {string}
  */
-const humanizeList = arr => arr.join(", ");
+/* const humanizeList = arr => arr.join(", "); */
 
 /**
  * Displays list of all non-hidden commands
@@ -17,7 +18,7 @@ const humanizeList = arr => arr.join(", ");
  * @param {Dingy} app
  * @returns {string}
  */
-const getHelpAll = function (commands, app) {
+/* const getHelpAll = function (commands, app) {
     const result = {};
 
     commands.map.forEach((command, commandName) => {
@@ -34,7 +35,7 @@ const getHelpAll = function (commands, app) {
     });
 
     return ["Help", app.strings.separator, jsonToYaml(result)].join("\n");
-};
+}; */
 
 /**
  * Displays help for a single command
@@ -44,7 +45,7 @@ const getHelpAll = function (commands, app) {
  * @param {Dingy} app
  * @returns {string}
  */
-const getHelpSingle = function (command, commandPath, app) {
+/* const getHelpSingle = function (command, commandPath, app) {
     const result = {
         desc: command.help.long
     };
@@ -75,7 +76,7 @@ const getHelpSingle = function (command, commandPath, app) {
 
     return [`Help for '${commandPath.join(" ")}'`, app.strings.separator, jsonToYaml(result)].join("\n");
 };
-
+ */
 /**
  * Displays help
  *
@@ -84,8 +85,8 @@ const getHelpSingle = function (command, commandPath, app) {
  * @param {App} app
  * @returns {string}
  */
-module.exports = function (args, msg, app) {
-    const commandPath = args._all;
+const commandCoreHelp: commandFn = (args, msg, app) => {
+    /* const commandPath = args._all;
 
     if (commandPath.length > 0) {
         const commandLookup = app.cli.getCommand(commandPath);
@@ -97,5 +98,9 @@ module.exports = function (args, msg, app) {
         }
     } else {
         return [getHelpAll(app.cli.getAll(), app), "yaml"];
-    }
+    } */
+
+    return "ok";
 };
+
+export default commandCoreHelp;

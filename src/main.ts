@@ -5,15 +5,16 @@ import { IClingy } from "cli-ngy/src/interfaces";
 import { Client } from "discord.js";
 import flatCache from "flat-cache";
 
-/* import mapCommands from "./lib/events/lib/mapCommands";
-import onMessage from "./lib/events/onMessage";
+import mapCommands from "./lib/events/lib/mapCommands";
+/* import onMessage from "./lib/events/onMessage";
 import onError from "./lib/events/onError";
-import commandsDefault from "./lib/defaults/commands.default";*/
+;*/
 
+import commandsDefault from "./lib/defaults/commands.default";
 import configDefault from "./lib/defaults/config.default";
 import stringsDefault from "./lib/defaults/strings.default";
 import userEventsDefault from "./lib/defaults/userEvents.default";
-import { IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interface";
+import { IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interfaces";
 
 /**
  * Di-ngy class
@@ -40,7 +41,12 @@ const Dingy = class {
      * @param {Object} strings
      * @param {Object} userEvents
      */
-    constructor(config, commands = {}, strings = {}, userEvents = {}) {
+    constructor(
+        config: any,
+        commands: any = {},
+        strings: any = {},
+        userEvents: any = {}
+    ) {
         if (isUndefined(config.token)) {
             throw new Error("No token provided!");
         }
@@ -56,20 +62,16 @@ const Dingy = class {
         );
 
         this.log = new Log(this.config.options.logLevel);
-        this.log.debug("Init", "Loaded Config");
+        //this.log.debug("Init", "Loaded Config");
 
-        /* this.cli = new Clingy(
-            mapCommands(
-                this.config.options.enableDefaultCommands
-                    ? objDefaultsDeep(commands, commandsDefault)
-                    : commands
-            ),
+        this.cli = new Clingy(
+            mapCommands(objDefaultsDeep(commands, commandsDefault)),
             {
                 caseSensitive: this.config.options.namesAreCaseSensitive,
                 validQuotes: this.config.options.validQuotes
             }
         );
-        this.log.debug("Init", "Created Clingy"); */
+        //this.log.debug("Init", "Created Clingy");
 
         /**
          * Bootstraps Client

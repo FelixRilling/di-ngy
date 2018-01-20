@@ -1,4 +1,4 @@
-import { IDingyUserEvents } from "../../interface";
+import { IDingyUserEvents } from "../../interfaces";
 
 const userEventsDefault: IDingyUserEvents = {
     onInit: () => {},

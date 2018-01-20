@@ -1,13 +1,13 @@
 import { IClingy } from "cli-ngy/src/interfaces";
 import { Client } from "discord.js";
-import { IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interface";
+import { IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interfaces";
 /**
  * Di-ngy class
  *
  * @class
  */
 declare const Dingy: {
-    new (config: any, commands?: {}, strings?: {}, userEvents?: {}): {
+    new (config: any, commands?: any, strings?: any, userEvents?: any): {
         config: IDingyConfig;
         strings: IDingyStrings;
         userEvents: IDingyUserEvents;

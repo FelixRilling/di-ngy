@@ -1,4 +1,6 @@
 import { Client, GuildMember, Guild } from "discord.js";
+import { IClingyCommand, IClingyCommands } from "cli-ngy/src/interfaces";
+import { commandFn } from "./types";
 
 interface IDingyStrings {
     currentlyPlaying: string;
@@ -53,4 +55,35 @@ interface IDingyUserEvents {
     onConnect: (...args: any[]) => void;
 }
 
-export { IDingyStrings, IDingyConfig, IDingyConfigRole, IDingyUserEvents };
+interface IDingyCommand extends IClingyCommand {
+    name?: string;
+    fn: commandFn;
+    powerRequired: number;
+    hidden: boolean;
+    help: {
+        short: string;
+        long: string;
+    };
+    args: IDingyCommandArg[];
+}
+
+interface IDingyCommandArg {
+    name: string;
+    required: boolean;
+    default?: any;
+    help: string;
+}
+
+interface IDingyCommands extends IClingyCommands {
+    [key: string]: IDingyCommand;
+}
+
+export {
+    IDingyStrings,
+    IDingyConfig,
+    IDingyConfigRole,
+    IDingyUserEvents,
+    IDingyCommand,
+    IDingyCommandArg,
+    IDingyCommands
+};

@@ -1,4 +1,4 @@
-"use strict";
+import { commandFn } from "../../../types";
 
 /* eslint no-unused-vars: "off", no-console: "off" */
 /**
@@ -9,16 +9,18 @@
  * @param {App} app
  * @returns {false}
  */
-module.exports = function (args, msg, app) {
+const commandCoreEval: commandFn = (args, msg, app) => {
     let result = "";
-
+    /*
     try {
         result = eval(args.code);
     } catch (err) {
         result = err;
     }
 
-    console.log(result);
+    console.log(result); */
 
-    return false;
+    return "";
 };
+
+export default commandCoreEval;

@@ -1,4 +1,4 @@
-"use strict";
+import { commandFn } from "../../../types";
 
 /**
  * Exits the process
@@ -8,11 +8,13 @@
  * @param {App} app
  * @returns {string}
  */
-module.exports = function (args, msg, app) {
+const commandCoreDie: commandFn = (args, msg, app) => {
     app.bot.setTimeout(() => {
-        // eslint-disable-next-line
+        // @ts-ignore
         process.exit();
     }, 1000);
 
     return "Shutting down.";
 };
+
+export default commandCoreDie;
