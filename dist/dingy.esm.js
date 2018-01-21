@@ -23,8 +23,7 @@ const mapCommand = (key, command) => {
 };
 const mapCommands = (commands) => objMap(commands, mapCommand);
 
-/* const resolveCommand = require("./lib/resolveCommand");
-const sendMessage = require("./lib/sendMessage"); */
+//import sendMessage from "./lib/sendMessage";
 /**
  * onMessage event
  *
@@ -43,18 +42,8 @@ const onMessage = (msg, app) => {
     if (!msg.system &&
         !msg.author.bot &&
         messageText.startsWith(app.config.prefix)) {
-        /* const messageCommand = messageText.substr(app.config.prefix.length);
-        const commandResult = resolveCommand(messageCommand, msg, app);
-
-        app.log.debug("Resolving", msg.author.id, messageCommand, commandResult);
-
-        //commandResult is false if the message should be ignored
-        if (commandResult !== false) {
-            app.log.debug("Returning", msg.author.id);
-            sendMessage(app, msg, commandResult);
-        } else {
-            app.log.debug("Ignoring");
-        } */
+        const messageCommand = messageText.substr(app.config.prefix.length);
+        
     }
 };
 

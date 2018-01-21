@@ -1,43 +1,15 @@
-"use strict";
+import { Guild, GuildMember, Message } from "discord.js";
+import {
+    IDingy,
+    IDingyConfigRole,
+    IDingyMessageResultExpanded,
+    IDingyMessageResultEvents
+} from "../../../interfaces";
+import { commandResult } from "../../../types";
+import { isString, isPromise, isNil, objDefaultsDeep } from "lightdash";
 
 const MAX_SIZE_MESSAGE = 2000;
 const MAX_SIZE_FILE = 8000000;
-
-const {
-    isString,
-    isPromise,
-    isNil,
-    objDefaultsDeep
-} = require("lightdash");
-
-const eventsDefault = {
-    onSend: () => {}
-};
-
-const dataDefaults = ["", false, [], eventsDefault];
-
-/**
- * Runs data through defaults and transforms
- *
- * @param {any} data
- * @returns {Object}
- */
-const mapData = (data) => {
-    let dataObj = data;
-
-    if (isString(dataObj)) {
-        dataObj = [dataObj];
-    }
-
-    dataObj = objDefaultsDeep(dataObj, dataDefaults);
-
-    return {
-        text: dataObj[0],
-        code: dataObj[1],
-        files: dataObj[2],
-        events: dataObj[3]
-    };
-};
 
 /**
  * Sends a message
@@ -49,8 +21,7 @@ const mapData = (data) => {
  * @param {Array<any>} files
  */
 const send = (app, msg, text, code, files, events) => {
-    msg
-        .channel
+    msg.channel
         .send(text, {
             code,
             files
@@ -71,7 +42,8 @@ const send = (app, msg, text, code, files, events) => {
  * @param {string} text
  * @param {any} [files=[]]
  */
-const sendError = (app, msg, text, files = []) => send(app, msg, text, true, files, eventsDefault);
+const sendError = (app, msg, text, files = []) =>
+    send(app, msg, text, true, files, eventsDefault);
 
 /**
  *  Checks if a message can be sent and continues
@@ -82,12 +54,7 @@ const sendError = (app, msg, text, files = []) => send(app, msg, text, true, fil
  * @param {boolean} [isError=false]
  */
 const pipeThroughChecks = (app, msg, data, isError = false) => {
-    const {
-        text,
-        code,
-        files,
-        events,
-    } = mapData(data);
+    const { text, code, files, events } = mapData(data);
 
     if (text.length === 0) {
         app.log.notice("Empty");
@@ -131,8 +98,12 @@ const pipeThroughChecks = (app, msg, data, isError = false) => {
  * @param {Message} msg
  * @param {Array<any>|Promise} data
  */
-module.exports = (app, msg, data) => {
-    const content = data.result;
+const sendMessage = (
+    app: IDingy,
+    msg: Message,
+    commandResult: commandResult
+) => {
+    const content = commandResult.result;
 
     if (isNil(content)) {
         app.log.error("ErrorInContent", {
@@ -142,13 +113,20 @@ module.exports = (app, msg, data) => {
         content
             .then(contentResolved => {
                 app.log.debug("TextAsync");
-                pipeThroughChecks(app, msg, contentResolved, !data.success);
+                pipeThroughChecks(
+                    app,
+                    msg,
+                    contentResolved,
+                    !commandResult.success
+                );
             })
             .catch(err => {
                 app.log.error("ErrorInPromise", err);
             });
     } else {
         app.log.debug("TextSync");
-        pipeThroughChecks(app, msg, content, !data.success);
+        pipeThroughChecks(app, msg, content, !commandResult.success);
     }
 };
+
+export default sendMessage;
