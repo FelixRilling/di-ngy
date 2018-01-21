@@ -3,48 +3,15 @@ import {
     IDingy,
     IDingyConfigRole,
     IDingyCommand,
-    IDingyCommandLookup,
+    IDingyCommandArg,
+    IDingyLookupSuccessful,
+    IDingyLookupUnsuccessful,
+    IDingyCommandResolved,
     IDingyMessageResultEvents,
     IDingyMessageResultExpanded
 } from "../../../interfaces";
 import humanizeListOptionals from "../../util/humanizeListOptionals";
-import { isString, objDefaultsDeep } from "lightdash";
-
-const eventsDefault: IDingyMessageResultEvents = {
-    onSend: () => {}
-};
-
-const dataDefaults: IDingyMessageResultExpanded = [
-    "",
-    false,
-    [],
-    eventsDefault
-];
-
-/**
- * Runs data through defaults and transforms
- *
- * @param {any} data
- * @returns {Object}
- */
-const mapResult = data => {
-    /*     let dataObj = data;
-
-    if (isString(dataObj)) {
-        dataObj = [dataObj];
-    }
-
-    dataObj = objDefaultsDeep(dataObj, dataDefaults);
-
-    return {
-        text: dataObj[0],
-        code: dataObj[1],
-        files: dataObj[2],
-        events: dataObj[3]
-    }; */
-
-    return null;
-};
+import { normalizeMessage } from "./normalizeMessage";
 
 const hasPermissions = (
     powerRequired: number,
@@ -59,20 +26,14 @@ const hasPermissions = (
     return Math.max(...checkResults) >= powerRequired;
 };
 
-/**
- * Resolves a command string input
- *
- * @param {string} str
- * @param {Message} msg
- * @param {Dingy} app
- * @returns {Array<any>|false}
- */
 const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
-    /* const commandLookup: IDingyCommandLookup = app.cli.parse(str);
+    const commandLookup:
+        | IDingyLookupSuccessful
+        | IDingyLookupUnsuccessful = app.cli.parse(str);
 
     // Command check
     if (commandLookup.success) {
-        const command = commandLookup.command;
+        const command = (<IDingyLookupSuccessful>commandLookup).command;
 
         // Permission check
         if (
@@ -105,7 +66,7 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
                 : false;
         }
     } else {
-        const error = commandLookup.error;
+        const error = (<IDingyLookupUnsuccessful>commandLookup).error;
 
         if (error.type === "missingCommand") {
             if (app.config.options.answerToMissingCommand) {
@@ -130,7 +91,9 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
             }
         } else if (error.type === "missingArg") {
             if (app.config.options.answerToMissingArgs) {
-                const missingNames = error.missing.map(item => item.name);
+                const missingNames = (<IDingyCommandArg[]>error.missing).map(
+                    item => item.name
+                );
 
                 return {
                     result: `${
@@ -144,10 +107,10 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
         } else {
             return false;
         }
-    } */
+    }
 };
 
 const resolveCommand = (str: string, msg: Message, app: IDingy) =>
-    mapResult(resolveCommandResult(str, msg, app));
+    normalizeMessage(resolveCommandResult(str, msg, app));
 
 export default resolveCommand;

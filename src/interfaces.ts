@@ -1,10 +1,6 @@
-import { Client, GuildMember, Guild, Message } from "discord.js";
-import {
-    IClingyCommand,
-    IClingyCommands,
-    IClingyLookupSuccessful
-} from "cli-ngy/src/interfaces";
-import { commandFn } from "./types";
+import { Client, GuildMember, Guild, Message, Attachment } from "discord.js";
+import { IClingyCommand, IClingyCommands } from "cli-ngy/src/interfaces";
+import { commandFn, commandResult } from "./types";
 
 interface IDingy {
     config: IDingyConfig;
@@ -97,22 +93,37 @@ interface IDingyCommands extends IClingyCommands {
     [key: string]: IDingyCommand;
 }
 
-interface IDlingyLookupSuccessful {
-    success: boolean;
+interface IDingyLookupSuccessful {
+    success: true;
     command: IDingyCommand;
+    path: string[];
+    pathDangling: string[];
+    args?: { [key: string]: any; _all: string[] };
+}
+
+interface IDingyLookupUnsuccessful {
+    success: false;
+    error: {
+        type: "missingCommand" | "missingArg";
+        missing: string[] | IDingyCommandArg[];
+        similar?: string[];
+    };
+    path?: string[];
 }
 
 interface IDingyCommandResolved {
     success: boolean;
-    result: IDingyMessageResultExpanded;
+    result: commandResult;
+    ignore?: boolean;
 }
 
 interface IDingyMessageResultExpanded {
     0: string;
     1?: boolean | string;
-    2?: string[];
+    2?: string[] | Attachment[];
     3?: IDingyMessageResultEvents;
 }
+
 interface IDingyMessageResultEvents {
     onSend: (msg: Message) => void;
 }
@@ -126,7 +137,8 @@ export {
     IDingyCommand,
     IDingyCommandArg,
     IDingyCommands,
-    IDingyCommandLookup,
+    IDingyLookupSuccessful,
+    IDingyLookupUnsuccessful,
     IDingyCommandResolved,
     IDingyMessageResultExpanded,
     IDingyMessageResultEvents

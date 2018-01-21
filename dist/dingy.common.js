@@ -8,18 +8,19 @@ var discord_js = require('discord.js');
 
 const mapCommand = (key, command) => {
     const result = command;
-    result.powerRequired = !lightdash.isUndefined(result.powerRequired)
+    result.powerRequired = lightdash.isDefined(result.powerRequired)
         ? result.powerRequired
         : 0;
-    result.hidden = !lightdash.isUndefined(result.hidden) ? result.hidden : false;
-    result.help = !lightdash.isUndefined(result.help) ? result.help : {};
-    result.help.short = !lightdash.isUndefined(result.help.short)
+    result.hidden = lightdash.isDefined(result.hidden) ? result.hidden : false;
+    result.help = lightdash.isDefined(result.help) ? result.help : {};
+    result.help.short = lightdash.isDefined(result.help.short)
         ? result.help.short
         : "No help provided";
-    result.help.long = !lightdash.isUndefined(result.help.long)
+    result.help.long = lightdash.isDefined(result.help.long)
         ? result.help.long
         : result.help.short;
-    result.args.map(arg => (!lightdash.isUndefined(arg.help) ? arg.help : "No help provided"));
+    result.args = lightdash.isDefined(result.args) ? result.args : [];
+    result.args.map(arg => (lightdash.isDefined(arg.help) ? arg.help : "No help provided"));
     if (result.sub) {
         result.sub = lightdash.objMap(result.sub, mapCommand);
     }
@@ -27,13 +28,207 @@ const mapCommand = (key, command) => {
 };
 const mapCommands = (commands) => lightdash.objMap(commands, mapCommand);
 
-//import sendMessage from "./lib/sendMessage";
 /**
- * onMessage event
+ * Turns an array into a humanized string of optionals
  *
-{Message} msg
-{Dingy} app
+ * @param {Array<string>} arr
+ * @returns {string}
  */
+const humanizeListOptionals = (arr) => arr
+    .map((item, index, data) => {
+    if (index === 0) {
+        return `'${item}'`;
+    }
+    else if (index < data.length - 1) {
+        return `, '${item}'`;
+    }
+    else {
+        return ` or '${item}'`;
+    }
+})
+    .join("");
+
+const eventsDefault = {
+    onSend: () => { }
+};
+const dataDefaults = [
+    "",
+    false,
+    [],
+    eventsDefault
+];
+const dataFromValue = (val) => lightdash.objDefaultsDeep(lightdash.isString(val) ? [val] : val, dataDefaults);
+const normalizeMessage = (data) => {
+    if (data === false) {
+        return {
+            success: true,
+            ignore: true,
+            result: dataDefaults
+        };
+    }
+    data.ignore = false;
+    data.result = dataFromValue(data.result);
+    return data;
+};
+
+const hasPermissions = (powerRequired, roles, member, guild) => {
+    const checkResults = roles.map(role => (role.check(member, guild) ? role.power : 0));
+    return Math.max(...checkResults) >= powerRequired;
+};
+const resolveCommandResult = (str, msg, app) => {
+    const commandLookup = app.cli.parse(str);
+    // Command check
+    if (commandLookup.success) {
+        const command = commandLookup.command;
+        // Permission check
+        if (hasPermissions(command.powerRequired, app.config.roles, msg.member, msg.guild)) {
+            // Run command fn
+            const result = command.fn(commandLookup.args, msg, app, commandLookup, msg.attachments);
+            return {
+                result,
+                success: true
+            };
+        }
+        else {
+            return app.config.options.answerToMissingPerms
+                ? {
+                    result: `${app.strings.errorPermission}`,
+                    success: false
+                }
+                : false;
+        }
+    }
+    else {
+        const error = commandLookup.error;
+        if (error.type === "missingCommand") {
+            if (app.config.options.answerToMissingCommand) {
+                const content = [
+                    `${app.strings.errorUnknownCommand} '${error.missing}'`
+                ];
+                if (error.similar.length > 0) {
+                    content.push(`${app.strings.infoSimilar} ${humanizeListOptionals(error.similar)}?`);
+                }
+                return {
+                    result: content.join("\n"),
+                    success: false
+                };
+            }
+            else {
+                return false;
+            }
+        }
+        else if (error.type === "missingArg") {
+            if (app.config.options.answerToMissingArgs) {
+                const missingNames = error.missing.map(item => item.name);
+                return {
+                    result: `${app.strings.errorMissingArgs} ${missingNames.join(",")}`,
+                    success: false
+                };
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+};
+const resolveCommand = (str, msg, app) => normalizeMessage(resolveCommandResult(str, msg, app));
+
+const MAX_SIZE_MESSAGE = 2000;
+const MAX_SIZE_FILE = 8000000;
+/**
+ * Sends a message
+ *
+ * @param {Dingy} app
+ * @param {Message} msg
+ * @param {string} text
+ * @param {boolean|string} code
+ * @param {Array<any>} files
+ */
+const send = (app, msg, content) => msg.channel
+    .send(content[0], {
+    code: content[1],
+    attachments: content[2]
+})
+    .then(msgSent => {
+    //app.log.debug("SentMsg");
+    content[3].onSend(msgSent);
+})
+    .catch(err => {
+    //app.log.error("SentMsgError", err);
+});
+/**
+ *  Checks if a message can be sent and continues
+ *
+ * @param {any} app
+ * @param {any} msg
+ * @param {any} data
+ * @param {boolean} [isError=false]
+ */
+const pipeThroughChecks = (app, msg, commandResult, content) => {
+    if (content[0].length === 0) {
+        //app.log.notice("Empty");
+        send(app, msg, dataFromValue(app.strings.infoEmpty));
+    }
+    else if (content[0].length > MAX_SIZE_MESSAGE) {
+        if (app.config.options.sendFilesForLongReply) {
+            const outputFile = Buffer.from(content[0]);
+            if (content[0].length > MAX_SIZE_FILE) {
+                //app.log.notice("TooLong", true);
+                send(app, msg, dataFromValue(app.strings.infoTooLong));
+            }
+            else {
+                const outputAttachment = new discord_js.Attachment(outputFile, "output.txt");
+                //app.log.notice("TooLong", true);
+                send(app, msg, [
+                    app.strings.infoTooLong,
+                    true,
+                    [outputAttachment],
+                    eventsDefault
+                ]);
+            }
+        }
+        else {
+            //app.log.notice("TooLong", false);
+            send(app, msg, app.strings.errorTooLong);
+        }
+    }
+    else {
+        //Normal case
+        //app.log.debug("Sending");
+        if (!commandResult.success) {
+            content[1] = true;
+        }
+        send(app, msg, content);
+    }
+};
+/**
+ * Performs checks and waits for promise, then sends a message
+ *
+ * @param {Dingy} app
+ * @param {Message} msg
+ * @param {Array<any>|Promise} data
+ */
+const sendMessage = (app, msg, commandResult) => {
+    const content = commandResult.result;
+    if (lightdash.isPromise(content)) {
+        content
+            .then(contentResolved => {
+            //app.log.debug("TextAsync");
+            pipeThroughChecks(app, msg, commandResult, contentResolved);
+        })
+            .catch(err => {
+            //app.log.error("ErrorInPromise", err);
+        });
+    }
+    else {
+        //app.log.debug("TextSync");
+        pipeThroughChecks(app, msg, commandResult, content);
+    }
+};
+
 const onMessage = (msg, app) => {
     const messageText = msg.content;
     /**
@@ -47,7 +242,15 @@ const onMessage = (msg, app) => {
         !msg.author.bot &&
         messageText.startsWith(app.config.prefix)) {
         const messageCommand = messageText.substr(app.config.prefix.length);
-        
+        const commandResult = resolveCommand(messageCommand, msg, app);
+        //app.log.debug("Resolving", msg.author.id, messageCommand, commandResult);
+        if (commandResult.ignore) {
+            //app.log.debug("Ignoring");
+        }
+        else {
+            sendMessage(app, msg, commandResult);
+            //app.log.debug("Returning", msg.author.id);
+        }
     }
 };
 
@@ -174,7 +377,15 @@ const commandCoreHelp = (args, msg, app) => {
  * @returns {false}
  */
 const commandCoreEval = (args, msg, app) => {
-    return "";
+    let result = "";
+    try {
+        result = eval(args.code);
+    }
+    catch (err) {
+        result = err;
+    }
+    console.log(result);
+    return String(result);
 };
 
 /**
@@ -393,22 +604,18 @@ const Dingy = class {
      * Connect to the Discord API
      */
     connect() {
-        /*         this.log.info("Connect", "Starting");
-
+        //this.log.info("Connect", "Starting");
         this.bot
             .login(this.config.token)
             .then(() => {
-                this.log.info("Connect", "Success");
-                this.bot.user.setActivity(this.strings.currentlyPlaying);
-                this.userEvents.onConnect(this);
-            })
+            //this.log.info("Connect", "Success");
+            this.bot.user.setActivity(this.strings.currentlyPlaying);
+            this.userEvents.onConnect(this);
+        })
             .catch(() => {
-                this.log.error("Connect", "Failure");
-
-                throw new Error(
-                    "An error ocurred connecting to the Discord-API"
-                );
-            }); */
+            //this.log.error("Connect", "Failure");
+            throw new Error("An error ocurred connecting to the Discord-API");
+        });
     }
 };
 

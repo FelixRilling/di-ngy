@@ -119,22 +119,22 @@ const Dingy = class implements IDingy {
      * Connect to the Discord API
      */
     connect() {
-        /*         this.log.info("Connect", "Starting");
+        //this.log.info("Connect", "Starting");
 
         this.bot
             .login(this.config.token)
             .then(() => {
-                this.log.info("Connect", "Success");
+                //this.log.info("Connect", "Success");
                 this.bot.user.setActivity(this.strings.currentlyPlaying);
                 this.userEvents.onConnect(this);
             })
             .catch(() => {
-                this.log.error("Connect", "Failure");
+                //this.log.error("Connect", "Failure");
 
                 throw new Error(
                     "An error ocurred connecting to the Discord-API"
                 );
-            }); */
+            });
     }
 };
 

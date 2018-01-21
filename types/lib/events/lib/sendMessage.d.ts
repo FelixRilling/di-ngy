@@ -1,6 +1,5 @@
 import { Message } from "discord.js";
-import { IDingy } from "../../../interfaces";
-import { commandResult } from "../../../types";
+import { IDingy, IDingyCommandResolved } from "../../../interfaces";
 /**
  * Performs checks and waits for promise, then sends a message
  *
@@ -8,5 +7,5 @@ import { commandResult } from "../../../types";
  * @param {Message} msg
  * @param {Array<any>|Promise} data
  */
-declare const sendMessage: (app: IDingy, msg: Message, commandResult: commandResult) => void;
+declare const sendMessage: (app: IDingy, msg: Message, commandResult: IDingyCommandResolved) => void;
 export default sendMessage;

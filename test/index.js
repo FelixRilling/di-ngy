@@ -1,7 +1,7 @@
 "use strict";
 
-const Dingy = require("./dist/dingy.common");
-const loadAttachment = require("../lib/util/loadAttachment");
+const Dingy = require("../dist/dingy.common");
+//const loadAttachment = require("../lib/util/loadAttachment");
 
 const config = {
     token: process.env.DISCORD_TOKEN_TEST,

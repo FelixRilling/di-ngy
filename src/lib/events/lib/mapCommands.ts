@@ -1,24 +1,25 @@
-import { objMap, isUndefined } from "lightdash";
+import { objMap, isDefined } from "lightdash";
 import { IDingyCommands, IDingyCommand } from "../../../interfaces";
 
 const mapCommand = (key: string, command: any): IDingyCommand => {
     const result = command;
 
-    result.powerRequired = !isUndefined(result.powerRequired)
+    result.powerRequired = isDefined(result.powerRequired)
         ? result.powerRequired
         : 0;
-    result.hidden = !isUndefined(result.hidden) ? result.hidden : false;
+    result.hidden = isDefined(result.hidden) ? result.hidden : false;
 
-    result.help = !isUndefined(result.help) ? result.help : {};
-    result.help.short = !isUndefined(result.help.short)
+    result.help = isDefined(result.help) ? result.help : {};
+    result.help.short = isDefined(result.help.short)
         ? result.help.short
         : "No help provided";
-    result.help.long = !isUndefined(result.help.long)
+    result.help.long = isDefined(result.help.long)
         ? result.help.long
         : result.help.short;
 
+    result.args = isDefined(result.args) ? result.args : [];
     result.args.map(
-        arg => (!isUndefined(arg.help) ? arg.help : "No help provided")
+        arg => (isDefined(arg.help) ? arg.help : "No help provided")
     );
 
     if (result.sub) {

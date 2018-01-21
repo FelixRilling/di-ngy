@@ -17,6 +17,7 @@
         "quotes": ["warn", "double"],
         "semi": ["warn", "always"],
         "no-console": "warn",
-        "indent": "off"
+        "indent": "off",
+        "no-undef": "off"
     }
 }

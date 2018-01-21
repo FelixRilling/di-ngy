@@ -11,21 +11,13 @@
             "module": "dingy",
             "file": "dingy"
         },
-        "external": [
-            "discord.js",
-            "cli-ngy",
-            "lightdash",
-            "make-fetch-happen"
-        ]
+        "external": ["discord.js", "cli-ngy", "lightdash", "make-fetch-happen"]
     },
     "scripts": {
         "start": "node index.js",
         "mock": "node test/",
         "build": "rollup -c ./tasks/rollup.config.js",
-        "build:iife": "rollup -c ./tasks/rollup.config.iife.js",
-        "build:iife-min": "rollup -c ./tasks/rollup.config.iife-min.js",
         "watch": "rollup -c ./tasks/rollup.config.js --watch",
-        "dist": "npm-run-all --parallel build build:iife build:iife-min",
         "lint": "eslint ./src/",
         "test": "jasmine",
         "docs": "jsdoc -c jsdoc.json"
@@ -34,11 +26,7 @@
         "type": "git",
         "url": "git+https://github.com/FelixRilling/di-ngy.git"
     },
-    "keywords": [
-        "bot",
-        "boilerplate",
-        "discord"
-    ],
+    "keywords": ["bot", "boilerplate", "discord"],
     "author": "FelixRilling",
     "license": "MIT",
     "bugs": {

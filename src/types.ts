@@ -8,6 +8,9 @@ type commandFn = (
     attachments: any
 ) => commandResult;
 
-type commandResult = string | IDingyMessageResultExpanded;
+type commandResult =
+    | string
+    | IDingyMessageResultExpanded
+    | Promise<IDingyMessageResultExpanded>;
 
 export { commandFn, commandResult };

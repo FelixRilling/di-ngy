@@ -2,11 +2,18 @@ import { Guild, GuildMember, Message } from "discord.js";
 import {
     IDingy,
     IDingyConfigRole,
-    IDingyMessageResultExpanded,
-    IDingyMessageResultEvents
+    IDingyCommand,
+    IDingyCommandArg,
+    IDingyLookupSuccessful,
+    IDingyLookupUnsuccessful,
+    IDingyCommandResolved,
+    IDingyMessageResultEvents,
+    IDingyMessageResultExpanded
 } from "../../../interfaces";
 import { commandResult } from "../../../types";
-import { isString, isPromise, isNil, objDefaultsDeep } from "lightdash";
+import { isPromise, isNil } from "lightdash";
+import { Attachment } from "discord.js";
+import { dataFromValue, eventsDefault } from "./normalizeMessage";
 
 const MAX_SIZE_MESSAGE = 2000;
 const MAX_SIZE_FILE = 8000000;
@@ -20,30 +27,20 @@ const MAX_SIZE_FILE = 8000000;
  * @param {boolean|string} code
  * @param {Array<any>} files
  */
-const send = (app, msg, text, code, files, events) => {
+const send = (app, msg, content): void =>
     msg.channel
-        .send(text, {
-            code,
-            files
+        .send(content[0], {
+            code: content[1],
+            attachments: content[2]
         })
         .then(msgSent => {
-            app.log.debug("SentMsg");
+            //app.log.debug("SentMsg");
 
-            events.onSend(msgSent);
+            content[3].onSend(msgSent);
         })
-        .catch(err => app.log.error("SentMsgError", err));
-};
-
-/**
- * Error sending shorthand
- *
- * @param {Dingy} app
- * @param {Message} msg
- * @param {string} text
- * @param {any} [files=[]]
- */
-const sendError = (app, msg, text, files = []) =>
-    send(app, msg, text, true, files, eventsDefault);
+        .catch(err => {
+            //app.log.error("SentMsgError", err);
+        });
 
 /**
  *  Checks if a message can be sent and continues
@@ -53,41 +50,49 @@ const sendError = (app, msg, text, files = []) =>
  * @param {any} data
  * @param {boolean} [isError=false]
  */
-const pipeThroughChecks = (app, msg, data, isError = false) => {
-    const { text, code, files, events } = mapData(data);
-
-    if (text.length === 0) {
-        app.log.notice("Empty");
-        sendError(app, msg, app.strings.infoEmpty);
-    } else if (text.length > MAX_SIZE_MESSAGE) {
+const pipeThroughChecks = (
+    app: IDingy,
+    msg: Message,
+    commandResult: IDingyCommandResolved,
+    content: IDingyMessageResultExpanded
+) => {
+    if (content[0].length === 0) {
+        //app.log.notice("Empty");
+        send(app, msg, dataFromValue(app.strings.infoEmpty));
+    } else if (content[0].length > MAX_SIZE_MESSAGE) {
         if (app.config.options.sendFilesForLongReply) {
-            const outputFile = Buffer.from(text);
+            const outputFile = Buffer.from(content[0]);
 
-            if (text.length > MAX_SIZE_FILE) {
-                app.log.notice("TooLong", true);
-                sendError(app, msg, app.strings.infoTooLong);
+            if (content[0].length > MAX_SIZE_FILE) {
+                //app.log.notice("TooLong", true);
+                send(app, msg, dataFromValue(app.strings.infoTooLong));
             } else {
-                const outputAttachment = {
-                    name: "output.txt",
-                    attachment: outputFile
-                };
+                const outputAttachment = new Attachment(
+                    outputFile,
+                    "output.txt"
+                );
 
-                app.log.notice("TooLong", true);
-                sendError(app, msg, app.strings.infoTooLong, outputAttachment);
+                //app.log.notice("TooLong", true);
+                send(app, msg, [
+                    app.strings.infoTooLong,
+                    true,
+                    [outputAttachment],
+                    eventsDefault
+                ]);
             }
         } else {
-            app.log.notice("TooLong", false);
-            sendError(app, msg, app.strings.errorTooLong);
+            //app.log.notice("TooLong", false);
+            send(app, msg, app.strings.errorTooLong);
         }
     } else {
         //Normal case
-        app.log.debug("Sending");
+        //app.log.debug("Sending");
 
-        if (isError) {
-            sendError(app, msg, text);
-        } else {
-            send(app, msg, text, code, files, events);
+        if (!commandResult.success) {
+            content[1] = true;
         }
+
+        send(app, msg, content);
     }
 };
 
@@ -101,31 +106,27 @@ const pipeThroughChecks = (app, msg, data, isError = false) => {
 const sendMessage = (
     app: IDingy,
     msg: Message,
-    commandResult: commandResult
-) => {
+    commandResult: IDingyCommandResolved
+): void => {
     const content = commandResult.result;
 
-    if (isNil(content)) {
-        app.log.error("ErrorInContent", {
-            content
-        });
-    } else if (isPromise(content)) {
-        content
+    if (isPromise(content)) {
+        (<Promise<IDingyMessageResultExpanded>>content)
             .then(contentResolved => {
-                app.log.debug("TextAsync");
-                pipeThroughChecks(
-                    app,
-                    msg,
-                    contentResolved,
-                    !commandResult.success
-                );
+                //app.log.debug("TextAsync");
+                pipeThroughChecks(app, msg, commandResult, contentResolved);
             })
             .catch(err => {
-                app.log.error("ErrorInPromise", err);
+                //app.log.error("ErrorInPromise", err);
             });
     } else {
-        app.log.debug("TextSync");
-        pipeThroughChecks(app, msg, content, !commandResult.success);
+        //app.log.debug("TextSync");
+        pipeThroughChecks(
+            app,
+            msg,
+            commandResult,
+            <IDingyMessageResultExpanded>content
+        );
     }
 };
 

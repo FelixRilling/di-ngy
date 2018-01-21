@@ -9,18 +9,18 @@ import { commandFn } from "../../../types";
  * @param {App} app
  * @returns {false}
  */
-const commandCoreEval: commandFn = (args, msg, app) => {
+const commandCoreEval: commandFn = (args, msg, app): string => {
     let result = "";
-    /*
+
     try {
         result = eval(args.code);
     } catch (err) {
         result = err;
     }
 
-    console.log(result); */
+    console.log(result);
 
-    return "";
+    return String(result);
 };
 
 export default commandCoreEval;
