@@ -1,30 +1,36 @@
 import { objDefaultsDeep, isUndefined } from "lightdash";
-import Log from "log";
+//import Log from "log";
 import Clingy from "cli-ngy";
-import { IClingy } from "cli-ngy/src/interfaces";
 import { Client } from "discord.js";
-import flatCache from "flat-cache";
+//import flatCache from "flat-cache";
 
 import mapCommands from "./lib/events/lib/mapCommands";
-/* import onMessage from "./lib/events/onMessage";
+import onMessage from "./lib/events/onMessage";
 import onError from "./lib/events/onError";
-;*/
 
 import commandsDefault from "./lib/defaults/commands.default";
 import configDefault from "./lib/defaults/config.default";
 import stringsDefault from "./lib/defaults/strings.default";
 import userEventsDefault from "./lib/defaults/userEvents.default";
-import { IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interfaces";
+
+import { IClingy } from "cli-ngy/src/interfaces";
+import {
+    IDingy,
+    IDingyStrings,
+    IDingyConfig,
+    IDingyUserEvents
+} from "./interfaces";
 
 /**
  * Di-ngy class
  *
  * @class
  */
-const Dingy = class {
+const Dingy = class implements IDingy {
     public config: IDingyConfig;
     public strings: IDingyStrings;
     public userEvents: IDingyUserEvents;
+
     public data: object;
     public dataPersisted: object;
 
@@ -61,7 +67,7 @@ const Dingy = class {
             userEventsDefault
         );
 
-        this.log = new Log(this.config.options.logLevel);
+        this.log = null;
         //this.log.debug("Init", "Loaded Config");
 
         this.cli = new Clingy(
@@ -76,13 +82,13 @@ const Dingy = class {
         /**
          * Bootstraps Client
          */
-        /*         this.bot = new Discord.Client();
-        this.log.debug("Init", "Created Discord Client");
+        this.bot = new Client();
+        //this.log.debug("Init", "Created Discord Client");
 
         this.data = {};
         this.dataPersisted = {};
 
-        this.config.dataPersisted.files.forEach(fileName => {
+        /*this.config.dataPersisted.files.forEach(fileName => {
             this.dataPersisted[fileName] = flatCache.load(
                 `${fileName}.json`,
                 this.config.dataPersisted.dir
@@ -93,21 +99,21 @@ const Dingy = class {
         /**
          * Binds events
          */
-        /*         this.bot.on("message", msg => {
+        this.bot.on("message", msg => {
             onMessage(msg, this);
             this.userEvents.onMessage(msg, this);
         });
         this.bot.on("disconnect", err => {
-            this.log.warning("Disconnect", err);
+            //this.log.warning("Disconnect", err);
             onError(err, this);
         });
         this.bot.on("error", err => {
-            this.log.error("Error", err);
+            //this.log.error("Error", err);
             onError(err, this);
         });
 
-        this.log.info("Init", "Success");
-        this.userEvents.onInit(this);*/
+        //this.log.info("Init", "Success");
+        this.userEvents.onInit(this);
     }
     /**
      * Connect to the Discord API

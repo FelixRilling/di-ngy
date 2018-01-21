@@ -1,5 +1,5 @@
-import { IClingy } from "cli-ngy/src/interfaces";
 import { Client } from "discord.js";
+import { IClingy } from "cli-ngy/src/interfaces";
 import { IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interfaces";
 /**
  * Di-ngy class

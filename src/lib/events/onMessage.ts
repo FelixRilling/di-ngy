@@ -1,15 +1,16 @@
-"use strict";
+import { Message } from "discord.js";
+import { IDingy } from "../../interfaces";
 
-const resolveCommand = require("./lib/resolveCommand");
-const sendMessage = require("./lib/sendMessage");
+/* const resolveCommand = require("./lib/resolveCommand");
+const sendMessage = require("./lib/sendMessage"); */
 
 /**
  * onMessage event
  *
- * @param {Message} msg
- * @param {Dingy} app
+{Message} msg
+{Dingy} app
  */
-module.exports = (msg, app) => {
+const onMessage = (msg: Message, app: IDingy): void => {
     const messageText = msg.content;
 
     /**
@@ -19,8 +20,12 @@ module.exports = (msg, app) => {
      *    NOT from a bot
      *    DOES start with prefix
      */
-    if (!msg.system && !msg.author.bot && messageText.startsWith(app.config.prefix)) {
-        const messageCommand = messageText.substr(app.config.prefix.length);
+    if (
+        !msg.system &&
+        !msg.author.bot &&
+        messageText.startsWith(app.config.prefix)
+    ) {
+        /* const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
 
         app.log.debug("Resolving", msg.author.id, messageCommand, commandResult);
@@ -31,6 +36,8 @@ module.exports = (msg, app) => {
             sendMessage(app, msg, commandResult);
         } else {
             app.log.debug("Ignoring");
-        }
+        } */
     }
 };
+
+export default onMessage;

@@ -1,6 +1,6 @@
 import { isUndefined, objDefaultsDeep, objMap } from 'lightdash';
-import Log from 'log';
 import Clingy from 'cli-ngy';
+import { Client } from 'discord.js';
 
 const mapCommand = (key, command) => {
     const result = command;
@@ -22,6 +22,55 @@ const mapCommand = (key, command) => {
     return result;
 };
 const mapCommands = (commands) => objMap(commands, mapCommand);
+
+/* const resolveCommand = require("./lib/resolveCommand");
+const sendMessage = require("./lib/sendMessage"); */
+/**
+ * onMessage event
+ *
+{Message} msg
+{Dingy} app
+ */
+const onMessage = (msg, app) => {
+    const messageText = msg.content;
+    /**
+     * Basic Check
+     * Conditions:
+     *    NOT from the system
+     *    NOT from a bot
+     *    DOES start with prefix
+     */
+    if (!msg.system &&
+        !msg.author.bot &&
+        messageText.startsWith(app.config.prefix)) {
+        /* const messageCommand = messageText.substr(app.config.prefix.length);
+        const commandResult = resolveCommand(messageCommand, msg, app);
+
+        app.log.debug("Resolving", msg.author.id, messageCommand, commandResult);
+
+        //commandResult is false if the message should be ignored
+        if (commandResult !== false) {
+            app.log.debug("Returning", msg.author.id);
+            sendMessage(app, msg, commandResult);
+        } else {
+            app.log.debug("Ignoring");
+        } */
+    }
+};
+
+const RECONNECT_TIMEOUT = 10000;
+/**
+ * onError event
+ *
+ * @param {Error} err
+ * @param {Dingy} app
+ */
+const onError = (err, app) => {
+    app.log.error("Reconnect", `Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
+    app.bot.setTimeout(() => {
+        app.connect();
+    }, RECONNECT_TIMEOUT);
+};
 
 /*
 const jsonToYaml = require("../../util/jsonToYaml"); */
@@ -153,7 +202,6 @@ const commandCoreEcho = args => args.text;
  */
 const commandCoreDie = (args, msg, app) => {
     app.bot.setTimeout(() => {
-        // @ts-ignore
         process.exit();
     }, 1000);
     return "Shutting down.";
@@ -278,13 +326,12 @@ const stringsDefault = {
 
 const userEventsDefault = {
     onInit: () => { },
-    onMessage: () => { },
-    onConnect: () => { }
+    onConnect: () => { },
+    onMessage: () => { }
 };
 
-/* import onMessage from "./lib/events/onMessage";
-import onError from "./lib/events/onError";
-;*/
+//import Log from "log";
+//import flatCache from "flat-cache";
 /**
  * Di-ngy class
  *
@@ -310,7 +357,7 @@ const Dingy = class {
         this.config = objDefaultsDeep(config, configDefault);
         this.strings = objDefaultsDeep(strings, stringsDefault);
         this.userEvents = objDefaultsDeep(userEvents, userEventsDefault);
-        this.log = new Log(this.config.options.logLevel);
+        this.log = null;
         //this.log.debug("Init", "Loaded Config");
         this.cli = new Clingy(mapCommands(objDefaultsDeep(commands, commandsDefault)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
@@ -320,13 +367,11 @@ const Dingy = class {
         /**
          * Bootstraps Client
          */
-        /*         this.bot = new Discord.Client();
-        this.log.debug("Init", "Created Discord Client");
-
+        this.bot = new Client();
+        //this.log.debug("Init", "Created Discord Client");
         this.data = {};
         this.dataPersisted = {};
-
-        this.config.dataPersisted.files.forEach(fileName => {
+        /*this.config.dataPersisted.files.forEach(fileName => {
             this.dataPersisted[fileName] = flatCache.load(
                 `${fileName}.json`,
                 this.config.dataPersisted.dir
@@ -336,21 +381,20 @@ const Dingy = class {
         /**
          * Binds events
          */
-        /*         this.bot.on("message", msg => {
+        this.bot.on("message", msg => {
             onMessage(msg, this);
             this.userEvents.onMessage(msg, this);
         });
         this.bot.on("disconnect", err => {
-            this.log.warning("Disconnect", err);
+            //this.log.warning("Disconnect", err);
             onError(err, this);
         });
         this.bot.on("error", err => {
-            this.log.error("Error", err);
+            //this.log.error("Error", err);
             onError(err, this);
         });
-
-        this.log.info("Init", "Success");
-        this.userEvents.onInit(this);*/
+        //this.log.info("Init", "Success");
+        this.userEvents.onInit(this);
     }
     /**
      * Connect to the Discord API

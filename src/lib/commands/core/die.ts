@@ -10,7 +10,6 @@ import { commandFn } from "../../../types";
  */
 const commandCoreDie: commandFn = (args, msg, app) => {
     app.bot.setTimeout(() => {
-        // @ts-ignore
         process.exit();
     }, 1000);
 

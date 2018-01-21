@@ -2,8 +2,8 @@ import { IDingyUserEvents } from "../../interfaces";
 
 const userEventsDefault: IDingyUserEvents = {
     onInit: () => {},
-    onMessage: () => {},
-    onConnect: () => {}
+    onConnect: () => {},
+    onMessage: () => {}
 };
 
 export default userEventsDefault;
