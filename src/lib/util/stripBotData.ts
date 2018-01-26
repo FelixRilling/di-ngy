@@ -1,9 +1,7 @@
 "use strict";
 
-const {
-    decycle
-} = require("./lib/cycle");
-const {
+import decycle from "./decycle";
+import {
     isObject,
     isNil,
     isString,
@@ -12,7 +10,7 @@ const {
     isBoolean,
     isFunction,
     objEntries
-} = require("lightdash");
+} from "lightdash";
 
 const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 
@@ -22,7 +20,7 @@ const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
  * @param {any} value
  * @returns {boolean}
  */
-const isLegalValue = value => !isNil(value) && !isFunction(value);
+const isLegalValue = (value: any): boolean => !isNil(value) && !isFunction(value);
 
 /**
  * Checks if a entry is to be kept in a filter iterator
@@ -30,7 +28,7 @@ const isLegalValue = value => !isNil(value) && !isFunction(value);
  * @param {Array<any>} entry
  * @returns {boolean}
  */
-const isLegalEntry = entry => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
+const isLegalEntry = (entry: [string, any]): boolean => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
 
 
 /**
@@ -39,7 +37,7 @@ const isLegalEntry = entry => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry
  * @param {any} val
  * @returns {any}
  */
-const strip = (val) => {
+const strip = (val: any): any => {
     if (isString(val) || isNumber(val) || isBoolean(val)) {
         return val;
     } else if (isArray(val)) {
@@ -65,4 +63,6 @@ const strip = (val) => {
  * @param {Object} obj
  * @returns {any}
  */
-module.exports = (obj) => strip(decycle(obj));
+const stripBotData = (obj: any): any => strip(decycle(obj));
+
+export default stripBotData;

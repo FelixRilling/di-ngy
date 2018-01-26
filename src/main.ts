@@ -54,7 +54,7 @@ const Dingy = class implements IDingy {
         userEvents: any = {}
     ) {
         if (isUndefined(config.token)) {
-            throw new Error("No token provided!");
+            throw new Error("No token provided");
         }
 
         /**
@@ -81,7 +81,7 @@ const Dingy = class implements IDingy {
                 new transports.File({ filename: "bot.log" })
             ]
         });
-        this.logger.info("init: Loaded Config");
+        this.logger.info("Init: Loaded Config");
 
         this.cli = new Clingy(
             mapCommands(objDefaultsDeep(commands, commandsDefault)),
@@ -90,13 +90,13 @@ const Dingy = class implements IDingy {
                 validQuotes: this.config.options.validQuotes
             }
         );
-        this.logger.info("init: Created Clingy");
+        this.logger.info("Init: Created Clingy");
 
         /**
          * Bootstraps Client
          */
         this.bot = new Client();
-        this.logger.info("init: Created Discord Client");
+        this.logger.info("Init: Created Discord Client");
 
         this.data = {};
         this.dataPersisted = {};
@@ -107,7 +107,7 @@ const Dingy = class implements IDingy {
                 this.config.dataPersisted.dir
             );
         });
-        this.logger.info("init: Loaded Data");
+        this.logger.info("Init: Loaded Data");
 
         /**
          * Binds events
@@ -116,8 +116,8 @@ const Dingy = class implements IDingy {
             onMessage(msg, this);
             this.userEvents.onMessage(msg, this);
         });
-        this.bot.on("disconnect", err => {
-            this.logger.error("disconnect", err);
+        this.bot.on("disConnect", err => {
+            this.logger.error("disConnect", err);
             onError(err, this);
         });
         this.bot.on("error", err => {
@@ -125,27 +125,27 @@ const Dingy = class implements IDingy {
             onError(err, this);
         });
 
-        this.logger.info("init: Success");
+        this.logger.info("Init: Success");
         this.userEvents.onInit(this);
     }
     /**
      * Connect to the Discord API
      */
     connect() {
-        this.logger.info("connect: starting");
+        this.logger.info("Connect: starting");
 
         this.bot
             .login(this.config.token)
             .then(() => {
-                this.logger.info("connect: Success");
+                this.logger.info("Connect: Success");
                 this.bot.user.setActivity(this.strings.currentlyPlaying);
                 this.userEvents.onConnect(this);
             })
             .catch(() => {
-                this.logger.error("connect: error");
+                this.logger.error("Connect: error");
 
                 throw new Error(
-                    "An error ocurred connecting to the Discord-API"
+                    "An error ocurred Connecting to the Discord API"
                 );
             });
     }
