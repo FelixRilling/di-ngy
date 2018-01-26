@@ -1,4 +1,4 @@
-import { Client, GuildMember, Guild, Message, Attachment } from "discord.js";
+import { Client, GuildMember, Guild, Message, Attachment, User, GuildChannel, MessageAttachment } from "discord.js";
 import { IClingyOptionsDefaulted } from "cli-ngy/src/interfaces";
 import { commandFn, commandResult } from "./types";
 
@@ -86,6 +86,12 @@ interface IDingyCommands {
     [key: string]: IDingyCommand;
 }
 
+interface IDingyCommandResolved {
+    success: boolean;
+    result: commandResult;
+    ignore?: boolean;
+}
+
 interface IDingyLookupSuccessful {
     success: true;
     command: IDingyCommand;
@@ -102,12 +108,6 @@ interface IDingyLookupUnsuccessful {
         similar?: string[];
     };
     path?: string[];
-}
-
-interface IDingyCommandResolved {
-    success: boolean;
-    result: commandResult;
-    ignore?: boolean;
 }
 
 interface IDingyMessageResultExpanded {
@@ -136,6 +136,19 @@ interface IDingyCli {
     parse(input: string): IDingyLookupSuccessful | IDingyLookupUnsuccessful;
 }
 
+interface IDingyUtils {
+    decycle: (object: any, replacer?: any) => any;
+    humanizeList: (arr: string[]) => string;
+    humanizeListOptionals: (arr: string[]) => string;
+    jsonToYaml: (obj: any) => string;
+    loadAttachment: (attachment: MessageAttachment) => Promise<string>;
+    resolveChannel: (channelResolvable: string, guild: Guild) => GuildChannel;
+    resolveMember: (memberResolvable: string, guild: Guild) => GuildMember;
+    resolveUser: (userResolveable: string, bot: Client) => Promise<User>;
+    stripBotData: (obj: any) => any;
+    toFullName: (user: User) => string;
+}
+
 interface IDingy {
     config: IDingyConfig;
     strings: IDingyStrings;
@@ -144,9 +157,10 @@ interface IDingy {
     data: object;
     dataPersisted: object;
 
+    bot: Client;
     cli: IDingyCli;
     logger: any;
-    bot: Client;
+    util: IDingyUtils,
 
     connect: () => void;
 }
@@ -154,6 +168,7 @@ interface IDingy {
 export {
     IDingy,
     IDingyCli,
+    IDingyUtils,
     IDingyStrings,
     IDingyConfig,
     IDingyConfigRole,

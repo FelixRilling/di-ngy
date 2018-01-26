@@ -5,6 +5,7 @@ import { Client } from "discord.js";
 import flatCache from "flat-cache";
 
 import mapCommands from "./lib/events/lib/mapCommands";
+import util from "./lib/util/index";
 import onMessage from "./lib/events/onMessage";
 import onError from "./lib/events/onError";
 
@@ -18,7 +19,8 @@ import {
     IDingyCli,
     IDingyStrings,
     IDingyConfig,
-    IDingyUserEvents
+    IDingyUserEvents,
+    IDingyUtils
 } from "./interfaces";
 
 /**
@@ -34,9 +36,10 @@ const Dingy = class implements IDingy {
     public data: object;
     public dataPersisted: object;
 
+    public bot: Client;
     public cli: IDingyCli;
     public logger: any;
-    public bot: Client;
+    public util: IDingyUtils;
 
     /**
      * Creates Di-ngy instance
@@ -56,6 +59,8 @@ const Dingy = class implements IDingy {
         if (isUndefined(config.token)) {
             throw new Error("No token provided");
         }
+
+        this.util = util;
 
         /**
          * Stores instance config

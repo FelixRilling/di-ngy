@@ -1,7 +1,5 @@
 import { commandFn } from "../../../types";
 import { IDingyMessageResultExpanded, IDingy, IDingyCommand, IDingyCommands } from "../../../interfaces";
-import humanizeList from "../../util/humanizeList"
-import jsonToYaml from "../../util/jsonToYaml";
 import { arrFrom } from "lightdash";
 
 /**
@@ -15,7 +13,7 @@ const getHelpAll = (commandsMap: Map<string, IDingyCommand>, app: IDingy): IDing
     const result = {};
 
     commandsMap.forEach((command, commandName) => {
-        const subcommandsList = command.sub !== null ? humanizeList(
+        const subcommandsList = command.sub !== null ? app.util.humanizeList(
 
             arrFrom(command.sub.map.keys())
         ) : null;
@@ -33,7 +31,7 @@ const getHelpAll = (commandsMap: Map<string, IDingyCommand>, app: IDingy): IDing
     });
 
     return [
-        ["Help", app.strings.separator, jsonToYaml(result)].join("\n"),
+        ["Help", app.strings.separator, app.util.jsonToYaml(result)].join("\n"),
         "yaml"
     ];
 };
@@ -55,7 +53,7 @@ const getHelpSingle = (command: IDingyCommand, commandPath: string[], app: IDing
     };
 
     if (command.alias.length > 0) {
-        result.alias = humanizeList(command.alias);
+        result.alias = app.util.humanizeList(command.alias);
     }
 
     if (command.sub !== null) {
@@ -84,7 +82,7 @@ const getHelpSingle = (command: IDingyCommand, commandPath: string[], app: IDing
         [
             `Help for '${commandPath.join(" ")}'`,
             app.strings.separator,
-            jsonToYaml(result)
+            app.util.jsonToYaml(result)
         ].join("\n"),
         "yaml"
     ];

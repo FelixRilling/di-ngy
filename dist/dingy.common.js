@@ -7,6 +7,7 @@ var winston = require('winston');
 var Clingy = _interopDefault(require('cli-ngy'));
 var discord_js = require('discord.js');
 var flatCache = _interopDefault(require('flat-cache'));
+var fetch = _interopDefault(require('make-fetch-happen'));
 
 const mapCommand = (key, command) => {
     const result = command;
@@ -31,6 +32,103 @@ const mapCommand = (key, command) => {
 const mapCommands = (commands) => lightdash.objMap(commands, mapCommand);
 
 /**
+ * slightly modified
+ */
+/*
+    cycle.js
+    2017-02-07
+
+    Public Domain.
+
+    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
+    This code should be minified before deployment.
+    See http://javascript.crockford.com/jsmin.html
+
+    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+    NOT CONTROL.
+*/
+// The file uses the WeakMap feature of ES6.
+/*jslint es6, eval */
+/*property
+    $ref, decycle, forEach, get, indexOf, isArray, keys, length, push,
+    retrocycle, set, stringify, test
+*/
+const decycle = (object, replacer) => {
+    // Make a deep copy of an object or array, assuring that there is at most
+    // one instance of each object or array in the resulting structure. The
+    // duplicate references (which might be forming cycles) are replaced with
+    // an object of the form
+    //      {"$ref": PATH}
+    // where the PATH is a JSONPath string that locates the first occurance.
+    // So,
+    //      let a = [];
+    //      a[0] = a;
+    //      return JSON.stringify(JSON.decycle(a));
+    // produces the string '[{"$ref":"$"}]'.
+    // If a replacer function is provided, then it will be called for each value.
+    // A replacer function receives a value and returns a replacement value.
+    // JSONPath is used to locate the unique object. $ indicates the top level of
+    // the object or array. [NUMBER] or [STRING] indicates a child element or
+    // property.
+    const objects = new WeakMap(); // object to path mappings
+    const derez = function derez(value, path) {
+        // The derez function recurses through the object, producing the deep copy.
+        let old_path; // The path of an earlier occurance of value
+        let nu; // The new object or array
+        // If a replacer function was provided, then call it to get a replacement value.
+        if (replacer !== undefined) {
+            value = replacer(value);
+        }
+        // typeof null === "object", so go on if this value is really an object but not
+        // one of the weird builtin objects.
+        if (lightdash.isObjectLike(value) &&
+            !lightdash.isBoolean(value) &&
+            !lightdash.isDate(value) &&
+            !lightdash.isNumber(value) &&
+            !lightdash.isRegExp(value) &&
+            !lightdash.isString(value)) {
+            // If the value is an object or array, look to see if we have already
+            // encountered it. If so, return a {"$ref":PATH} object. This uses an
+            // ES6 WeakMap.
+            old_path = objects.get(value);
+            if (old_path !== undefined) {
+                return {
+                    $ref: old_path
+                };
+            }
+            // Otherwise, accumulate the unique value and its path.
+            objects.set(value, path);
+            // If it is an array, replicate the array.
+            if (lightdash.isArray(value)) {
+                nu = [];
+                value.forEach((element, i) => {
+                    nu[i] = derez(element, path + "[" + i + "]");
+                });
+            }
+            else {
+                // If it is an object, replicate the object.
+                nu = {};
+                lightdash.objKeys(value).forEach((name) => {
+                    nu[name] = derez(value[name], path + "[" + JSON.stringify(name) + "]");
+                });
+            }
+            return nu;
+        }
+        return value;
+    };
+    return derez(object, "$");
+};
+
+/**
+ * Turns an array into a humanized string
+ *
+ * @param {Array<string>} arr
+ * @returns {string}
+ */
+const humanizeList = (arr) => arr.join(", ");
+
+/**
  * Turns an array into a humanized string of optionals
  *
  * @param {Array<string>} arr
@@ -49,6 +147,172 @@ const humanizeListOptionals = (arr) => arr
     }
 })
     .join("");
+
+const LINEBREAK = "\n";
+const INDENT_CHAR = " ";
+const INDENT_SIZE = 2;
+/**
+ * Indent string by factor
+ *
+ * @param {string} str
+ * @param {number} factor
+ * @returns {string}
+ */
+const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
+/**
+ * Formats JSON as YAML
+ *
+ * @param {any} val
+ * @param {number} [factor=0]
+ * @returns {string}
+ */
+const format$1 = (val, factor = 0) => {
+    if (lightdash.isString(val) && val.length > 0) {
+        return val;
+    }
+    else if (lightdash.isNumber(val) || lightdash.isBoolean(val)) {
+        return String(val);
+    }
+    else if (lightdash.isArray(val) && val.length > 0) {
+        return LINEBREAK + val
+            .filter(item => !lightdash.isFunction(item))
+            .map(item => indent(format$1(item, factor + 1), factor))
+            .join(LINEBREAK);
+    }
+    else if (lightdash.isObject(val) && lightdash.objKeys(val).length > 0) {
+        return LINEBREAK + lightdash.objEntries(val)
+            .filter(entry => !lightdash.isFunction(entry[1]))
+            .map(entry => indent(`${entry[0]}: ${format$1(entry[1], factor + 1)}`, factor))
+            .join(LINEBREAK);
+    }
+    else {
+        return "";
+    }
+};
+/**
+ * Decycles and trims object after formating
+ *
+ * @param {Object} obj
+ * @returns {string}
+ */
+const jsonToYaml = (obj) => format$1(decycle(obj)).replace(/\s+\n/g, "\n").trim();
+
+const nodeFetch = fetch.defaults({
+    cacheManager: "./.cache/"
+});
+/**
+ * Loads an attachment and returns contents
+ *
+ * @param {MessageAttachment} attachment
+ * @returns {Promise}
+ */
+const loadAttachment = (attachment) => new Promise((resolve, reject) => {
+    nodeFetch(attachment.url)
+        .then(response => response.text())
+        .then(resolve)
+        .catch(reject);
+});
+
+/**
+ * resolves channel by id or name
+ *
+ * @param {string} channelResolvable
+ * @param {Guild} guild
+ * @returns {Channel|null}
+ */
+const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable ||
+    channel.name === channelResolvable);
+
+/**
+ * creates user+discrim from user
+ *
+ * @param {User} user
+ * @returns {string}
+ */
+const toFullName = (user) => `${user.username}#${user.discriminator}`;
+
+/**
+ * resolves member by id, username, name#discrim or name
+ *
+ * @param {string} memberResolvable
+ * @param {Guild} guild
+ * @returns {Member|null}
+ */
+const resolveMember = (memberResolvable, guild) => guild.members.find((member, id) => id === memberResolvable ||
+    toFullName(member.user) === memberResolvable ||
+    member.user.username === memberResolvable ||
+    member.nickname === memberResolvable);
+
+/**
+ * resolves user by id
+ *
+ * @param {string} userResolveable
+ * @param {Guild} guild
+ * @returns {Promise}
+ */
+const resolveUser = (userResolveable, bot) => bot.fetchUser(userResolveable);
+
+const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
+/**
+ * Checks if a value is to be kept in a filter iterator
+ *
+ * @param {any} value
+ * @returns {boolean}
+ */
+const isLegalValue = (value) => !lightdash.isNil(value) && !lightdash.isFunction(value);
+/**
+ * Checks if a entry is to be kept in a filter iterator
+ *
+ * @param {Array<any>} entry
+ * @returns {boolean}
+ */
+const isLegalEntry = (entry) => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
+/**
+ * Cycles and strips all illegal values
+ *
+ * @param {any} val
+ * @returns {any}
+ */
+const strip = (val) => {
+    if (lightdash.isString(val) || lightdash.isNumber(val) || lightdash.isBoolean(val)) {
+        return val;
+    }
+    else if (lightdash.isArray(val)) {
+        return val.filter(isLegalValue).map(strip);
+    }
+    else if (lightdash.isObject(val)) {
+        const result = {};
+        lightdash.objEntries(val)
+            .filter(isLegalEntry)
+            .forEach(entry => {
+            result[entry[0]] = strip(entry[1]);
+        });
+        return result;
+    }
+    else {
+        return null;
+    }
+};
+/**
+ * Strips sensitive data from bot output
+ *
+ * @param {Object} obj
+ * @returns {any}
+ */
+const stripBotData = (obj) => strip(decycle(obj));
+
+const util = {
+    decycle,
+    humanizeList,
+    humanizeListOptionals,
+    jsonToYaml,
+    loadAttachment,
+    resolveChannel,
+    resolveMember,
+    resolveUser,
+    stripBotData,
+    toFullName,
+};
 
 const eventsDefault = {
     onSend: () => { }
@@ -108,7 +372,7 @@ const resolveCommandResult = (str, msg, app) => {
                     `${app.strings.errorUnknownCommand} '${error.missing}'`
                 ];
                 if (error.similar.length > 0) {
-                    content.push(`${app.strings.infoSimilar} ${humanizeListOptionals(error.similar)}?`);
+                    content.push(`${app.strings.infoSimilar} ${app.util.humanizeListOptionals(error.similar)}?`);
                 }
                 return {
                     result: content.join("\n"),
@@ -271,152 +535,6 @@ const onError = (err, app) => {
 };
 
 /**
- * Turns an array into a humanized string
- *
- * @param {Array<string>} arr
- * @returns {string}
- */
-const humanizeList = (arr) => arr.join(", ");
-
-/**
- * slightly modified
- */
-/*
-    cycle.js
-    2017-02-07
-
-    Public Domain.
-
-    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
-
-    This code should be minified before deployment.
-    See http://javascript.crockford.com/jsmin.html
-
-    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
-    NOT CONTROL.
-*/
-// The file uses the WeakMap feature of ES6.
-/*jslint es6, eval */
-/*property
-    $ref, decycle, forEach, get, indexOf, isArray, keys, length, push,
-    retrocycle, set, stringify, test
-*/
-const decycle = (object, replacer) => {
-    // Make a deep copy of an object or array, assuring that there is at most
-    // one instance of each object or array in the resulting structure. The
-    // duplicate references (which might be forming cycles) are replaced with
-    // an object of the form
-    //      {"$ref": PATH}
-    // where the PATH is a JSONPath string that locates the first occurance.
-    // So,
-    //      let a = [];
-    //      a[0] = a;
-    //      return JSON.stringify(JSON.decycle(a));
-    // produces the string '[{"$ref":"$"}]'.
-    // If a replacer function is provided, then it will be called for each value.
-    // A replacer function receives a value and returns a replacement value.
-    // JSONPath is used to locate the unique object. $ indicates the top level of
-    // the object or array. [NUMBER] or [STRING] indicates a child element or
-    // property.
-    const objects = new WeakMap(); // object to path mappings
-    const derez = function derez(value, path) {
-        // The derez function recurses through the object, producing the deep copy.
-        let old_path; // The path of an earlier occurance of value
-        let nu; // The new object or array
-        // If a replacer function was provided, then call it to get a replacement value.
-        if (replacer !== undefined) {
-            value = replacer(value);
-        }
-        // typeof null === "object", so go on if this value is really an object but not
-        // one of the weird builtin objects.
-        if (lightdash.isObjectLike(value) &&
-            !lightdash.isBoolean(value) &&
-            !lightdash.isDate(value) &&
-            !lightdash.isNumber(value) &&
-            !lightdash.isRegExp(value) &&
-            !lightdash.isString(value)) {
-            // If the value is an object or array, look to see if we have already
-            // encountered it. If so, return a {"$ref":PATH} object. This uses an
-            // ES6 WeakMap.
-            old_path = objects.get(value);
-            if (old_path !== undefined) {
-                return {
-                    $ref: old_path
-                };
-            }
-            // Otherwise, accumulate the unique value and its path.
-            objects.set(value, path);
-            // If it is an array, replicate the array.
-            if (lightdash.isArray(value)) {
-                nu = [];
-                value.forEach((element, i) => {
-                    nu[i] = derez(element, path + "[" + i + "]");
-                });
-            }
-            else {
-                // If it is an object, replicate the object.
-                nu = {};
-                lightdash.objKeys(value).forEach((name) => {
-                    nu[name] = derez(value[name], path + "[" + JSON.stringify(name) + "]");
-                });
-            }
-            return nu;
-        }
-        return value;
-    };
-    return derez(object, "$");
-};
-
-const LINEBREAK = "\n";
-const INDENT_CHAR = " ";
-const INDENT_SIZE = 2;
-/**
- * Indent string by factor
- *
- * @param {string} str
- * @param {number} factor
- * @returns {string}
- */
-const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
-/**
- * Formats JSON as YAML
- *
- * @param {any} val
- * @param {number} [factor=0]
- * @returns {string}
- */
-const format$1 = (val, factor = 0) => {
-    if (lightdash.isString(val) && val.length > 0) {
-        return val;
-    }
-    else if (lightdash.isNumber(val) || lightdash.isBoolean(val)) {
-        return String(val);
-    }
-    else if (lightdash.isArray(val) && val.length > 0) {
-        return LINEBREAK + val
-            .filter(item => !lightdash.isFunction(item))
-            .map(item => indent(format$1(item, factor + 1), factor))
-            .join(LINEBREAK);
-    }
-    else if (lightdash.isObject(val) && lightdash.objKeys(val).length > 0) {
-        return LINEBREAK + lightdash.objEntries(val)
-            .filter(entry => !lightdash.isFunction(entry[1]))
-            .map(entry => indent(`${entry[0]}: ${format$1(entry[1], factor + 1)}`, factor))
-            .join(LINEBREAK);
-    }
-    else {
-        return "";
-    }
-};
-/**
- * Decycles and trims object after formating
- *
- * @param {Object} obj
- * @returns {string}
- */
-const jsonToYaml = (obj) => format$1(decycle(obj)).replace(/\s+\n/g, "\n").trim();
-
-/**
  * Displays list of all non-hidden commands
  *
  * @param {Object} commands
@@ -426,7 +544,7 @@ const jsonToYaml = (obj) => format$1(decycle(obj)).replace(/\s+\n/g, "\n").trim(
 const getHelpAll = (commandsMap, app) => {
     const result = {};
     commandsMap.forEach((command, commandName) => {
-        const subcommandsList = command.sub !== null ? humanizeList(lightdash.arrFrom(command.sub.map.keys())) : null;
+        const subcommandsList = command.sub !== null ? app.util.humanizeList(lightdash.arrFrom(command.sub.map.keys())) : null;
         if (!command.hidden) {
             if (command.sub) {
                 result[commandName] = {
@@ -440,7 +558,7 @@ const getHelpAll = (commandsMap, app) => {
         }
     });
     return [
-        ["Help", app.strings.separator, jsonToYaml(result)].join("\n"),
+        ["Help", app.strings.separator, app.util.jsonToYaml(result)].join("\n"),
         "yaml"
     ];
 };
@@ -460,7 +578,7 @@ const getHelpSingle = (command, commandPath, app) => {
         sub: null
     };
     if (command.alias.length > 0) {
-        result.alias = humanizeList(command.alias);
+        result.alias = app.util.humanizeList(command.alias);
     }
     if (command.sub !== null) {
         result.sub = lightdash.arrFrom(command.sub.getAll().map.keys());
@@ -481,7 +599,7 @@ const getHelpSingle = (command, commandPath, app) => {
         [
             `Help for '${commandPath.join(" ")}'`,
             app.strings.separator,
-            jsonToYaml(result)
+            app.util.jsonToYaml(result)
         ].join("\n"),
         "yaml"
     ];
@@ -692,6 +810,7 @@ const Dingy = class {
         if (lightdash.isUndefined(config.token)) {
             throw new Error("No token provided");
         }
+        this.util = util;
         /**
          * Stores instance config
          */

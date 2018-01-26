@@ -10,7 +10,6 @@ import {
     IDingyMessageResultEvents,
     IDingyMessageResultExpanded
 } from "../../../interfaces";
-import humanizeListOptionals from "../../util/humanizeListOptionals";
 import { normalizeMessage } from "./normalizeMessage";
 
 const hasPermissions = (
@@ -76,7 +75,7 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
 
                 if (error.similar.length > 0) {
                     content.push(
-                        `${app.strings.infoSimilar} ${humanizeListOptionals(
+                        `${app.strings.infoSimilar} ${app.util.humanizeListOptionals(
                             error.similar
                         )}?`
                     );
