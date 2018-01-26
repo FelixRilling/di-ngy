@@ -1,6 +1,6 @@
 {
     "name": "di-ngy",
-    "version": "4.0.12",
+    "version": "5.0.0",
     "description": "A small discord.js + cli-ngy boilerplate",
     "main": "dist/dingy.common.js",
     "module": "dist/dingy.esm.js",
