@@ -1,14 +1,9 @@
 import { commandFn } from "../../../types";
-
-const jsonToYaml = a => a;
-
-/**
- * Turns an array into a humanized string
- *
- * @param {Array<string>} arr
- * @returns {string}
- */
-const humanizeList = (arr: string[]): string => arr.join(", ");
+import { IDingyMessageResultExpanded, IDingy, IDingyCommand, IDingyCommands } from "../../../interfaces";
+import humanizeList from "../../util/humanizeList"
+import jsonToYaml from "../../util/jsonToYaml";
+import { arrFrom } from "lightdash";
+import { IClingy } from "../../../../../cli-ngy/src/interfaces";
 
 /**
  * Displays list of all non-hidden commands
@@ -17,17 +12,20 @@ const humanizeList = (arr: string[]): string => arr.join(", ");
  * @param {Dingy} app
  * @returns {string}
  */
-const getHelpAll = (commands, app) => {
-    /*     const result = {};
+const getHelpAll = (commandsMap: Map<string, IDingyCommand>, app: IDingy): IDingyMessageResultExpanded => {
+    const result = {};
 
-    commands.map.forEach((command, commandName) => {
+    commandsMap.forEach((command, commandName) => {
+        const subcommandsList = command.sub !== null ? humanizeList(
+            // @ts-ignore
+            arrFrom(command.sub.map.keys())
+        ) : null;
+
         if (!command.hidden) {
             if (command.sub) {
                 result[commandName] = {
                     desc: command.help.short,
-                    subcommands: humanizeList(
-                        Array.from(command.sub.map.keys())
-                    )
+                    subcommands: subcommandsList
                 };
             } else {
                 result[commandName] = command.help.short;
@@ -35,9 +33,10 @@ const getHelpAll = (commands, app) => {
         }
     });
 
-    return ["Help", app.strings.separator, jsonToYaml(result)].join("\n"); */
-
-    return "b";
+    return [
+        ["Help", app.strings.separator, jsonToYaml(result)].join("\n"),
+        "yaml"
+    ];
 };
 
 /**
@@ -48,13 +47,23 @@ const getHelpAll = (commands, app) => {
  * @param {Dingy} app
  * @returns {string}
  */
-const getHelpSingle = (command, commandPath, app) => {
-    /*     const result = {
-        desc: command.help.long
+const getHelpSingle = (command: IDingyCommand, commandPath: string[], app: IDingy): IDingyMessageResultExpanded => {
+    const result = {
+        desc: command.help.long,
+        alias: null,
+        args: null,
+        sub: null
     };
 
     if (command.alias.length > 0) {
         result.alias = humanizeList(command.alias);
+    }
+
+    if (command.sub !== null) {
+        result.sub = arrFrom(
+            // @ts-ignore
+            command.sub.getAll().map.keys()
+        )
     }
 
     if (command.args.length > 0) {
@@ -73,17 +82,14 @@ const getHelpSingle = (command, commandPath, app) => {
         });
     }
 
-    if (command.sub) {
-        result.sub = Array.from(command.sub.getAll().map.keys());
-    }
-
     return [
-        `Help for '${commandPath.join(" ")}'`,
-        app.strings.separator,
-        jsonToYaml(result)
-    ].join("\n"); */
-
-    return "a";
+        [
+            `Help for '${commandPath.join(" ")}'`,
+            app.strings.separator,
+            jsonToYaml(result)
+        ].join("\n"),
+        "yaml"
+    ];
 };
 
 /**
@@ -104,10 +110,12 @@ const commandCoreHelp: commandFn = (args, msg, app) => {
             return `Command '${commandPath.join(" ")}' not found`;
         }
 
+        // @ts-ignore
         return getHelpSingle(commandLookup.command, commandPath, app);
     }
 
-    return getHelpAll(app.cli.getAll(), app);
+    // @ts-ignore
+    return getHelpAll(app.cli.getAll().map, app);
 };
 
 export default commandCoreHelp;

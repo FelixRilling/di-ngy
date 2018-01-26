@@ -1,16 +1,18 @@
 "use strict";
 
-const {
+import {
     decycle
-} = require("./lib/cycle");
-const {
+} from "./lib/cycle";
+import {
+    objEntries,
+    objKeys,
     isObject,
     isArray,
     isFunction,
     isString,
     isNumber,
     isBoolean
-} = require("lightdash");
+} from "lightdash";
 
 const LINEBREAK = "\n";
 const INDENT_CHAR = " ";
@@ -23,7 +25,7 @@ const INDENT_SIZE = 2;
  * @param {number} factor
  * @returns {string}
  */
-const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
+const indent = (str: string, factor: number): string => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
 
 
 /**
@@ -33,7 +35,7 @@ const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
  * @param {number} [factor=0]
  * @returns {string}
  */
-const format = (val, factor = 0) => {
+const format = (val: any, factor: number = 0): string => {
     if (isString(val) && val.length > 0) {
         return val;
     } else if (isNumber(val) || isBoolean(val)) {
@@ -43,8 +45,8 @@ const format = (val, factor = 0) => {
             .filter(item => !isFunction(item))
             .map(item => indent(format(item, factor + 1), factor))
             .join(LINEBREAK);
-    } else if (isObject(val) && Object.keys(val).length > 0) {
-        return LINEBREAK + Object.entries(val)
+    } else if (isObject(val) && objKeys(val).length > 0) {
+        return LINEBREAK + objEntries(val)
             .filter(entry => !isFunction(entry[1]))
             .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
             .join(LINEBREAK);
@@ -59,4 +61,6 @@ const format = (val, factor = 0) => {
  * @param {Object} obj
  * @returns {string}
  */
-module.exports = (obj) => format(decycle(obj)).replace(/\s+\n/g, "\n").trim();
+const jsonToYaml = (obj: any): string => format(decycle(obj)).replace(/\s+\n/g, "\n").trim();
+
+export default jsonToYaml;

@@ -270,32 +270,180 @@ const onError = (err, app) => {
 };
 
 /**
+ * Turns an array into a humanized string
+ *
+ * @param {Array<string>} arr
+ * @returns {string}
+ */
+const humanizeList = (arr) => arr.join(", ");
+
+/**
+ * slightly modified
+ */
+/*
+    cycle.js
+    2017-02-07
+
+    Public Domain.
+
+    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
+    This code should be minified before deployment.
+    See http://javascript.crockford.com/jsmin.html
+
+    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+    NOT CONTROL.
+*/
+// The file uses the WeakMap feature of ES6.
+/*jslint es6, eval */
+/*property
+    $ref, decycle, forEach, get, indexOf, isArray, keys, length, push,
+    retrocycle, set, stringify, test
+*/
+const decycle = (object, replacer) => {
+    // Make a deep copy of an object or array, assuring that there is at most
+    // one instance of each object or array in the resulting structure. The
+    // duplicate references (which might be forming cycles) are replaced with
+    // an object of the form
+    //      {"$ref": PATH}
+    // where the PATH is a JSONPath string that locates the first occurance.
+    // So,
+    //      let a = [];
+    //      a[0] = a;
+    //      return JSON.stringify(JSON.decycle(a));
+    // produces the string '[{"$ref":"$"}]'.
+    // If a replacer function is provided, then it will be called for each value.
+    // A replacer function receives a value and returns a replacement value.
+    // JSONPath is used to locate the unique object. $ indicates the top level of
+    // the object or array. [NUMBER] or [STRING] indicates a child element or
+    // property.
+    const objects = new WeakMap(); // object to path mappings
+    const derez = function derez(value, path) {
+        // The derez function recurses through the object, producing the deep copy.
+        let old_path; // The path of an earlier occurance of value
+        let nu; // The new object or array
+        // If a replacer function was provided, then call it to get a replacement value.
+        if (replacer !== undefined) {
+            value = replacer(value);
+        }
+        // typeof null === "object", so go on if this value is really an object but not
+        // one of the weird builtin objects.
+        if (lightdash.isObjectLike(value) &&
+            !lightdash.isBoolean(value) &&
+            !lightdash.isDate(value) &&
+            !lightdash.isNumber(value) &&
+            !lightdash.isRegExp(value) &&
+            !lightdash.isString(value)) {
+            // If the value is an object or array, look to see if we have already
+            // encountered it. If so, return a {"$ref":PATH} object. This uses an
+            // ES6 WeakMap.
+            old_path = objects.get(value);
+            if (old_path !== undefined) {
+                return {
+                    $ref: old_path
+                };
+            }
+            // Otherwise, accumulate the unique value and its path.
+            objects.set(value, path);
+            // If it is an array, replicate the array.
+            if (lightdash.isArray(value)) {
+                nu = [];
+                value.forEach((element, i) => {
+                    nu[i] = derez(element, path + "[" + i + "]");
+                });
+            }
+            else {
+                // If it is an object, replicate the object.
+                nu = {};
+                lightdash.objKeys(value).forEach((name) => {
+                    nu[name] = derez(value[name], path + "[" + JSON.stringify(name) + "]");
+                });
+            }
+            return nu;
+        }
+        return value;
+    };
+    return derez(object, "$");
+};
+
+const LINEBREAK = "\n";
+const INDENT_CHAR = " ";
+const INDENT_SIZE = 2;
+/**
+ * Indent string by factor
+ *
+ * @param {string} str
+ * @param {number} factor
+ * @returns {string}
+ */
+const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
+/**
+ * Formats JSON as YAML
+ *
+ * @param {any} val
+ * @param {number} [factor=0]
+ * @returns {string}
+ */
+const format = (val, factor = 0) => {
+    if (lightdash.isString(val) && val.length > 0) {
+        return val;
+    }
+    else if (lightdash.isNumber(val) || lightdash.isBoolean(val)) {
+        return String(val);
+    }
+    else if (lightdash.isArray(val) && val.length > 0) {
+        return LINEBREAK + val
+            .filter(item => !lightdash.isFunction(item))
+            .map(item => indent(format(item, factor + 1), factor))
+            .join(LINEBREAK);
+    }
+    else if (lightdash.isObject(val) && lightdash.objKeys(val).length > 0) {
+        return LINEBREAK + lightdash.objEntries(val)
+            .filter(entry => !lightdash.isFunction(entry[1]))
+            .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
+            .join(LINEBREAK);
+    }
+    else {
+        return "";
+    }
+};
+/**
+ * Decycles and trims object after formating
+ *
+ * @param {Object} obj
+ * @returns {string}
+ */
+const jsonToYaml = (obj) => format(decycle(obj)).replace(/\s+\n/g, "\n").trim();
+
+/**
  * Displays list of all non-hidden commands
  *
  * @param {Object} commands
  * @param {Dingy} app
  * @returns {string}
  */
-const getHelpAll = (commands, app) => {
-    /*     const result = {};
-
-    commands.map.forEach((command, commandName) => {
+const getHelpAll = (commandsMap, app) => {
+    const result = {};
+    commandsMap.forEach((command, commandName) => {
+        const subcommandsList = command.sub !== null ? humanizeList(
+        // @ts-ignore
+        lightdash.arrFrom(command.sub.map.keys())) : null;
         if (!command.hidden) {
             if (command.sub) {
                 result[commandName] = {
                     desc: command.help.short,
-                    subcommands: humanizeList(
-                        Array.from(command.sub.map.keys())
-                    )
+                    subcommands: subcommandsList
                 };
-            } else {
+            }
+            else {
                 result[commandName] = command.help.short;
             }
         }
     });
-
-    return ["Help", app.strings.separator, jsonToYaml(result)].join("\n"); */
-    return "b";
+    return [
+        ["Help", app.strings.separator, jsonToYaml(result)].join("\n"),
+        "yaml"
+    ];
 };
 /**
  * Displays help for a single command
@@ -306,40 +454,40 @@ const getHelpAll = (commands, app) => {
  * @returns {string}
  */
 const getHelpSingle = (command, commandPath, app) => {
-    /*     const result = {
-        desc: command.help.long
+    const result = {
+        desc: command.help.long,
+        alias: null,
+        args: null,
+        sub: null
     };
-
     if (command.alias.length > 0) {
         result.alias = humanizeList(command.alias);
     }
-
+    if (command.sub !== null) {
+        result.sub = lightdash.arrFrom(
+        // @ts-ignore
+        command.sub.getAll().map.keys());
+    }
     if (command.args.length > 0) {
         result.args = {};
-
         command.args.forEach(arg => {
             result.args[arg.name] = {};
-
             if (arg.help) {
                 result.args[arg.name].desc = arg.help;
             }
-
             if (arg.required) {
                 result.args[arg.name].required = arg.required;
             }
         });
     }
-
-    if (command.sub) {
-        result.sub = Array.from(command.sub.getAll().map.keys());
-    }
-
     return [
-        `Help for '${commandPath.join(" ")}'`,
-        app.strings.separator,
-        jsonToYaml(result)
-    ].join("\n"); */
-    return "a";
+        [
+            `Help for '${commandPath.join(" ")}'`,
+            app.strings.separator,
+            jsonToYaml(result)
+        ].join("\n"),
+        "yaml"
+    ];
 };
 /**
  * Displays help
@@ -356,9 +504,11 @@ const commandCoreHelp = (args, msg, app) => {
         if (!commandLookup.success) {
             return `Command '${commandPath.join(" ")}' not found`;
         }
+        // @ts-ignore
         return getHelpSingle(commandLookup.command, commandPath, app);
     }
-    return getHelpAll(app.cli.getAll(), app);
+    // @ts-ignore
+    return getHelpAll(app.cli.getAll().map, app);
 };
 
 /* eslint no-unused-vars: "off", no-console: "off" */

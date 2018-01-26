@@ -1,5 +1,5 @@
 import { Client, GuildMember, Guild, Message, Attachment } from "discord.js";
-import { IClingy, IClingyCommand, IClingyCommands } from "cli-ngy/src/interfaces";
+import { IClingy } from "cli-ngy/src/interfaces";
 import { commandFn, commandResult } from "./types";
 
 interface IDingy {
@@ -70,8 +70,10 @@ interface IDingyUserEvents {
     onMessage: (msg: Message, app: IDingy) => void;
 }
 
-// @ts-ignore
-interface IDingyCommand extends IClingyCommand {
+interface IDingyCommand {
+    alias: string[];
+    sub: IDingyCommands | null;
+
     name?: string;
     fn: commandFn;
     powerRequired: number;
@@ -95,8 +97,7 @@ interface IDingyCommandArgs {
     _all: string[];
 }
 
-// @ts-ignore
-interface IDingyCommands extends IClingyCommands {
+interface IDingyCommands {
     [key: string]: IDingyCommand;
 }
 
@@ -105,7 +106,7 @@ interface IDingyLookupSuccessful {
     command: IDingyCommand;
     path: string[];
     pathDangling: string[];
-    args?: { [key: string]: any; _all: string[] };
+    args?: IDingyCommandArgs;
 }
 
 interface IDingyLookupUnsuccessful {
