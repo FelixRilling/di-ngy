@@ -1,8 +1,8 @@
 import { objDefaultsDeep, isUndefined } from "lightdash";
-//import Log from "log";
+import { createLogger, format, transports } from "winston";
 import Clingy from "cli-ngy";
 import { Client } from "discord.js";
-//import flatCache from "flat-cache";
+import flatCache from "flat-cache";
 
 import mapCommands from "./lib/events/lib/mapCommands";
 import onMessage from "./lib/events/onMessage";
@@ -13,9 +13,9 @@ import configDefault from "./lib/defaults/config.default";
 import stringsDefault from "./lib/defaults/strings.default";
 import userEventsDefault from "./lib/defaults/userEvents.default";
 
-import { IClingy } from "cli-ngy/src/interfaces";
 import {
     IDingy,
+    IDingyCli,
     IDingyStrings,
     IDingyConfig,
     IDingyUserEvents
@@ -34,8 +34,8 @@ const Dingy = class implements IDingy {
     public data: object;
     public dataPersisted: object;
 
-    public cli: IClingy;
-    public log: any;
+    public cli: IDingyCli;
+    public logger: any;
     public bot: Client;
 
     /**
@@ -67,8 +67,21 @@ const Dingy = class implements IDingy {
             userEventsDefault
         );
 
-        this.log = null;
-        //this.log.debug("Init", "Loaded Config");
+        this.logger = createLogger({
+            level: this.config.options.logLevel,
+            exitOnError: false,
+            format: format.combine(
+                format.timestamp(),
+                format.printf(info => {
+                    return `${info.timestamp} [${info.level}] ${info.message}`;
+                })
+            ),
+            transports: [
+                new transports.Console(),
+                new transports.File({ filename: "bot.log" })
+            ]
+        });
+        this.logger.info("init: Loaded Config");
 
         this.cli = new Clingy(
             mapCommands(objDefaultsDeep(commands, commandsDefault)),
@@ -77,24 +90,24 @@ const Dingy = class implements IDingy {
                 validQuotes: this.config.options.validQuotes
             }
         );
-        //this.log.debug("Init", "Created Clingy");
+        this.logger.info("init: Created Clingy");
 
         /**
          * Bootstraps Client
          */
         this.bot = new Client();
-        //this.log.debug("Init", "Created Discord Client");
+        this.logger.info("init: Created Discord Client");
 
         this.data = {};
         this.dataPersisted = {};
 
-        /*this.config.dataPersisted.files.forEach(fileName => {
+        this.config.dataPersisted.files.forEach(fileName => {
             this.dataPersisted[fileName] = flatCache.load(
                 `${fileName}.json`,
                 this.config.dataPersisted.dir
             );
         });
-        this.log.debug("Init", "Loaded Data"); */
+        this.logger.info("init: Loaded Data");
 
         /**
          * Binds events
@@ -104,32 +117,32 @@ const Dingy = class implements IDingy {
             this.userEvents.onMessage(msg, this);
         });
         this.bot.on("disconnect", err => {
-            //this.log.warning("Disconnect", err);
+            this.logger.error("disconnect", err);
             onError(err, this);
         });
         this.bot.on("error", err => {
-            //this.log.error("Error", err);
+            this.logger.error("error", err);
             onError(err, this);
         });
 
-        //this.log.info("Init", "Success");
+        this.logger.info("init: Success");
         this.userEvents.onInit(this);
     }
     /**
      * Connect to the Discord API
      */
     connect() {
-        //this.log.info("Connect", "Starting");
+        this.logger.info("connect: starting");
 
         this.bot
             .login(this.config.token)
             .then(() => {
-                //this.log.info("Connect", "Success");
+                this.logger.info("connect: Success");
                 this.bot.user.setActivity(this.strings.currentlyPlaying);
                 this.userEvents.onConnect(this);
             })
             .catch(() => {
-                //this.log.error("Connect", "Failure");
+                this.logger.error("connect: error");
 
                 throw new Error(
                     "An error ocurred connecting to the Discord-API"

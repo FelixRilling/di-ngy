@@ -3,8 +3,10 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var lightdash = require('lightdash');
+var winston = require('winston');
 var Clingy = _interopDefault(require('cli-ngy'));
 var discord_js = require('discord.js');
+var flatCache = _interopDefault(require('flat-cache'));
 
 const mapCommand = (key, command) => {
     const result = command;
@@ -76,7 +78,6 @@ const hasPermissions = (powerRequired, roles, member, guild) => {
     return Math.max(...checkResults) >= powerRequired;
 };
 const resolveCommandResult = (str, msg, app) => {
-    // @ts-ignore
     const commandLookup = app.cli.parse(str);
     // Command check
     if (commandLookup.success) {
@@ -154,11 +155,11 @@ const send = (app, msg, content) => msg.channel
     attachments: content[2]
 })
     .then(msgSent => {
-    //app.log.debug("SentMsg");
+    app.logger.debug("SentMsg");
     content[3].onSend(msgSent);
 })
     .catch(err => {
-    //app.log.error("SentMsgError", err);
+    app.logger.error(`SentMsgError ${err}`);
 });
 /**
  *  Checks if a message can be sent and continues
@@ -170,19 +171,19 @@ const send = (app, msg, content) => msg.channel
  */
 const pipeThroughChecks = (app, msg, commandResult, content) => {
     if (content[0].length === 0) {
-        //app.log.notice("Empty");
+        app.logger.debug("Empty");
         send(app, msg, dataFromValue(app.strings.infoEmpty));
     }
     else if (content[0].length > MAX_SIZE_MESSAGE) {
         if (app.config.options.sendFilesForLongReply) {
             const outputFile = Buffer.from(content[0]);
             if (content[0].length > MAX_SIZE_FILE) {
-                //app.log.notice("TooLong", true);
+                app.logger.debug("TooLong");
                 send(app, msg, dataFromValue(app.strings.infoTooLong));
             }
             else {
                 const outputAttachment = new discord_js.Attachment(outputFile, "output.txt");
-                //app.log.notice("TooLong", true);
+                app.logger.debug("TooLong");
                 send(app, msg, [
                     app.strings.infoTooLong,
                     true,
@@ -192,13 +193,13 @@ const pipeThroughChecks = (app, msg, commandResult, content) => {
             }
         }
         else {
-            //app.log.notice("TooLong", false);
-            send(app, msg, app.strings.errorTooLong);
+            app.logger.debug("TooLong false");
+            send(app, msg, dataFromValue(app.strings.errorTooLong));
         }
     }
     else {
-        //Normal case
-        //app.log.debug("Sending");
+        // Normal case
+        app.logger.debug("Sending");
         if (!commandResult.success) {
             content[1] = true;
         }
@@ -217,15 +218,15 @@ const sendMessage = (app, msg, commandResult) => {
     if (lightdash.isPromise(content)) {
         content
             .then(contentResolved => {
-            //app.log.debug("TextAsync");
+            app.logger.debug("TextAsync");
             pipeThroughChecks(app, msg, commandResult, contentResolved);
         })
             .catch(err => {
-            //app.log.error("ErrorInPromise", err);
+            app.logger.error(`ErrorInPromise ${err}`);
         });
     }
     else {
-        //app.log.debug("TextSync");
+        app.logger.debug("TextSync");
         pipeThroughChecks(app, msg, commandResult, content);
     }
 };
@@ -244,13 +245,13 @@ const onMessage = (msg, app) => {
         messageText.startsWith(app.config.prefix)) {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
-        //app.log.debug("Resolving", msg.author.id, messageCommand, commandResult);
+        app.logger.debug(`Resolving ${msg.author.id}`);
         if (commandResult.ignore) {
-            //app.log.debug("Ignoring");
+            app.logger.debug("Ignoring");
         }
         else {
             sendMessage(app, msg, commandResult);
-            //app.log.debug("Returning", msg.author.id);
+            app.logger.debug(`Returning ${msg.author.id}`);
         }
     }
 };
@@ -263,7 +264,7 @@ const RECONNECT_TIMEOUT = 10000;
  * @param {Dingy} app
  */
 const onError = (err, app) => {
-    app.log.error("Reconnect", `Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
+    app.logger.warn(`reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
     app.bot.setTimeout(() => {
         app.connect();
     }, RECONNECT_TIMEOUT);
@@ -384,7 +385,7 @@ const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
  * @param {number} [factor=0]
  * @returns {string}
  */
-const format = (val, factor = 0) => {
+const format$1 = (val, factor = 0) => {
     if (lightdash.isString(val) && val.length > 0) {
         return val;
     }
@@ -394,13 +395,13 @@ const format = (val, factor = 0) => {
     else if (lightdash.isArray(val) && val.length > 0) {
         return LINEBREAK + val
             .filter(item => !lightdash.isFunction(item))
-            .map(item => indent(format(item, factor + 1), factor))
+            .map(item => indent(format$1(item, factor + 1), factor))
             .join(LINEBREAK);
     }
     else if (lightdash.isObject(val) && lightdash.objKeys(val).length > 0) {
         return LINEBREAK + lightdash.objEntries(val)
             .filter(entry => !lightdash.isFunction(entry[1]))
-            .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
+            .map(entry => indent(`${entry[0]}: ${format$1(entry[1], factor + 1)}`, factor))
             .join(LINEBREAK);
     }
     else {
@@ -413,7 +414,7 @@ const format = (val, factor = 0) => {
  * @param {Object} obj
  * @returns {string}
  */
-const jsonToYaml = (obj) => format(decycle(obj)).replace(/\s+\n/g, "\n").trim();
+const jsonToYaml = (obj) => format$1(decycle(obj)).replace(/\s+\n/g, "\n").trim();
 
 /**
  * Displays list of all non-hidden commands
@@ -425,9 +426,7 @@ const jsonToYaml = (obj) => format(decycle(obj)).replace(/\s+\n/g, "\n").trim();
 const getHelpAll = (commandsMap, app) => {
     const result = {};
     commandsMap.forEach((command, commandName) => {
-        const subcommandsList = command.sub !== null ? humanizeList(
-        // @ts-ignore
-        lightdash.arrFrom(command.sub.map.keys())) : null;
+        const subcommandsList = command.sub !== null ? humanizeList(lightdash.arrFrom(command.sub.map.keys())) : null;
         if (!command.hidden) {
             if (command.sub) {
                 result[commandName] = {
@@ -464,9 +463,7 @@ const getHelpSingle = (command, commandPath, app) => {
         result.alias = humanizeList(command.alias);
     }
     if (command.sub !== null) {
-        result.sub = lightdash.arrFrom(
-        // @ts-ignore
-        command.sub.getAll().map.keys());
+        result.sub = lightdash.arrFrom(command.sub.getAll().map.keys());
     }
     if (command.args.length > 0) {
         result.args = {};
@@ -504,10 +501,8 @@ const commandCoreHelp = (args, msg, app) => {
         if (!commandLookup.success) {
             return `Command '${commandPath.join(" ")}' not found`;
         }
-        // @ts-ignore
         return getHelpSingle(commandLookup.command, commandPath, app);
     }
-    // @ts-ignore
     return getHelpAll(app.cli.getAll().map, app);
 };
 
@@ -660,7 +655,7 @@ const configDefault = {
 
 const stringsDefault = {
     currentlyPlaying: "with bots",
-    separator: "-".repeat(12),
+    separator: "-".repeat(3),
     infoSimilar: "Did you mean",
     infoEmpty: "Empty message",
     infoTooLong: "The output was too long to print",
@@ -678,8 +673,6 @@ const userEventsDefault = {
     onMessage: () => { }
 };
 
-//import Log from "log";
-//import flatCache from "flat-cache";
 /**
  * Di-ngy class
  *
@@ -705,27 +698,34 @@ const Dingy = class {
         this.config = lightdash.objDefaultsDeep(config, configDefault);
         this.strings = lightdash.objDefaultsDeep(strings, stringsDefault);
         this.userEvents = lightdash.objDefaultsDeep(userEvents, userEventsDefault);
-        this.log = null;
-        //this.log.debug("Init", "Loaded Config");
+        this.logger = winston.createLogger({
+            level: this.config.options.logLevel,
+            exitOnError: false,
+            format: winston.format.combine(winston.format.timestamp(), winston.format.printf(info => {
+                return `${info.timestamp} [${info.level}] ${info.message}`;
+            })),
+            transports: [
+                new winston.transports.Console(),
+                new winston.transports.File({ filename: "bot.log" })
+            ]
+        });
+        this.logger.info("init: Loaded Config");
         this.cli = new Clingy(mapCommands(lightdash.objDefaultsDeep(commands, commandsDefault)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
             validQuotes: this.config.options.validQuotes
         });
-        //this.log.debug("Init", "Created Clingy");
+        this.logger.info("init: Created Clingy");
         /**
          * Bootstraps Client
          */
         this.bot = new discord_js.Client();
-        //this.log.debug("Init", "Created Discord Client");
+        this.logger.info("init: Created Discord Client");
         this.data = {};
         this.dataPersisted = {};
-        /*this.config.dataPersisted.files.forEach(fileName => {
-            this.dataPersisted[fileName] = flatCache.load(
-                `${fileName}.json`,
-                this.config.dataPersisted.dir
-            );
+        this.config.dataPersisted.files.forEach(fileName => {
+            this.dataPersisted[fileName] = flatCache.load(`${fileName}.json`, this.config.dataPersisted.dir);
         });
-        this.log.debug("Init", "Loaded Data"); */
+        this.logger.info("init: Loaded Data");
         /**
          * Binds events
          */
@@ -734,30 +734,30 @@ const Dingy = class {
             this.userEvents.onMessage(msg, this);
         });
         this.bot.on("disconnect", err => {
-            //this.log.warning("Disconnect", err);
+            this.logger.error("disconnect", err);
             onError(err, this);
         });
         this.bot.on("error", err => {
-            //this.log.error("Error", err);
+            this.logger.error("error", err);
             onError(err, this);
         });
-        //this.log.info("Init", "Success");
+        this.logger.info("init: Success");
         this.userEvents.onInit(this);
     }
     /**
      * Connect to the Discord API
      */
     connect() {
-        //this.log.info("Connect", "Starting");
+        this.logger.info("connect: starting");
         this.bot
             .login(this.config.token)
             .then(() => {
-            //this.log.info("Connect", "Success");
+            this.logger.info("connect: Success");
             this.bot.user.setActivity(this.strings.currentlyPlaying);
             this.userEvents.onConnect(this);
         })
             .catch(() => {
-            //this.log.error("Connect", "Failure");
+            this.logger.error("connect: error");
             throw new Error("An error ocurred connecting to the Discord-API");
         });
     }

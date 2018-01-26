@@ -1,21 +1,6 @@
 import { Client, GuildMember, Guild, Message, Attachment } from "discord.js";
-import { IClingy } from "cli-ngy/src/interfaces";
+import { IClingyOptionsDefaulted } from "cli-ngy/src/interfaces";
 import { commandFn, commandResult } from "./types";
-
-interface IDingy {
-    config: IDingyConfig;
-    strings: IDingyStrings;
-    userEvents: IDingyUserEvents;
-
-    data: object;
-    dataPersisted: object;
-
-    cli: IClingy;
-    log: any;
-    bot: Client;
-
-    connect: () => void;
-}
 
 interface IDingyStrings {
     currentlyPlaying: string;
@@ -72,7 +57,7 @@ interface IDingyUserEvents {
 
 interface IDingyCommand {
     alias: string[];
-    sub: IDingyCommands | null;
+    sub: IDingyCli | null;
 
     name?: string;
     fn: commandFn;
@@ -136,8 +121,39 @@ interface IDingyMessageResultEvents {
     onSend: (msg: Message) => void;
 }
 
+interface IDingyCli {
+    options: IClingyOptionsDefaulted;
+    map: any;
+    mapAliased: any;
+    getAll(): {
+        map: Map<string, IDingyCommand>;
+        mapAliased: Map<string, IDingyCommand>;
+    };
+    getCommand(
+        path: string[],
+        pathUsed?: string[]
+    ): IDingyLookupSuccessful | IDingyLookupUnsuccessful;
+    parse(input: string): IDingyLookupSuccessful | IDingyLookupUnsuccessful;
+}
+
+interface IDingy {
+    config: IDingyConfig;
+    strings: IDingyStrings;
+    userEvents: IDingyUserEvents;
+
+    data: object;
+    dataPersisted: object;
+
+    cli: IDingyCli;
+    logger: any;
+    bot: Client;
+
+    connect: () => void;
+}
+
 export {
     IDingy,
+    IDingyCli,
     IDingyStrings,
     IDingyConfig,
     IDingyConfigRole,

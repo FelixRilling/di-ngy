@@ -3,7 +3,6 @@ import { IDingyMessageResultExpanded, IDingy, IDingyCommand, IDingyCommands } fr
 import humanizeList from "../../util/humanizeList"
 import jsonToYaml from "../../util/jsonToYaml";
 import { arrFrom } from "lightdash";
-import { IClingy } from "../../../../../cli-ngy/src/interfaces";
 
 /**
  * Displays list of all non-hidden commands
@@ -17,7 +16,7 @@ const getHelpAll = (commandsMap: Map<string, IDingyCommand>, app: IDingy): IDing
 
     commandsMap.forEach((command, commandName) => {
         const subcommandsList = command.sub !== null ? humanizeList(
-            // @ts-ignore
+
             arrFrom(command.sub.map.keys())
         ) : null;
 
@@ -61,7 +60,6 @@ const getHelpSingle = (command: IDingyCommand, commandPath: string[], app: IDing
 
     if (command.sub !== null) {
         result.sub = arrFrom(
-            // @ts-ignore
             command.sub.getAll().map.keys()
         )
     }
@@ -110,11 +108,9 @@ const commandCoreHelp: commandFn = (args, msg, app) => {
             return `Command '${commandPath.join(" ")}' not found`;
         }
 
-        // @ts-ignore
         return getHelpSingle(commandLookup.command, commandPath, app);
     }
 
-    // @ts-ignore
     return getHelpAll(app.cli.getAll().map, app);
 };
 

@@ -22,13 +22,13 @@ const onMessage = (msg: Message, app: IDingy): void => {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
 
-        //app.log.debug("Resolving", msg.author.id, messageCommand, commandResult);
+        app.logger.debug(`Resolving ${msg.author.id}`);
 
         if (commandResult.ignore) {
-            //app.log.debug("Ignoring");
+            app.logger.debug("Ignoring");
         } else {
             sendMessage(app, msg, commandResult);
-            //app.log.debug("Returning", msg.author.id);
+            app.logger.debug(`Returning ${msg.author.id}`);
         }
     }
 };

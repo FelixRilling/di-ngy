@@ -1,6 +1,5 @@
 import { Client } from "discord.js";
-import { IClingy } from "cli-ngy/src/interfaces";
-import { IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interfaces";
+import { IDingyCli, IDingyStrings, IDingyConfig, IDingyUserEvents } from "./interfaces";
 /**
  * Di-ngy class
  *
@@ -13,8 +12,8 @@ declare const Dingy: {
         userEvents: IDingyUserEvents;
         data: object;
         dataPersisted: object;
-        cli: IClingy;
-        log: any;
+        cli: IDingyCli;
+        logger: any;
         bot: Client;
         connect(): void;
     };

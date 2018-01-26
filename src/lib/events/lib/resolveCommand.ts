@@ -27,14 +27,13 @@ const hasPermissions = (
 };
 
 const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
-    // @ts-ignore
     const commandLookup:
         | IDingyLookupSuccessful
         | IDingyLookupUnsuccessful = app.cli.parse(str);
 
     // Command check
     if (commandLookup.success) {
-        const command = (<IDingyLookupSuccessful>commandLookup).command;
+        const command = commandLookup.command;
 
         // Permission check
         if (

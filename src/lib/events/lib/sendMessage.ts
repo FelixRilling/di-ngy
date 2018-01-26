@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message } from "discord.js";
+import { Guild, GuildMember, Message, MessageOptions } from "discord.js";
 import {
     IDingy,
     IDingyConfigRole,
@@ -27,19 +27,19 @@ const MAX_SIZE_FILE = 8000000;
  * @param {boolean|string} code
  * @param {Array<any>} files
  */
-const send = (app, msg, content): void =>
+const send = (app: IDingy, msg: Message, content: IDingyMessageResultExpanded): Promise<void> =>
     msg.channel
-        .send(content[0], {
+        .send(content[0], <MessageOptions>{
             code: content[1],
             attachments: content[2]
         })
         .then(msgSent => {
-            //app.log.debug("SentMsg");
+            app.logger.debug("SentMsg");
 
-            content[3].onSend(msgSent);
+            content[3].onSend(<Message>msgSent);
         })
         .catch(err => {
-            //app.log.error("SentMsgError", err);
+            app.logger.error(`SentMsgError ${err}`);
         });
 
 /**
@@ -57,14 +57,14 @@ const pipeThroughChecks = (
     content: IDingyMessageResultExpanded
 ) => {
     if (content[0].length === 0) {
-        //app.log.notice("Empty");
+        app.logger.debug("Empty");
         send(app, msg, dataFromValue(app.strings.infoEmpty));
     } else if (content[0].length > MAX_SIZE_MESSAGE) {
         if (app.config.options.sendFilesForLongReply) {
             const outputFile = Buffer.from(content[0]);
 
             if (content[0].length > MAX_SIZE_FILE) {
-                //app.log.notice("TooLong", true);
+                app.logger.debug("TooLong");
                 send(app, msg, dataFromValue(app.strings.infoTooLong));
             } else {
                 const outputAttachment = new Attachment(
@@ -72,7 +72,7 @@ const pipeThroughChecks = (
                     "output.txt"
                 );
 
-                //app.log.notice("TooLong", true);
+                app.logger.debug("TooLong");
                 send(app, msg, [
                     app.strings.infoTooLong,
                     true,
@@ -81,12 +81,12 @@ const pipeThroughChecks = (
                 ]);
             }
         } else {
-            //app.log.notice("TooLong", false);
-            send(app, msg, app.strings.errorTooLong);
+            app.logger.debug("TooLong false");
+            send(app, msg, dataFromValue(app.strings.errorTooLong));
         }
     } else {
-        //Normal case
-        //app.log.debug("Sending");
+        // Normal case
+        app.logger.debug("Sending");
 
         if (!commandResult.success) {
             content[1] = true;
@@ -113,14 +113,14 @@ const sendMessage = (
     if (isPromise(content)) {
         (<Promise<IDingyMessageResultExpanded>>content)
             .then(contentResolved => {
-                //app.log.debug("TextAsync");
+                app.logger.debug("TextAsync");
                 pipeThroughChecks(app, msg, commandResult, contentResolved);
             })
             .catch(err => {
-                //app.log.error("ErrorInPromise", err);
+                app.logger.error(`ErrorInPromise ${err}`);
             });
     } else {
-        //app.log.debug("TextSync");
+        app.logger.debug("TextSync");
         pipeThroughChecks(
             app,
             msg,

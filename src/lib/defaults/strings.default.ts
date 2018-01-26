@@ -3,7 +3,7 @@ import { IDingyStrings } from "../../interfaces";
 const stringsDefault: IDingyStrings = {
     currentlyPlaying: "with bots",
 
-    separator: "-".repeat(12),
+    separator: "-".repeat(3),
 
     infoSimilar: "Did you mean",
     infoEmpty: "Empty message",
