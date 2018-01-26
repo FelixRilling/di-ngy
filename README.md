@@ -9,10 +9,10 @@ Create a basic bot:
 ```js
 const Dingy = require("di-ngy");
 
-//new Dingy({config},{commands},{strings},{events});
+// new Dingy({config},{commands},{strings},{events});
 const bot = new Dingy({
-    token: "#botToken#", //Bot-token, should be secret! (Using ENV-vars to store this is recommended)
-    prefix: "$", //Prefix to respond to: prefix:'foo' => responds to "foo help"
+    token: "#botToken#", // Bot-token, should be secret! (Using ENV-vars to store this is recommended)
+    prefix: "$", // Prefix to respond to: prefix:'foo' => responds to "foo help"
         options: {
         logLevel: "debug"
     },
