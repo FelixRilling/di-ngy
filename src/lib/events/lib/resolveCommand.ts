@@ -27,6 +27,7 @@ const hasPermissions = (
 };
 
 const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
+    // @ts-ignore
     const commandLookup:
         | IDingyLookupSuccessful
         | IDingyLookupUnsuccessful = app.cli.parse(str);
@@ -60,9 +61,9 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
         } else {
             return app.config.options.answerToMissingPerms
                 ? {
-                      result: `${app.strings.errorPermission}`,
-                      success: false
-                  }
+                    result: `${app.strings.errorPermission}`,
+                    success: false
+                }
                 : false;
         }
     } else {
@@ -98,7 +99,7 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
                 return {
                     result: `${
                         app.strings.errorMissingArgs
-                    } ${missingNames.join(",")}`,
+                        } ${missingNames.join(",")}`,
                     success: false
                 };
             } else {

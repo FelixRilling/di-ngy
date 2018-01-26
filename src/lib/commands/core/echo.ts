@@ -6,6 +6,6 @@ import { commandFn } from "../../../types";
  * @param {Array<any>} args
  * @returns {string}
  */
-const commandCoreEcho: commandFn = args => args.text;
+const commandCoreEcho: commandFn = args => <string>args.text;
 
 export default commandCoreEcho;

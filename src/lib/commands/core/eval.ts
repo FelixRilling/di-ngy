@@ -13,7 +13,7 @@ const commandCoreEval: commandFn = (args, msg, app): string => {
     let result = "";
 
     try {
-        result = eval(args.code);
+        result = eval(<string>args.code);
     } catch (err) {
         result = err;
     }

@@ -1,9 +1,14 @@
-import { IDingyMessageResultExpanded } from "./interfaces";
+import { Message } from "discord.js";
+import {
+    IDingy,
+    IDingyMessageResultExpanded,
+    IDingyCommandArgs
+} from "./interfaces";
 
 type commandFn = (
-    args: any,
-    msg: any,
-    app: any,
+    args: IDingyCommandArgs,
+    msg: Message,
+    app: IDingy,
     commandLookup: any,
     attachments: any
 ) => commandResult;
@@ -11,6 +16,7 @@ type commandFn = (
 type commandResult =
     | string
     | IDingyMessageResultExpanded
+    | Promise<string>
     | Promise<IDingyMessageResultExpanded>;
 
 export { commandFn, commandResult };

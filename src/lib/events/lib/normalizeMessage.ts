@@ -13,7 +13,7 @@ import {
 import { isString, objDefaultsDeep } from "lightdash";
 
 const eventsDefault: IDingyMessageResultEvents = {
-    onSend: () => {}
+    onSend: () => { }
 };
 
 const dataDefaults: IDingyMessageResultExpanded = [

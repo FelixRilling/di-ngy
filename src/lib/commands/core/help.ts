@@ -1,7 +1,6 @@
 import { commandFn } from "../../../types";
 
-/*
-const jsonToYaml = require("../../util/jsonToYaml"); */
+const jsonToYaml = a => a;
 
 /**
  * Turns an array into a humanized string
@@ -9,7 +8,7 @@ const jsonToYaml = require("../../util/jsonToYaml"); */
  * @param {Array<string>} arr
  * @returns {string}
  */
-/* const humanizeList = arr => arr.join(", "); */
+const humanizeList = (arr: string[]): string => arr.join(", ");
 
 /**
  * Displays list of all non-hidden commands
@@ -18,15 +17,17 @@ const jsonToYaml = require("../../util/jsonToYaml"); */
  * @param {Dingy} app
  * @returns {string}
  */
-/* const getHelpAll = function (commands, app) {
-    const result = {};
+const getHelpAll = (commands, app) => {
+    /*     const result = {};
 
     commands.map.forEach((command, commandName) => {
         if (!command.hidden) {
             if (command.sub) {
                 result[commandName] = {
                     desc: command.help.short,
-                    subcommands: humanizeList(Array.from(command.sub.map.keys()))
+                    subcommands: humanizeList(
+                        Array.from(command.sub.map.keys())
+                    )
                 };
             } else {
                 result[commandName] = command.help.short;
@@ -34,8 +35,10 @@ const jsonToYaml = require("../../util/jsonToYaml"); */
         }
     });
 
-    return ["Help", app.strings.separator, jsonToYaml(result)].join("\n");
-}; */
+    return ["Help", app.strings.separator, jsonToYaml(result)].join("\n"); */
+
+    return "b";
+};
 
 /**
  * Displays help for a single command
@@ -45,8 +48,8 @@ const jsonToYaml = require("../../util/jsonToYaml"); */
  * @param {Dingy} app
  * @returns {string}
  */
-/* const getHelpSingle = function (command, commandPath, app) {
-    const result = {
+const getHelpSingle = (command, commandPath, app) => {
+    /*     const result = {
         desc: command.help.long
     };
 
@@ -74,9 +77,15 @@ const jsonToYaml = require("../../util/jsonToYaml"); */
         result.sub = Array.from(command.sub.getAll().map.keys());
     }
 
-    return [`Help for '${commandPath.join(" ")}'`, app.strings.separator, jsonToYaml(result)].join("\n");
+    return [
+        `Help for '${commandPath.join(" ")}'`,
+        app.strings.separator,
+        jsonToYaml(result)
+    ].join("\n"); */
+
+    return "a";
 };
- */
+
 /**
  * Displays help
  *
@@ -86,21 +95,19 @@ const jsonToYaml = require("../../util/jsonToYaml"); */
  * @returns {string}
  */
 const commandCoreHelp: commandFn = (args, msg, app) => {
-    /* const commandPath = args._all;
+    const commandPath = args._all;
 
     if (commandPath.length > 0) {
         const commandLookup = app.cli.getCommand(commandPath);
 
-        if (commandLookup.success) {
-            return [getHelpSingle(commandLookup.command, commandPath, app), "yaml"];
-        } else {
+        if (!commandLookup.success) {
             return `Command '${commandPath.join(" ")}' not found`;
         }
-    } else {
-        return [getHelpAll(app.cli.getAll(), app), "yaml"];
-    } */
 
-    return "ok";
+        return getHelpSingle(commandLookup.command, commandPath, app);
+    }
+
+    return getHelpAll(app.cli.getAll(), app);
 };
 
 export default commandCoreHelp;
