@@ -121,6 +121,4 @@ const decycle = (object: any, replacer?: any): any => {
     return derez(object, "$");
 };
 
-export {
-    decycle
-};
+export default decycle;

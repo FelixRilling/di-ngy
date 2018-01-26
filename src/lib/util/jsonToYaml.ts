@@ -1,8 +1,6 @@
 "use strict";
 
-import {
-    decycle
-} from "./lib/cycle";
+import decycle from "./decycle";
 import {
     objEntries,
     objKeys,
