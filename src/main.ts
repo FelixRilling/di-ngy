@@ -4,15 +4,15 @@ import Clingy from "cli-ngy";
 import { Client } from "discord.js";
 import flatCache from "flat-cache";
 
-import mapCommands from "./lib/events/lib/mapCommands";
-import util from "./lib/util/index";
-import onMessage from "./lib/events/onMessage";
-import onError from "./lib/events/onError";
+import mapCommands from "./events/lib/mapCommands";
+import util from "./util/index";
+import onMessage from "./events/onMessage";
+import onError from "./events/onError";
 
-import commandsDefault from "./lib/defaults/commands.default";
-import configDefault from "./lib/defaults/config.default";
-import stringsDefault from "./lib/defaults/strings.default";
-import userEventsDefault from "./lib/defaults/userEvents.default";
+import commandsDefault from "./defaults/commands.default";
+import configDefault from "./defaults/config.default";
+import stringsDefault from "./defaults/strings.default";
+import userEventsDefault from "./defaults/userEvents.default";
 
 import {
     IDingy,
