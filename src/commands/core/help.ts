@@ -2,13 +2,6 @@ import { commandFn } from "../../types";
 import { IDingyMessageResultExpanded, IDingy, IDingyCommand, IDingyCommands } from "../../interfaces";
 import { arrFrom } from "lightdash";
 
-/**
- * Displays list of all non-hidden commands
- *
- * @param {Object} commands
- * @param {Dingy} app
- * @returns {string}
- */
 const getHelpAll = (commandsMap: Map<string, IDingyCommand>, app: IDingy): IDingyMessageResultExpanded => {
     const result = {};
 
@@ -36,14 +29,6 @@ const getHelpAll = (commandsMap: Map<string, IDingyCommand>, app: IDingy): IDing
     ];
 };
 
-/**
- * Displays help for a single command
- *
- * @param {Object} command
- * @param {Array<string>} commandPath
- * @param {Dingy} app
- * @returns {string}
- */
 const getHelpSingle = (command: IDingyCommand, commandPath: string[], app: IDingy): IDingyMessageResultExpanded => {
     const result = {
         desc: command.help.long,

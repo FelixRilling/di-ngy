@@ -29,7 +29,6 @@ const mapCommand = (key: string, command: any): IDingyCommand => {
     return result;
 };
 
-const mapCommands = (commands: any): IDingyCommands =>
-    <IDingyCommands>objMap(commands, mapCommand);
+const mapCommands = (commands: any): IDingyCommands => <IDingyCommands>objMap(commands, mapCommand);
 
 export default mapCommands;

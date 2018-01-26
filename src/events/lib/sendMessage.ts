@@ -18,15 +18,6 @@ import { dataFromValue, eventsDefault } from "./normalizeMessage";
 const MAX_SIZE_MESSAGE = 2000;
 const MAX_SIZE_FILE = 8000000;
 
-/**
- * Sends a message
- *
- * @param {Dingy} app
- * @param {Message} msg
- * @param {string} text
- * @param {boolean|string} code
- * @param {Array<any>} files
- */
 const send = (app: IDingy, msg: Message, content: IDingyMessageResultExpanded): Promise<void> =>
     msg.channel
         .send(content[0], <MessageOptions>{
@@ -42,14 +33,6 @@ const send = (app: IDingy, msg: Message, content: IDingyMessageResultExpanded): 
             app.logger.error(`SentMsgError ${err}`);
         });
 
-/**
- *  Checks if a message can be sent and continues
- *
- * @param {any} app
- * @param {any} msg
- * @param {any} data
- * @param {boolean} [isError=false]
- */
 const pipeThroughChecks = (
     app: IDingy,
     msg: Message,
@@ -96,13 +79,6 @@ const pipeThroughChecks = (
     }
 };
 
-/**
- * Performs checks and waits for promise, then sends a message
- *
- * @param {Dingy} app
- * @param {Message} msg
- * @param {Array<any>|Promise} data
- */
 const sendMessage = (
     app: IDingy,
     msg: Message,

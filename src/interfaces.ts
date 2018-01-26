@@ -1,6 +1,6 @@
 import { Client, GuildMember, Guild, Message, Attachment, User, GuildChannel, MessageAttachment } from "discord.js";
 import { IClingyOptionsDefaulted } from "cli-ngy/src/interfaces";
-import { commandFn, commandResult } from "./types";
+import { commandFn, commandResult, commandMap } from "./types";
 
 interface IDingyStrings {
     currentlyPlaying: string;
@@ -123,11 +123,11 @@ interface IDingyMessageResultEvents {
 
 interface IDingyCli {
     options: IClingyOptionsDefaulted;
-    map: any;
-    mapAliased: any;
+    map: commandMap;
+    mapAliased: commandMap;
     getAll(): {
-        map: Map<string, IDingyCommand>;
-        mapAliased: Map<string, IDingyCommand>;
+        map: commandMap;
+        mapAliased: commandMap;
     };
     getCommand(
         path: string[],

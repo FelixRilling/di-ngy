@@ -400,15 +400,6 @@ const resolveCommand = (str, msg, app) => normalizeMessage(resolveCommandResult(
 
 const MAX_SIZE_MESSAGE = 2000;
 const MAX_SIZE_FILE = 8000000;
-/**
- * Sends a message
- *
- * @param {Dingy} app
- * @param {Message} msg
- * @param {string} text
- * @param {boolean|string} code
- * @param {Array<any>} files
- */
 const send = (app, msg, content) => msg.channel
     .send(content[0], {
     code: content[1],
@@ -421,14 +412,6 @@ const send = (app, msg, content) => msg.channel
     .catch(err => {
     app.logger.error(`SentMsgError ${err}`);
 });
-/**
- *  Checks if a message can be sent and continues
- *
- * @param {any} app
- * @param {any} msg
- * @param {any} data
- * @param {boolean} [isError=false]
- */
 const pipeThroughChecks = (app, msg, commandResult, content) => {
     if (content[0].length === 0) {
         app.logger.debug("Empty");
@@ -466,13 +449,6 @@ const pipeThroughChecks = (app, msg, commandResult, content) => {
         send(app, msg, content);
     }
 };
-/**
- * Performs checks and waits for promise, then sends a message
- *
- * @param {Dingy} app
- * @param {Message} msg
- * @param {Array<any>|Promise} data
- */
 const sendMessage = (app, msg, commandResult) => {
     const content = commandResult.result;
     if (isPromise(content)) {
@@ -517,12 +493,6 @@ const onMessage = (msg, app) => {
 };
 
 const RECONNECT_TIMEOUT = 10000;
-/**
- * onError event
- *
- * @param {Error} err
- * @param {Dingy} app
- */
 const onError = (err, app) => {
     app.logger.warn(`reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
     app.bot.setTimeout(() => {
@@ -530,13 +500,6 @@ const onError = (err, app) => {
     }, RECONNECT_TIMEOUT);
 };
 
-/**
- * Displays list of all non-hidden commands
- *
- * @param {Object} commands
- * @param {Dingy} app
- * @returns {string}
- */
 const getHelpAll = (commandsMap, app) => {
     const result = {};
     commandsMap.forEach((command, commandName) => {
@@ -558,14 +521,6 @@ const getHelpAll = (commandsMap, app) => {
         "yaml"
     ];
 };
-/**
- * Displays help for a single command
- *
- * @param {Object} command
- * @param {Array<string>} commandPath
- * @param {Dingy} app
- * @returns {string}
- */
 const getHelpSingle = (command, commandPath, app) => {
     const result = {
         desc: command.help.long,
