@@ -137,7 +137,7 @@ interface IDingyCli {
 }
 
 interface IDingyUtils {
-    decycle: (object: any, replacer?: any) => any;
+    decycle: (object: any, replacer?: (val: any) => any) => any;
     humanizeList: (arr: string[]) => string;
     humanizeListOptionals: (arr: string[]) => string;
     jsonToYaml: (obj: any) => string;

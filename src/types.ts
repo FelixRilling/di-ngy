@@ -1,4 +1,4 @@
-import { Message, Attachment } from "discord.js";
+import { Message, MessageAttachment, Collection } from "discord.js";
 import {
     IDingy,
     IDingyMessageResultExpanded,
@@ -14,7 +14,7 @@ type commandFn = (
     msg: Message,
     app: IDingy,
     commandLookup: IDingyLookupSuccessful,
-    attachments: Array<string | Attachment>
+    attachments: Collection<string, MessageAttachment>
 ) => commandResult;
 
 type commandResult =
