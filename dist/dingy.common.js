@@ -740,7 +740,7 @@ const Dingy = class {
             ]
         });
         this.logger.info("Init: Loaded Config");
-        this.cli = new Clingy(mapCommands(lightdash.objDefaultsDeep(commands, commandsDefault)), {
+        this.cli = new Clingy(mapCommands(lightdash.objMerge(commandsDefault, commands)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
             validQuotes: this.config.options.validQuotes
         });
@@ -764,11 +764,11 @@ const Dingy = class {
             this.userEvents.onMessage(msg, this);
         });
         this.bot.on("disConnect", err => {
-            this.logger.error("disConnect", err);
+            this.logger.error("Dissconnect", err);
             onError(err, this);
         });
         this.bot.on("error", err => {
-            this.logger.error("error", err);
+            this.logger.error("Error", err);
             onError(err, this);
         });
         this.logger.info("Init: Success");
@@ -778,7 +778,7 @@ const Dingy = class {
      * Connect to the Discord API
      */
     connect() {
-        this.logger.info("Connect: starting");
+        this.logger.info("Connect: Starting");
         this.bot
             .login(this.config.token)
             .then(() => {
@@ -787,7 +787,7 @@ const Dingy = class {
             this.userEvents.onConnect(this);
         })
             .catch(() => {
-            this.logger.error("Connect: error");
+            this.logger.error("Connect: Error");
             throw new Error("An error ocurred Connecting to the Discord API");
         });
     }

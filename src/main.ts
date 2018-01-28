@@ -1,4 +1,4 @@
-import { objDefaultsDeep, isUndefined } from "lightdash";
+import { objDefaultsDeep, objMerge, isUndefined } from "lightdash";
 import { createLogger, format, transports } from "winston";
 import Clingy from "cli-ngy";
 import { Client } from "discord.js";
@@ -89,7 +89,7 @@ const Dingy = class implements IDingy {
         this.logger.info("Init: Loaded Config");
 
         this.cli = new Clingy(
-            mapCommands(objDefaultsDeep(commands, commandsDefault)),
+            mapCommands(objMerge(commandsDefault, commands)),
             {
                 caseSensitive: this.config.options.namesAreCaseSensitive,
                 validQuotes: this.config.options.validQuotes
@@ -105,7 +105,6 @@ const Dingy = class implements IDingy {
 
         this.data = {};
         this.dataPersisted = {};
-
         this.config.dataPersisted.files.forEach(fileName => {
             this.dataPersisted[fileName] = flatCache.load(
                 `${fileName}.json`,
@@ -122,11 +121,11 @@ const Dingy = class implements IDingy {
             this.userEvents.onMessage(msg, this);
         });
         this.bot.on("disConnect", err => {
-            this.logger.error("disConnect", err);
+            this.logger.error("Dissconnect", err);
             onError(err, this);
         });
         this.bot.on("error", err => {
-            this.logger.error("error", err);
+            this.logger.error("Error", err);
             onError(err, this);
         });
 
@@ -137,7 +136,7 @@ const Dingy = class implements IDingy {
      * Connect to the Discord API
      */
     connect() {
-        this.logger.info("Connect: starting");
+        this.logger.info("Connect: Starting");
 
         this.bot
             .login(this.config.token)
@@ -147,7 +146,7 @@ const Dingy = class implements IDingy {
                 this.userEvents.onConnect(this);
             })
             .catch(() => {
-                this.logger.error("Connect: error");
+                this.logger.error("Connect: Error");
 
                 throw new Error(
                     "An error ocurred Connecting to the Discord API"
