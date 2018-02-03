@@ -1,12 +1,12 @@
 import { objDefaultsDeep, objMerge, isUndefined } from "lightdash";
 import { createLogger, format, transports } from "winston";
 import Clingy from "cli-ngy";
-import { Client } from "discord.js";
+import { Client, Message } from "discord.js";
 import flatCache from "flat-cache";
 
 import mapCommands from "./events/lib/mapCommands";
 import util from "./util/index";
-/* import onMessage from "./events/onMessage"; */
+import onMessage from "./events/onMessage";
 import onError from "./events/onError";
 
 import commandsDefault from "./defaults/commands.default";
@@ -77,7 +77,7 @@ const Dingy = class implements IDingy {
             exitOnError: false,
             format: format.combine(
                 format.timestamp(),
-                format.printf(info => {
+                format.printf((info: any) => {
                     return `${info.timestamp} [${info.level}] ${info.message}`;
                 })
             ),
@@ -116,15 +116,15 @@ const Dingy = class implements IDingy {
         /**
          * Binds events
          */
-        this.bot.on("message", msg => {
-            /*   onMessage(msg, this);
-              this.userEvents.onMessage(msg, this); */
+        this.bot.on("message", (msg: Message) => {
+            onMessage(msg, this);
+            this.userEvents.onMessage(msg, this);
         });
-        this.bot.on("disConnect", err => {
+        this.bot.on("disConnect", (err: Error) => {
             this.logger.error("Dissconnect", err);
             onError(err, this);
         });
-        this.bot.on("error", err => {
+        this.bot.on("error", (err: Error) => {
             this.logger.error("Error", err);
             onError(err, this);
         });
