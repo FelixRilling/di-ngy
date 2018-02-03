@@ -2,13 +2,15 @@ import { Guild, GuildMember, Message } from "discord.js";
 import {
     IDingy,
     IDingyConfigRole,
-    IDingyCommand,
-    IDingyCommandArg,
-    IDingyLookupSuccessful,
-    IDingyLookupUnsuccessful,
+    IDingyCliCommand,
+    IDingyCliArg,
+    IDingyCliLookupSuccessful,
+    IDingyCliLookupMissingArg,
+    IDingyCliLookupMissingCommand,
     IDingyCommandResolved,
     IDingyMessageResultEvents,
-    IDingyMessageResultExpanded
+    IDingyMessageResultExpanded,
+    IDingyCliLookupArgs
 } from "../../interfaces";
 import { normalizeMessage } from "./normalizeMessage";
 
@@ -26,9 +28,7 @@ const hasPermissions = (
 };
 
 const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
-    const commandLookup:
-        | IDingyLookupSuccessful
-        | IDingyLookupUnsuccessful = app.cli.parse(str);
+    const commandLookup = app.cli.parse(str);
 
     // Command check
     if (commandLookup.success) {
@@ -65,7 +65,7 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
             }
             : false;
     }
-    const error = (<IDingyLookupUnsuccessful>commandLookup).error;
+    const error = (<IDingyCliLookupMissingArg | IDingyCliLookupMissingCommand>commandLookup).error;
 
     if (error.type === "missingCommand") {
         if (app.config.options.answerToMissingCommand) {
@@ -90,7 +90,7 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
         return false;
     } else if (error.type === "missingArg") {
         if (app.config.options.answerToMissingArgs) {
-            const missingNames = (<IDingyCommandArg[]>error.missing).map(
+            const missingNames = (<IDingyCliArg[]>error.missing).map(
                 item => item.name
             );
 

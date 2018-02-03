@@ -1,4 +1,4 @@
-import { commandFn } from "../../types";
+import { dingyCommandFn } from "../../types";
 /**
  * Exits the process
  *
@@ -7,5 +7,5 @@ import { commandFn } from "../../types";
  * @param {App} app
  * @returns {string}
  */
-declare const commandCoreDie: commandFn;
+declare const commandCoreDie: dingyCommandFn;
 export default commandCoreDie;

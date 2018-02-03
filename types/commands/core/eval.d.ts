@@ -1,4 +1,4 @@
-import { commandFn } from "../../types";
+import { dingyCommandFn } from "../../types";
 /**
  * Evaluates
  *
@@ -7,5 +7,5 @@ import { commandFn } from "../../types";
  * @param {App} app
  * @returns {false}
  */
-declare const commandCoreEval: commandFn;
+declare const commandCoreEval: dingyCommandFn;
 export default commandCoreEval;

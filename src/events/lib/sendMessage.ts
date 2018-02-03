@@ -1,17 +1,11 @@
-import { Guild, GuildMember, Message, MessageOptions } from "discord.js";
+import { Message, MessageOptions } from "discord.js";
 import {
     IDingy,
-    IDingyConfigRole,
-    IDingyCommand,
-    IDingyCommandArg,
-    IDingyLookupSuccessful,
-    IDingyLookupUnsuccessful,
     IDingyCommandResolved,
-    IDingyMessageResultEvents,
     IDingyMessageResultExpanded
 } from "../../interfaces";
-import { commandResult } from "../../types";
-import { isPromise, isNil } from "lightdash";
+import { dingyCommandResult } from "../../types";
+import { isPromise } from "lightdash";
 import { Attachment } from "discord.js";
 import { dataFromValue, eventsDefault } from "./normalizeMessage";
 

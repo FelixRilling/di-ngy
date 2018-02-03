@@ -1,7 +1,7 @@
 import { objMap, isDefined } from "lightdash";
-import { IDingyCommands, IDingyCommand } from "../../interfaces";
+import { IDingyCliCommands, IDingyCliCommand } from "../../interfaces";
 
-const mapCommand = (key: string, command: any): IDingyCommand => {
+const mapCommand = (key: string, command: any): IDingyCliCommand => {
     const result = command;
 
     result.powerRequired = isDefined(result.powerRequired)
@@ -29,6 +29,6 @@ const mapCommand = (key: string, command: any): IDingyCommand => {
     return result;
 };
 
-const mapCommands = (commands: any): IDingyCommands => <IDingyCommands>objMap(commands, mapCommand);
+const mapCommands = (commands: any): IDingyCliCommands => <IDingyCliCommands>objMap(commands, mapCommand);
 
 export default mapCommands;

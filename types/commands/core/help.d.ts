@@ -1,4 +1,4 @@
-import { commandFn } from "../../types";
+import { dingyCommandFn } from "../../types";
 /**
  * Displays help
  *
@@ -7,5 +7,5 @@ import { commandFn } from "../../types";
  * @param {App} app
  * @returns {string}
  */
-declare const commandCoreHelp: commandFn;
+declare const commandCoreHelp: dingyCommandFn;
 export default commandCoreHelp;

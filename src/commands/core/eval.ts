@@ -1,4 +1,4 @@
-import { commandFn } from "../../types";
+import { dingyCommandFn } from "../../types";
 
 /* eslint no-unused-vars: "off", no-console: "off" */
 /**
@@ -9,7 +9,7 @@ import { commandFn } from "../../types";
  * @param {App} app
  * @returns {false}
  */
-const commandCoreEval: commandFn = (args, msg, app): string => {
+const commandCoreEval: dingyCommandFn = (args, msg, app): string => {
     let result = "";
 
     try {

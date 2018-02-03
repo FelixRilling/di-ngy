@@ -2,25 +2,29 @@ import { Message, MessageAttachment, Collection } from "discord.js";
 import {
     IDingy,
     IDingyMessageResultExpanded,
-    IDingyCommand,
-    IDingyCommandArgs,
-    IDingyLookupSuccessful
+    IDingyCliCommand,
+    IDingyCliLookupArgs,
+    IDingyCliLookupSuccessful
 } from "./interfaces";
 
-type commandMap = Map<string, IDingyCommand>;
+type dingyCliCommandEntry = [string, IDingyCliCommand];
 
-type commandFn = (
-    args: IDingyCommandArgs,
+type dingyCliCommandEntries = dingyCliCommandEntry[];
+
+type dingyCliCommandMap = Map<string, IDingyCliCommand>;
+
+type dingyCommandFn = (
+    args: IDingyCliLookupArgs,
     msg: Message,
     app: IDingy,
-    commandLookup: IDingyLookupSuccessful,
+    commandLookup: IDingyCliLookupSuccessful,
     attachments: Collection<string, MessageAttachment>
-) => commandResult;
+) => dingyCommandResult;
 
-type commandResult =
+type dingyCommandResult =
     | string
     | IDingyMessageResultExpanded
     | Promise<string>
     | Promise<IDingyMessageResultExpanded>;
 
-export { commandMap, commandFn, commandResult };
+export { dingyCliCommandEntry, dingyCliCommandEntries, dingyCliCommandMap, dingyCommandFn, dingyCommandResult };

@@ -1,3 +1,3 @@
-import { IDingyCommands } from "../../interfaces";
-declare const mapCommands: (commands: any) => IDingyCommands;
+import { IDingyCliCommands } from "../../interfaces";
+declare const mapCommands: (commands: any) => IDingyCliCommands;
 export default mapCommands;

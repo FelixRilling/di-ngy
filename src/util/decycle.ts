@@ -1,7 +1,7 @@
 /**
  * slightly modified
  */
-import { isArray, isObjectLike, isNumber, isBoolean, isDate, isString, isRegExp, isMap, objKeys, isDefined } from "lightdash";
+import { isArray, isObjectLike, isDate, isRegExp, objKeys, isDefined } from "lightdash";
 /*
     cycle.js
     2017-02-07

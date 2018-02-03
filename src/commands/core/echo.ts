@@ -1,4 +1,4 @@
-import { commandFn } from "../../types";
+import { dingyCommandFn } from "../../types";
 
 /**
  * Echos text
@@ -6,6 +6,6 @@ import { commandFn } from "../../types";
  * @param {Array<any>} args
  * @returns {string}
  */
-const commandCoreEcho: commandFn = args => <string>args.text;
+const commandCoreEcho: dingyCommandFn = args => <string>args.text;
 
 export default commandCoreEcho;

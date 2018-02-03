@@ -1,4 +1,4 @@
-import { commandFn } from "../../types";
+import { dingyCommandFn } from "../../types";
 
 /**
  * Exits the process
@@ -8,7 +8,7 @@ import { commandFn } from "../../types";
  * @param {App} app
  * @returns {string}
  */
-const commandCoreDie: commandFn = (args, msg, app) => {
+const commandCoreDie: dingyCommandFn = (args, msg, app) => {
     app.bot.setTimeout(() => {
         process.exit();
     }, 1000);

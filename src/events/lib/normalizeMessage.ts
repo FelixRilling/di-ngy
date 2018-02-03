@@ -1,11 +1,4 @@
-import { Guild, GuildMember, Message } from "discord.js";
 import {
-    IDingy,
-    IDingyConfigRole,
-    IDingyCommand,
-    IDingyCommandArg,
-    IDingyLookupSuccessful,
-    IDingyLookupUnsuccessful,
     IDingyCommandResolved,
     IDingyMessageResultEvents,
     IDingyMessageResultExpanded

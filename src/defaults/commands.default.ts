@@ -2,9 +2,9 @@ import core_help from "../commands/core/help";
 import core_eval from "../commands/core/eval";
 import core_echo from "../commands/core/echo";
 import core_die from "../commands/core/die";
-import { IDingyCommands, IDingyCommandArgs } from "../interfaces";
+import { IDingyCliCommands } from "../interfaces";
 
-const commandsDefault: IDingyCommands = {
+const commandsDefault: IDingyCliCommands = {
     die: {
         fn: core_die,
         args: [],

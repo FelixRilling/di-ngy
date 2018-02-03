@@ -6,7 +6,7 @@ import flatCache from "flat-cache";
 
 import mapCommands from "./events/lib/mapCommands";
 import util from "./util/index";
-import onMessage from "./events/onMessage";
+/* import onMessage from "./events/onMessage"; */
 import onError from "./events/onError";
 
 import commandsDefault from "./defaults/commands.default";
@@ -88,7 +88,7 @@ const Dingy = class implements IDingy {
         });
         this.logger.info("Init: Loaded Config");
 
-        this.cli = new Clingy(
+        this.cli = <IDingyCli>new Clingy(
             mapCommands(objMerge(commandsDefault, commands)),
             {
                 caseSensitive: this.config.options.namesAreCaseSensitive,
@@ -117,8 +117,8 @@ const Dingy = class implements IDingy {
          * Binds events
          */
         this.bot.on("message", msg => {
-            onMessage(msg, this);
-            this.userEvents.onMessage(msg, this);
+            /*   onMessage(msg, this);
+              this.userEvents.onMessage(msg, this); */
         });
         this.bot.on("disConnect", err => {
             this.logger.error("Dissconnect", err);
