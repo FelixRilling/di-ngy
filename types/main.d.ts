@@ -1,5 +1,6 @@
 import { Client } from "discord.js";
 import { IDingyCli, IDingyStrings, IDingyConfig, IDingyUserEvents, IDingyUtils } from "./interfaces";
+import { objectStringKeyed } from "lightdash/src/types";
 /**
  * Di-ngy class
  *
@@ -10,8 +11,8 @@ declare const Dingy: {
         config: IDingyConfig;
         strings: IDingyStrings;
         userEvents: IDingyUserEvents;
-        data: object;
-        dataPersisted: object;
+        data: objectStringKeyed;
+        dataPersisted: objectStringKeyed;
         bot: Client;
         cli: IDingyCli;
         logger: any;

@@ -2,7 +2,8 @@ import { Message, MessageOptions } from "discord.js";
 import {
     IDingy,
     IDingyCommandResolved,
-    IDingyMessageResultExpanded
+    IDingyMessageResultExpanded,
+    IDingyMessageResultEvents
 } from "../../interfaces";
 import { dingyCommandResult } from "../../types";
 import { isPromise } from "lightdash";
@@ -21,7 +22,7 @@ const send = (app: IDingy, msg: Message, content: IDingyMessageResultExpanded): 
         .then(msgSent => {
             app.logger.debug("SentMsg");
 
-            content[3].onSend(<Message>msgSent);
+            (<IDingyMessageResultEvents>content[3]).onSend(<Message>msgSent);
         })
         .catch(err => {
             app.logger.error(`SentMsgError ${err}`);

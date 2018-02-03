@@ -657,7 +657,8 @@ const configDefault = {
             name: "Admin",
             power: 10,
             assignable: false,
-            check: member => [].includes(member.user.id)
+            // @ts-ignore
+            check: (member) => [].includes(member.user.id)
         },
         {
             name: "User",

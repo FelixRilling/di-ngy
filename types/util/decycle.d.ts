@@ -1,2 +1,2 @@
-declare const decycle: (object: any, replacer?: (val: any) => any) => any;
+declare const decycle: (object: any, replacer?: ((val: any) => any) | undefined) => any;
 export default decycle;

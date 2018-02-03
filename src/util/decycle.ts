@@ -19,7 +19,7 @@ const decycle = (object: any, replacer?: (val: any) => any): any => {
         // If a replacer function was provided, then call it to get a replacement value.
 
         if (isDefined(replacer)) {
-            value = replacer(value);
+            value = (<(val: any) => any>replacer)(value);
         }
 
         // typeof null === "object", so go on if this value is really an object but not

@@ -94,8 +94,8 @@ interface IDingy {
     strings: IDingyStrings;
     userEvents: IDingyUserEvents;
 
-    data: object;
-    dataPersisted: object;
+    data: objectStringKeyed;
+    dataPersisted: objectStringKeyed;
 
     bot: Client;
     cli: IDingyCli;

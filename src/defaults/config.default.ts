@@ -1,4 +1,5 @@
 import { IDingyConfig } from "../interfaces";
+import { GuildMember, User } from "discord.js";
 
 const configDefault: IDingyConfig = {
     prefix: "myPrefix", // Prefix to respond to: prefix:'foo' => responds to "foo help"
@@ -12,7 +13,8 @@ const configDefault: IDingyConfig = {
             name: "Admin",
             power: 10,
             assignable: false,
-            check: member => [].includes(member.user.id)
+            // @ts-ignore
+            check: (member: GuildMember) => [].includes(member.user.id)
         },
         {
             name: "User",

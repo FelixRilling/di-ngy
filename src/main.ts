@@ -22,6 +22,7 @@ import {
     IDingyUserEvents,
     IDingyUtils
 } from "./interfaces";
+import { objectStringKeyed } from "lightdash/src/types";
 
 /**
  * Di-ngy class
@@ -33,8 +34,8 @@ const Dingy = class implements IDingy {
     public strings: IDingyStrings;
     public userEvents: IDingyUserEvents;
 
-    public data: object;
-    public dataPersisted: object;
+    public data: objectStringKeyed;
+    public dataPersisted: objectStringKeyed;
 
     public bot: Client;
     public cli: IDingyCli;

@@ -32,9 +32,9 @@ const getHelpAll = (commandsMap: Map<string, IDingyCliCommand>, app: IDingy): ID
 const getHelpSingle = (command: IDingyCliCommand, commandPath: string[], app: IDingy): IDingyMessageResultExpanded => {
     const result = {
         desc: command.help.long,
-        alias: null,
-        args: null,
-        sub: null
+        alias: <null | string>null,
+        args: <null | any>null,
+        sub: <null | string[]>null
     };
 
     if (command.alias.length > 0) {

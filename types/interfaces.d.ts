@@ -77,8 +77,8 @@ interface IDingy {
     config: IDingyConfig;
     strings: IDingyStrings;
     userEvents: IDingyUserEvents;
-    data: object;
-    dataPersisted: object;
+    data: objectStringKeyed;
+    dataPersisted: objectStringKeyed;
     bot: Client;
     cli: IDingyCli;
     logger: any;
