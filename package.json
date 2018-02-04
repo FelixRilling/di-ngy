@@ -1,6 +1,6 @@
 {
     "name": "di-ngy",
-    "version": "5.1.4",
+    "version": "5.1.5",
     "description": "A small discord.js + cli-ngy boilerplate",
     "main": "dist/dingy.common.js",
     "module": "dist/dingy.esm.js",
@@ -38,7 +38,11 @@
         "type": "git",
         "url": "git+https://github.com/FelixRilling/di-ngy.git"
     },
-    "keywords": ["bot", "boilerplate", "discord"],
+    "keywords": [
+        "bot",
+        "boilerplate",
+        "discord"
+    ],
     "author": "FelixRilling",
     "license": "MIT",
     "bugs": {
