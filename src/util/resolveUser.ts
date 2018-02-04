@@ -1,4 +1,4 @@
-import { UserResolvable, Client, User } from "discord.js";
+import { Client, User, UserResolvable } from "discord.js";
 
 /**
  * resolves user by id

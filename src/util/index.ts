@@ -1,3 +1,4 @@
+import { IDingyUtils } from "../interfaces";
 import decycle from "./decycle";
 import humanizeList from "./humanizeList";
 import humanizeListOptionals from "./humanizeListOptionals";
@@ -8,7 +9,6 @@ import resolveMember from "./resolveMember";
 import resolveUser from "./resolveUser";
 import stripBotData from "./stripBotData";
 import toFullName from "./toFullName";
-import { IDingyUtils } from "../interfaces";
 
 const util: IDingyUtils = {
     decycle,

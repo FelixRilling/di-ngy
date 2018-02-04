@@ -1,7 +1,7 @@
-import core_help from "../commands/core/help";
-import core_eval from "../commands/core/eval";
-import core_echo from "../commands/core/echo";
 import core_die from "../commands/core/die";
+import core_echo from "../commands/core/echo";
+import core_eval from "../commands/core/eval";
+import core_help from "../commands/core/help";
 import { IDingyCliCommands } from "../interfaces";
 
 const commandsDefault: IDingyCliCommands = {

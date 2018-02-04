@@ -1,5 +1,5 @@
-import { IDingyConfig } from "../interfaces";
 import { GuildMember, User } from "discord.js";
+import { IDingyConfig } from "../interfaces";
 
 const configDefault: IDingyConfig = {
     prefix: "myPrefix", // Prefix to respond to: prefix:'foo' => responds to "foo help"
@@ -28,13 +28,13 @@ const configDefault: IDingyConfig = {
         namesAreCaseSensitive: false, // cli-ngy:If false, "#botPrefix# hElP" will work too
         validQuotes: ['"'], // cli-ngy:List of characters to support enclosing quotedStrings for.
 
-        answerToMissingCommand: false, // If a message should be sent indicating that the command requested doesn't exist
+        answerToMissingCommand: false, // If a message should be that the command requested doesn't exist
         answerToMissingArgs: true, // If a message should be sent indicating that arguments were missing
         answerToMissingPerms: true, // If a message should be sent indicating that permissions were missing
 
         sendFilesForLongReply: true, // If replies over 2000 chars should be sent as file instead
 
-        logLevel: "debug" // Level of log messages recommended to be either "debug" or "info", but can be any supported log-level
+        logLevel: "debug" // winston log level
     }
 };
 

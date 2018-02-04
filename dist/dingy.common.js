@@ -43,7 +43,7 @@ const mapCommands = (commands) => lightdash.objMap(commands, mapCommand);
 const decycle = (object, replacer) => {
     const objects = new WeakMap();
     const derez = (value, path) => {
-        let old_path; // The path of an earlier occurance of value
+        let oldPath; // The path of an earlier occurance of value
         let nu; // The new object or array
         // If a replacer function was provided, then call it to get a replacement value.
         if (lightdash.isDefined(replacer)) {
@@ -55,10 +55,10 @@ const decycle = (object, replacer) => {
             // If the value is an object or array, look to see if we have already
             // encountered it. If so, return a {"$ref":PATH} object. This uses an
             // ES6 WeakMap.
-            old_path = objects.get(value);
-            if (lightdash.isDefined(old_path)) {
+            oldPath = objects.get(value);
+            if (lightdash.isDefined(oldPath)) {
                 return {
-                    $ref: old_path
+                    $ref: oldPath
                 };
             }
             // Otherwise, accumulate the unique value and its path.
@@ -457,6 +457,50 @@ const onError = (err, app) => {
     }, RECONNECT_TIMEOUT);
 };
 
+/**
+ * Exits the process
+ *
+ * @param {Array<any>} args
+ * @param {Message} msg
+ * @param {App} app
+ * @returns {string}
+ */
+const commandCoreDie = (args, msg, app) => {
+    app.bot.setTimeout(() => {
+        process.exit();
+    }, 1000);
+    return "Shutting down.";
+};
+
+/**
+ * Echos text
+ *
+ * @param {Array<any>} args
+ * @returns {string}
+ */
+const commandCoreEcho = args => args.text;
+
+/* eslint no-unused-vars: "off", no-console: "off" */
+/**
+ * Evaluates
+ *
+ * @param {Array<any>} args
+ * @param {Message} msg
+ * @param {App} app
+ * @returns {false}
+ */
+const commandCoreEval = (args, msg, app) => {
+    let result = "";
+    try {
+        result = eval(args.code);
+    }
+    catch (err) {
+        result = err;
+    }
+    console.log(result);
+    return String(result);
+};
+
 const getHelpAll = (commandsMap, app) => {
     const result = {};
     commandsMap.forEach((command, commandName) => {
@@ -532,50 +576,6 @@ const commandCoreHelp = (args, msg, app) => {
         return getHelpSingle(commandLookup.command, commandPath, app);
     }
     return getHelpAll(app.cli.getAll().map, app);
-};
-
-/* eslint no-unused-vars: "off", no-console: "off" */
-/**
- * Evaluates
- *
- * @param {Array<any>} args
- * @param {Message} msg
- * @param {App} app
- * @returns {false}
- */
-const commandCoreEval = (args, msg, app) => {
-    let result = "";
-    try {
-        result = eval(args.code);
-    }
-    catch (err) {
-        result = err;
-    }
-    console.log(result);
-    return String(result);
-};
-
-/**
- * Echos text
- *
- * @param {Array<any>} args
- * @returns {string}
- */
-const commandCoreEcho = args => args.text;
-
-/**
- * Exits the process
- *
- * @param {Array<any>} args
- * @param {Message} msg
- * @param {App} app
- * @returns {string}
- */
-const commandCoreDie = (args, msg, app) => {
-    app.bot.setTimeout(() => {
-        process.exit();
-    }, 1000);
-    return "Shutting down.";
 };
 
 const commandsDefault = {
@@ -678,7 +678,7 @@ const configDefault = {
         answerToMissingArgs: true,
         answerToMissingPerms: true,
         sendFilesForLongReply: true,
-        logLevel: "debug" // Level of log messages recommended to be either "debug" or "info", but can be any supported log-level
+        logLevel: "debug" // winston log level
     }
 };
 

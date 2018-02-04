@@ -1,16 +1,16 @@
 "use strict";
 
-import decycle from "./decycle";
 import {
-    isObject,
-    isNil,
-    isString,
     isArray,
-    isNumber,
     isBoolean,
     isFunction,
+    isNil,
+    isNumber,
+    isObject,
+    isString,
     objEntries
 } from "lightdash";
+import decycle from "./decycle";
 
 const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 

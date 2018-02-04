@@ -3,11 +3,11 @@
  */
 import {
     isArray,
-    isObjectLike,
     isDate,
+    isDefined,
+    isObjectLike,
     isRegExp,
-    objKeys,
-    isDefined
+    objKeys
 } from "lightdash";
 /*
     cycle.js
@@ -19,7 +19,7 @@ import {
 const decycle = (object: any, replacer?: (val: any) => any): any => {
     const objects = new WeakMap();
     const derez = (value, path) => {
-        let old_path; // The path of an earlier occurance of value
+        let oldPath; // The path of an earlier occurance of value
         let nu; // The new object or array
 
         // If a replacer function was provided, then call it to get a replacement value.
@@ -36,11 +36,11 @@ const decycle = (object: any, replacer?: (val: any) => any): any => {
             // encountered it. If so, return a {"$ref":PATH} object. This uses an
             // ES6 WeakMap.
 
-            old_path = objects.get(value);
+            oldPath = objects.get(value);
 
-            if (isDefined(old_path)) {
+            if (isDefined(oldPath)) {
                 return {
-                    $ref: old_path
+                    $ref: oldPath
                 };
             }
 

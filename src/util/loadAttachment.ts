@@ -1,5 +1,5 @@
-import fetch from "make-fetch-happen";
 import { MessageAttachment } from "discord.js";
+import fetch from "make-fetch-happen";
 
 const nodeFetch = fetch.defaults({
     cacheManager: "./.cache/"

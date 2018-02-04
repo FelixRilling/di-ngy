@@ -1,16 +1,16 @@
 "use strict";
 
-import decycle from "./decycle";
 import {
-    objEntries,
-    objKeys,
-    isObject,
     isArray,
+    isBoolean,
     isFunction,
-    isString,
     isNumber,
-    isBoolean
+    isObject,
+    isString,
+    objEntries,
+    objKeys
 } from "lightdash";
+import decycle from "./decycle";
 
 const LINEBREAK = "\n";
 const INDENT_CHAR = " ";
