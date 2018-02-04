@@ -7,6 +7,7 @@ import { UserResolvable, Client, User } from "discord.js";
  * @param {Guild} guild
  * @returns {Promise}
  */
-const resolveUser = (userResolveable: string, bot: Client): Promise<User> => bot.fetchUser(userResolveable);
+const resolveUser = (userResolveable: string, bot: Client): Promise<User> =>
+    bot.fetchUser(userResolveable);
 
 export default resolveUser;

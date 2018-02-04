@@ -51,9 +51,7 @@ const decycle = (object, replacer) => {
         }
         // typeof null === "object", so go on if this value is really an object but not
         // one of the weird builtin objects.
-        if (lightdash.isObjectLike(value) &&
-            !lightdash.isDate(value) &&
-            !lightdash.isRegExp(value)) {
+        if (lightdash.isObjectLike(value) && !lightdash.isDate(value) && !lightdash.isRegExp(value)) {
             // If the value is an object or array, look to see if we have already
             // encountered it. If so, return a {"$ref":PATH} object. This uses an
             // ES6 WeakMap.
@@ -75,7 +73,7 @@ const decycle = (object, replacer) => {
             else {
                 // If it is an object, replicate the object.
                 nu = {};
-                lightdash.objKeys(value).forEach((name) => {
+                lightdash.objKeys(value).forEach(name => {
                     nu[name] = derez(value[name], path + "[" + JSON.stringify(name) + "]");
                 });
             }
@@ -108,9 +106,7 @@ const humanizeListOptionals = (arr) => arr
     else if (index < data.length - 1) {
         return `, '${item}'`;
     }
-    else {
-        return ` or '${item}'`;
-    }
+    return ` or '${item}'`;
 })
     .join("");
 
@@ -140,20 +136,20 @@ const format = (val, factor = 0) => {
         return String(val);
     }
     else if (lightdash.isArray(val) && val.length > 0) {
-        return LINEBREAK + val
-            .filter(item => !lightdash.isFunction(item))
-            .map(item => indent(format(item, factor + 1), factor))
-            .join(LINEBREAK);
+        return (LINEBREAK +
+            val
+                .filter(item => !lightdash.isFunction(item))
+                .map(item => indent(format(item, factor + 1), factor))
+                .join(LINEBREAK));
     }
     else if (lightdash.isObject(val) && lightdash.objKeys(val).length > 0) {
-        return LINEBREAK + lightdash.objEntries(val)
-            .filter(entry => !lightdash.isFunction(entry[1]))
-            .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
-            .join(LINEBREAK);
+        return (LINEBREAK +
+            lightdash.objEntries(val)
+                .filter(entry => !lightdash.isFunction(entry[1]))
+                .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
+                .join(LINEBREAK));
     }
-    else {
-        return "";
-    }
+    return "";
 };
 /**
  * Decycles and trims object after formating
@@ -161,7 +157,9 @@ const format = (val, factor = 0) => {
  * @param {Object} obj
  * @returns {string}
  */
-const jsonToYaml = (obj) => format(decycle(obj)).replace(/\s+\n/g, "\n").trim();
+const jsonToYaml = (obj) => format(decycle(obj))
+    .replace(/\s+\n/g, "\n")
+    .trim();
 
 const nodeFetch = fetch.defaults({
     cacheManager: "./.cache/"
@@ -186,8 +184,7 @@ const loadAttachment = (attachment) => new Promise((resolve, reject) => {
  * @param {Guild} guild
  * @returns {Channel|null}
  */
-const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable ||
-    channel.name === channelResolvable);
+const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable || channel.name === channelResolvable);
 
 /**
  * creates user+discrim from user
@@ -277,7 +274,7 @@ const util = {
     resolveMember,
     resolveUser,
     stripBotData,
-    toFullName,
+    toFullName
 };
 
 const eventsDefault = {
@@ -463,7 +460,9 @@ const onError = (err, app) => {
 const getHelpAll = (commandsMap, app) => {
     const result = {};
     commandsMap.forEach((command, commandName) => {
-        const subcommandsList = command.sub !== null ? app.util.humanizeList(lightdash.arrFrom(command.sub.map.keys())) : null;
+        const subcommandsList = command.sub !== null
+            ? app.util.humanizeList(lightdash.arrFrom(command.sub.map.keys()))
+            : null;
         if (!command.hidden) {
             if (command.sub) {
                 result[commandName] = {
@@ -674,7 +673,7 @@ const configDefault = {
     options: {
         enableDefaultCommands: true,
         namesAreCaseSensitive: false,
-        validQuotes: ["\""],
+        validQuotes: ['"'],
         answerToMissingCommand: false,
         answerToMissingArgs: true,
         answerToMissingPerms: true,

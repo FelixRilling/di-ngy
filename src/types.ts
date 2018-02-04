@@ -27,4 +27,10 @@ type dingyCommandResult =
     | Promise<string>
     | Promise<IDingyMessageResultExpanded>;
 
-export { dingyCliCommandEntry, dingyCliCommandEntries, dingyCliCommandMap, dingyCommandFn, dingyCommandResult };
+export {
+    dingyCliCommandEntry,
+    dingyCliCommandEntries,
+    dingyCliCommandMap,
+    dingyCommandFn,
+    dingyCommandResult
+};

@@ -1,15 +1,26 @@
 import { dingyCommandFn } from "../../types";
-import { IDingyMessageResultExpanded, IDingy, IDingyCliCommand, IDingyCliCommands, IDingyCli } from "../../interfaces";
+import {
+    IDingyMessageResultExpanded,
+    IDingy,
+    IDingyCliCommand,
+    IDingyCliCommands,
+    IDingyCli
+} from "../../interfaces";
 import { arrFrom } from "lightdash";
 
-const getHelpAll = (commandsMap: Map<string, IDingyCliCommand>, app: IDingy): IDingyMessageResultExpanded => {
+const getHelpAll = (
+    commandsMap: Map<string, IDingyCliCommand>,
+    app: IDingy
+): IDingyMessageResultExpanded => {
     const result = {};
 
     commandsMap.forEach((command, commandName) => {
-        const subcommandsList = command.sub !== null ? app.util.humanizeList(
-
-            arrFrom((<IDingyCli>command.sub).map.keys())
-        ) : null;
+        const subcommandsList =
+            command.sub !== null
+                ? app.util.humanizeList(
+                      arrFrom((<IDingyCli>command.sub).map.keys())
+                  )
+                : null;
 
         if (!command.hidden) {
             if (command.sub) {
@@ -29,7 +40,11 @@ const getHelpAll = (commandsMap: Map<string, IDingyCliCommand>, app: IDingy): ID
     ];
 };
 
-const getHelpSingle = (command: IDingyCliCommand, commandPath: string[], app: IDingy): IDingyMessageResultExpanded => {
+const getHelpSingle = (
+    command: IDingyCliCommand,
+    commandPath: string[],
+    app: IDingy
+): IDingyMessageResultExpanded => {
     const result = {
         desc: command.help.long,
         alias: <null | string>null,
@@ -42,9 +57,7 @@ const getHelpSingle = (command: IDingyCliCommand, commandPath: string[], app: ID
     }
 
     if (command.sub !== null) {
-        result.sub = arrFrom(
-            (<IDingyCli>command.sub).getAll().map.keys()
-        );
+        result.sub = arrFrom((<IDingyCli>command.sub).getAll().map.keys());
     }
 
     if (command.args.length > 0) {

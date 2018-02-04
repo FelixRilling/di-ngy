@@ -13,7 +13,11 @@ import { dataFromValue, eventsDefault } from "./normalizeMessage";
 const MAX_SIZE_MESSAGE = 2000;
 const MAX_SIZE_FILE = 8000000;
 
-const send = (app: IDingy, msg: Message, content: IDingyMessageResultExpanded): Promise<void> =>
+const send = (
+    app: IDingy,
+    msg: Message,
+    content: IDingyMessageResultExpanded
+): Promise<void> =>
     msg.channel
         .send(content[0], <MessageOptions>{
             code: content[1],

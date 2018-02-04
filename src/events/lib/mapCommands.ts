@@ -29,6 +29,7 @@ const mapCommand = (key: string, command: any): IDingyCliCommand => {
     return result;
 };
 
-const mapCommands = (commands: any): IDingyCliCommands => <IDingyCliCommands>objMap(commands, mapCommand);
+const mapCommands = (commands: any): IDingyCliCommands =>
+    <IDingyCliCommands>objMap(commands, mapCommand);
 
 export default mapCommands;

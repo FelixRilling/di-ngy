@@ -23,8 +23,8 @@ const INDENT_SIZE = 2;
  * @param {number} factor
  * @returns {string}
  */
-const indent = (str: string, factor: number): string => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
-
+const indent = (str: string, factor: number): string =>
+    INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
 
 /**
  * Formats JSON as YAML
@@ -39,18 +39,29 @@ const format = (val: any, factor: number = 0): string => {
     } else if (isNumber(val) || isBoolean(val)) {
         return String(val);
     } else if (isArray(val) && val.length > 0) {
-        return LINEBREAK + val
-            .filter(item => !isFunction(item))
-            .map(item => indent(format(item, factor + 1), factor))
-            .join(LINEBREAK);
+        return (
+            LINEBREAK +
+            val
+                .filter(item => !isFunction(item))
+                .map(item => indent(format(item, factor + 1), factor))
+                .join(LINEBREAK)
+        );
     } else if (isObject(val) && objKeys(val).length > 0) {
-        return LINEBREAK + objEntries(val)
-            .filter(entry => !isFunction(entry[1]))
-            .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
-            .join(LINEBREAK);
-    } else {
-        return "";
+        return (
+            LINEBREAK +
+            objEntries(val)
+                .filter(entry => !isFunction(entry[1]))
+                .map(entry =>
+                    indent(
+                        `${entry[0]}: ${format(entry[1], factor + 1)}`,
+                        factor
+                    )
+                )
+                .join(LINEBREAK)
+        );
     }
+
+    return "";
 };
 
 /**
@@ -59,6 +70,9 @@ const format = (val: any, factor: number = 0): string => {
  * @param {Object} obj
  * @returns {string}
  */
-const jsonToYaml = (obj: any): string => format(decycle(obj)).replace(/\s+\n/g, "\n").trim();
+const jsonToYaml = (obj: any): string =>
+    format(decycle(obj))
+        .replace(/\s+\n/g, "\n")
+        .trim();
 
 export default jsonToYaml;

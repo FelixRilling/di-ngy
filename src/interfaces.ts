@@ -1,6 +1,24 @@
-import { Client, GuildMember, Guild, Message, Attachment, User, GuildChannel, MessageAttachment } from "discord.js";
-import { IClingy, IClingyOptions, IClingyCommand, IClingyArg } from "cli-ngy/src/interfaces";
-import { dingyCliCommandMap, dingyCommandFn, dingyCommandResult } from "./types";
+import {
+    Client,
+    GuildMember,
+    Guild,
+    Message,
+    Attachment,
+    User,
+    GuildChannel,
+    MessageAttachment
+} from "discord.js";
+import {
+    IClingy,
+    IClingyOptions,
+    IClingyCommand,
+    IClingyArg
+} from "cli-ngy/src/interfaces";
+import {
+    dingyCliCommandMap,
+    dingyCommandFn,
+    dingyCommandResult
+} from "./types";
 
 /**
  * General
@@ -100,7 +118,7 @@ interface IDingy {
     bot: Client;
     cli: IDingyCli;
     logger: any;
-    util: IDingyUtils,
+    util: IDingyUtils;
 
     connect: () => void;
 }
@@ -144,7 +162,12 @@ interface IDingyCli {
         path: string[],
         pathUsed?: string[]
     ): IDingyCliLookupSuccessful | IDingyCliLookupMissingCommand;
-    parse(input: string): IDingyCliLookupSuccessful | IDingyCliLookupMissingCommand | IDingyCliLookupMissingArg;
+    parse(
+        input: string
+    ):
+        | IDingyCliLookupSuccessful
+        | IDingyCliLookupMissingCommand
+        | IDingyCliLookupMissingArg;
 }
 
 interface IDingyCliLookupSuccessful {
@@ -188,18 +211,17 @@ interface IDingyCliArg extends IClingyArg {
 }
 
 interface IDingyCliCommand extends IClingyCommand {
-    powerRequired: number,
-    hidden: boolean,
+    powerRequired: number;
+    hidden: boolean;
     help: {
-        short: string,
-        long: string
-    }
+        short: string;
+        long: string;
+    };
 }
 
 interface IDingyCliCommands {
     [key: string]: IDingyCliCommand;
 }
-
 
 export {
     IDingy,

@@ -20,7 +20,7 @@ const util: IDingyUtils = {
     resolveMember,
     resolveUser,
     stripBotData,
-    toFullName,
+    toFullName
 };
 
 export default util;

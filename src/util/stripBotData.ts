@@ -20,7 +20,8 @@ const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
  * @param {any} value
  * @returns {boolean}
  */
-const isLegalValue = (value: any): boolean => !isNil(value) && !isFunction(value);
+const isLegalValue = (value: any): boolean =>
+    !isNil(value) && !isFunction(value);
 
 /**
  * Checks if a entry is to be kept in a filter iterator
@@ -28,8 +29,8 @@ const isLegalValue = (value: any): boolean => !isNil(value) && !isFunction(value
  * @param {Array<any>} entry
  * @returns {boolean}
  */
-const isLegalEntry = (entry: [string, any]): boolean => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
-
+const isLegalEntry = (entry: [string, any]): boolean =>
+    !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
 
 /**
  * Cycles and strips all illegal values

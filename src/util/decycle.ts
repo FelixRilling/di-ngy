@@ -1,7 +1,14 @@
 /**
  * slightly modified
  */
-import { isArray, isObjectLike, isDate, isRegExp, objKeys, isDefined } from "lightdash";
+import {
+    isArray,
+    isObjectLike,
+    isDate,
+    isRegExp,
+    objKeys,
+    isDefined
+} from "lightdash";
 /*
     cycle.js
     2017-02-07
@@ -12,7 +19,6 @@ import { isArray, isObjectLike, isDate, isRegExp, objKeys, isDefined } from "lig
 const decycle = (object: any, replacer?: (val: any) => any): any => {
     const objects = new WeakMap();
     const derez = (value, path) => {
-
         let old_path; // The path of an earlier occurance of value
         let nu; // The new object or array
 
@@ -25,11 +31,7 @@ const decycle = (object: any, replacer?: (val: any) => any): any => {
         // typeof null === "object", so go on if this value is really an object but not
         // one of the weird builtin objects.
 
-        if (
-            isObjectLike(value) &&
-            !isDate(value) &&
-            !isRegExp(value)
-        ) {
+        if (isObjectLike(value) && !isDate(value) && !isRegExp(value)) {
             // If the value is an object or array, look to see if we have already
             // encountered it. If so, return a {"$ref":PATH} object. This uses an
             // ES6 WeakMap.
@@ -57,7 +59,7 @@ const decycle = (object: any, replacer?: (val: any) => any): any => {
                 // If it is an object, replicate the object.
 
                 nu = {};
-                objKeys(value).forEach((name) => {
+                objKeys(value).forEach(name => {
                     nu[name] = derez(
                         value[name],
                         path + "[" + JSON.stringify(name) + "]"

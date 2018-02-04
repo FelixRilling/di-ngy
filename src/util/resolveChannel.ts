@@ -9,10 +9,13 @@ import { resolve } from "path";
  * @param {Guild} guild
  * @returns {Channel|null}
  */
-const resolveChannel = (channelResolvable: string, guild: Guild): GuildChannel =>
-    guild.channels.find((channel, id) =>
-        id === channelResolvable ||
-        channel.name === channelResolvable
+const resolveChannel = (
+    channelResolvable: string,
+    guild: Guild
+): GuildChannel =>
+    guild.channels.find(
+        (channel, id) =>
+            id === channelResolvable || channel.name === channelResolvable
     );
 
 export default resolveChannel;

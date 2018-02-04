@@ -11,9 +11,9 @@ const humanizeListOptionals = (arr: string[]): string =>
                 return `'${item}'`;
             } else if (index < data.length - 1) {
                 return `, '${item}'`;
-            } else {
-                return ` or '${item}'`;
             }
+
+            return ` or '${item}'`;
         })
         .join("");
 

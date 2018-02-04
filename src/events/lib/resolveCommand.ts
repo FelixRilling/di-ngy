@@ -60,12 +60,14 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
 
         return app.config.options.answerToMissingPerms
             ? {
-                result: `${app.strings.errorPermission}`,
-                success: false
-            }
+                  result: `${app.strings.errorPermission}`,
+                  success: false
+              }
             : false;
     }
-    const error = (<IDingyCliLookupMissingArg | IDingyCliLookupMissingCommand>commandLookup).error;
+    const error = (<
+        | IDingyCliLookupMissingArg
+        | IDingyCliLookupMissingCommand>commandLookup).error;
 
     if (error.type === "missingCommand") {
         if (app.config.options.answerToMissingCommand) {
@@ -75,9 +77,9 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
 
             if (error.similar.length > 0) {
                 content.push(
-                    `${app.strings.infoSimilar} ${app.util.humanizeListOptionals(
-                        error.similar
-                    )}?`
+                    `${
+                        app.strings.infoSimilar
+                    } ${app.util.humanizeListOptionals(error.similar)}?`
                 );
             }
 
@@ -95,9 +97,9 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
             );
 
             return {
-                result: `${
-                    app.strings.errorMissingArgs
-                    } ${missingNames.join(",")}`,
+                result: `${app.strings.errorMissingArgs} ${missingNames.join(
+                    ","
+                )}`,
                 success: false
             };
         }

@@ -9,11 +9,12 @@ import toFullName from "./toFullName";
  * @returns {Member|null}
  */
 const resolveMember = (memberResolvable: string, guild: Guild): GuildMember =>
-    guild.members.find((member, id) =>
-        id === memberResolvable ||
-        toFullName(member.user) === memberResolvable ||
-        member.user.username === memberResolvable ||
-        member.nickname === memberResolvable
+    guild.members.find(
+        (member, id) =>
+            id === memberResolvable ||
+            toFullName(member.user) === memberResolvable ||
+            member.user.username === memberResolvable ||
+            member.nickname === memberResolvable
     );
 
 export default resolveMember;

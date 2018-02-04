@@ -6,6 +6,7 @@ import { User } from "discord.js";
  * @param {User} user
  * @returns {string}
  */
-const toFullName = (user: User): string => `${user.username}#${user.discriminator}`;
+const toFullName = (user: User): string =>
+    `${user.username}#${user.discriminator}`;
 
 export default toFullName;
