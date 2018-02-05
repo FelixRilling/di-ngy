@@ -363,7 +363,7 @@ const send = (app, msg, content) => msg.channel
     attachments: content[2]
 })
     .then(msgSent => {
-    app.logger.debug("SentMsg");
+    app.logger.debug(`SentMsg: ${content[0]}`);
     content[3].onSend(msgSent);
 })
     .catch(err => {
@@ -438,7 +438,7 @@ const onMessage = (msg, app) => {
         messageText.startsWith(app.config.prefix)) {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
-        app.logger.debug(`Resolving ${msg.author.id}`);
+        app.logger.debug(`Resolving ${msg.author.id}: ${msg.content}`);
         if (commandResult.ignore) {
             app.logger.debug("Ignoring");
         }

@@ -1,13 +1,13 @@
 import { Message, MessageOptions } from "discord.js";
+import { Attachment } from "discord.js";
+import { isPromise } from "lightdash";
 import {
     IDingy,
     IDingyCommandResolved,
-    IDingyMessageResultExpanded,
-    IDingyMessageResultEvents
+    IDingyMessageResultEvents,
+    IDingyMessageResultExpanded
 } from "../../interfaces";
 import { dingyCommandResult } from "../../types";
-import { isPromise } from "lightdash";
-import { Attachment } from "discord.js";
 import { dataFromValue, eventsDefault } from "./normalizeMessage";
 
 const MAX_SIZE_MESSAGE = 2000;
@@ -24,7 +24,7 @@ const send = (
             attachments: content[2]
         })
         .then(msgSent => {
-            app.logger.debug("SentMsg");
+            app.logger.debug(`SentMsg: ${content[0]}`);
 
             (<IDingyMessageResultEvents>content[3]).onSend(<Message>msgSent);
         })

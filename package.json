@@ -51,10 +51,10 @@
     "homepage": "https://github.com/FelixRilling/di-ngy#readme",
     "dependencies": {
         "@types/node": "^9.4.0",
-        "cli-ngy": "^8.0.6",
+        "cli-ngy": "^8.0.7",
         "discord.js": "^11.3.0",
         "flat-cache": "^1.3.0",
-        "lightdash": "^4.1.5",
+        "lightdash": "^4.1.6",
         "make-fetch-happen": "^2.6.0",
         "winston": "^3.0.0-rc1"
     },

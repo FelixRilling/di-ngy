@@ -22,7 +22,7 @@ const onMessage = (msg: Message, app: IDingy): void => {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
 
-        app.logger.debug(`Resolving ${msg.author.id}`);
+        app.logger.debug(`Resolving ${msg.author.id}: ${msg.content}`);
 
         if (commandResult.ignore) {
             app.logger.debug("Ignoring");
