@@ -1,13 +1,13 @@
-import { objDefaultsDeep, objMerge, isUndefined } from "lightdash";
-import { createLogger, format, transports } from "winston";
 import Clingy from "cli-ngy";
 import { Client, Message } from "discord.js";
 import flatCache from "flat-cache";
+import { isUndefined, objDefaultsDeep, objMerge } from "lightdash";
+import { createLogger, format, transports } from "winston";
 
 import mapCommands from "./events/lib/mapCommands";
-import util from "./util/index";
-import onMessage from "./events/onMessage";
 import onError from "./events/onError";
+import onMessage from "./events/onMessage";
+import util from "./util/index";
 
 import commandsDefault from "./defaults/commands.default";
 import configDefault from "./defaults/config.default";
@@ -17,12 +17,11 @@ import userEventsDefault from "./defaults/userEvents.default";
 import {
     IDingy,
     IDingyCli,
-    IDingyStrings,
     IDingyConfig,
+    IDingyStrings,
     IDingyUserEvents,
     IDingyUtils
 } from "./interfaces";
-import { objectStringKeyed } from "lightdash/src/types";
 
 /**
  * Di-ngy class
@@ -34,8 +33,8 @@ const Dingy = class implements IDingy {
     public strings: IDingyStrings;
     public userEvents: IDingyUserEvents;
 
-    public data: objectStringKeyed;
-    public dataPersisted: objectStringKeyed;
+    public data: object;
+    public dataPersisted: object;
 
     public bot: Client;
     public cli: IDingyCli;
@@ -136,7 +135,7 @@ const Dingy = class implements IDingy {
     /**
      * Connect to the Discord API
      */
-    connect() {
+    public connect() {
         this.logger.info("Connect: Starting");
 
         this.bot

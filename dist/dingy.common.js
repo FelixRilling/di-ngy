@@ -3,11 +3,11 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var lightdash = require('lightdash');
-var fetch = _interopDefault(require('make-fetch-happen'));
 var discord_js = require('discord.js');
-var winston = require('winston');
+var fetch = _interopDefault(require('make-fetch-happen'));
 var Clingy = _interopDefault(require('cli-ngy'));
 var flatCache = _interopDefault(require('flat-cache'));
+var winston = require('winston');
 
 const mapCommand = (key, command) => {
     const result = command;
@@ -30,6 +30,187 @@ const mapCommand = (key, command) => {
     return result;
 };
 const mapCommands = (commands) => lightdash.objMap(commands, mapCommand);
+
+const RECONNECT_TIMEOUT = 10000;
+const onError = (err, app) => {
+    app.logger.warn(`reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
+    app.bot.setTimeout(() => {
+        app.connect();
+    }, RECONNECT_TIMEOUT);
+};
+
+const eventsDefault = {
+    onSend: () => { }
+};
+const dataDefaults = [
+    "",
+    false,
+    [],
+    eventsDefault
+];
+const dataFromValue = (val) => lightdash.objDefaultsDeep(lightdash.isString(val) ? [val] : val, dataDefaults);
+const normalizeMessage = (data) => {
+    if (data === false) {
+        return {
+            success: true,
+            ignore: true,
+            result: dataDefaults
+        };
+    }
+    data.ignore = false;
+    data.result = dataFromValue(data.result);
+    return data;
+};
+
+const hasPermissions = (powerRequired, roles, member, guild) => {
+    const checkResults = roles.map(role => (role.check(member, guild) ? role.power : 0));
+    return Math.max(...checkResults) >= powerRequired;
+};
+const resolveCommandResult = (str, msg, app) => {
+    const commandLookup = app.cli.parse(str);
+    // Command check
+    if (commandLookup.success) {
+        const command = commandLookup.command;
+        // Permission check
+        if (hasPermissions(command.powerRequired, app.config.roles, msg.member, msg.guild)) {
+            // Run command fn
+            const result = command.fn(commandLookup.args, msg, app, commandLookup, msg.attachments);
+            return {
+                result,
+                success: true
+            };
+        }
+        return app.config.options.answerToMissingPerms
+            ? {
+                result: `${app.strings.errorPermission}`,
+                success: false
+            }
+            : false;
+    }
+    const error = commandLookup.error;
+    if (error.type === "missingCommand") {
+        if (app.config.options.answerToMissingCommand) {
+            const content = [
+                `${app.strings.errorUnknownCommand} '${error.missing}'`
+            ];
+            if (error.similar.length > 0) {
+                content.push(`${app.strings.infoSimilar} ${app.util.humanizeListOptionals(error.similar)}?`);
+            }
+            return {
+                result: content.join("\n"),
+                success: false
+            };
+        }
+        return false;
+    }
+    else if (error.type === "missingArg") {
+        if (app.config.options.answerToMissingArgs) {
+            const missingNames = error.missing.map(item => item.name);
+            return {
+                result: `${app.strings.errorMissingArgs} ${missingNames.join(",")}`,
+                success: false
+            };
+        }
+        return false;
+    }
+    return false;
+};
+const resolveCommand = (str, msg, app) => normalizeMessage(resolveCommandResult(str, msg, app));
+
+const MAX_SIZE_MESSAGE = 2000;
+const MAX_SIZE_FILE = 8000000;
+const send = (app, msg, content) => msg.channel
+    .send(content[0], {
+    code: content[1],
+    attachments: content[2]
+})
+    .then(msgSent => {
+    app.logger.debug(`SentMsg: ${content[0]}`);
+    content[3].onSend(msgSent);
+})
+    .catch(err => {
+    app.logger.error(`SentMsgError ${err}`);
+});
+const pipeThroughChecks = (app, msg, commandResult, content) => {
+    if (content[0].length === 0) {
+        app.logger.debug("Empty");
+        send(app, msg, dataFromValue(app.strings.infoEmpty));
+    }
+    else if (content[0].length > MAX_SIZE_MESSAGE) {
+        if (app.config.options.sendFilesForLongReply) {
+            const outputFile = Buffer.from(content[0]);
+            if (content[0].length > MAX_SIZE_FILE) {
+                app.logger.debug("TooLong");
+                send(app, msg, dataFromValue(app.strings.infoTooLong));
+            }
+            else {
+                const outputAttachment = new discord_js.Attachment(outputFile, "output.txt");
+                app.logger.debug("TooLong");
+                send(app, msg, [
+                    app.strings.infoTooLong,
+                    true,
+                    [outputAttachment],
+                    eventsDefault
+                ]);
+            }
+        }
+        else {
+            app.logger.debug("TooLong false");
+            send(app, msg, dataFromValue(app.strings.errorTooLong));
+        }
+    }
+    else {
+        // Normal case
+        app.logger.debug("Sending");
+        if (!commandResult.success) {
+            content[1] = true;
+        }
+        send(app, msg, content);
+    }
+};
+const sendMessage = (app, msg, commandResult) => {
+    const content = commandResult.result;
+    if (lightdash.isPromise(content)) {
+        content
+            .then(contentResolved => {
+            app.logger.debug("TextAsync");
+            pipeThroughChecks(app, msg, commandResult, contentResolved);
+        })
+            .catch(err => {
+            app.logger.error(`ErrorInPromise ${err}`);
+        });
+    }
+    else {
+        app.logger.debug("TextSync");
+        pipeThroughChecks(app, msg, commandResult, content);
+    }
+};
+
+const onMessage = (msg, app) => {
+    const messageText = msg.content;
+    /**
+     * Basic Check
+     * Conditions:
+     *    NOT from the system
+     *    NOT from a bot
+     *    DOES start with prefix
+     */
+    if (!msg.system &&
+        !msg.author.bot &&
+        messageText.startsWith(app.config.prefix) &&
+        messageText !== app.config.prefix) {
+        const messageCommand = messageText.substr(app.config.prefix.length);
+        const commandResult = resolveCommand(messageCommand, msg, app);
+        app.logger.debug(`Resolving ${msg.author.id}: ${msg.content}`);
+        if (commandResult.ignore) {
+            app.logger.debug("Ignoring");
+        }
+        else {
+            sendMessage(app, msg, commandResult);
+            app.logger.debug(`Returning ${msg.author.id}`);
+        }
+    }
+};
 
 /**
  * slightly modified
@@ -275,186 +456,6 @@ const util = {
     resolveUser,
     stripBotData,
     toFullName
-};
-
-const eventsDefault = {
-    onSend: () => { }
-};
-const dataDefaults = [
-    "",
-    false,
-    [],
-    eventsDefault
-];
-const dataFromValue = (val) => lightdash.objDefaultsDeep(lightdash.isString(val) ? [val] : val, dataDefaults);
-const normalizeMessage = (data) => {
-    if (data === false) {
-        return {
-            success: true,
-            ignore: true,
-            result: dataDefaults
-        };
-    }
-    data.ignore = false;
-    data.result = dataFromValue(data.result);
-    return data;
-};
-
-const hasPermissions = (powerRequired, roles, member, guild) => {
-    const checkResults = roles.map(role => (role.check(member, guild) ? role.power : 0));
-    return Math.max(...checkResults) >= powerRequired;
-};
-const resolveCommandResult = (str, msg, app) => {
-    const commandLookup = app.cli.parse(str);
-    // Command check
-    if (commandLookup.success) {
-        const command = commandLookup.command;
-        // Permission check
-        if (hasPermissions(command.powerRequired, app.config.roles, msg.member, msg.guild)) {
-            // Run command fn
-            const result = command.fn(commandLookup.args, msg, app, commandLookup, msg.attachments);
-            return {
-                result,
-                success: true
-            };
-        }
-        return app.config.options.answerToMissingPerms
-            ? {
-                result: `${app.strings.errorPermission}`,
-                success: false
-            }
-            : false;
-    }
-    const error = commandLookup.error;
-    if (error.type === "missingCommand") {
-        if (app.config.options.answerToMissingCommand) {
-            const content = [
-                `${app.strings.errorUnknownCommand} '${error.missing}'`
-            ];
-            if (error.similar.length > 0) {
-                content.push(`${app.strings.infoSimilar} ${app.util.humanizeListOptionals(error.similar)}?`);
-            }
-            return {
-                result: content.join("\n"),
-                success: false
-            };
-        }
-        return false;
-    }
-    else if (error.type === "missingArg") {
-        if (app.config.options.answerToMissingArgs) {
-            const missingNames = error.missing.map(item => item.name);
-            return {
-                result: `${app.strings.errorMissingArgs} ${missingNames.join(",")}`,
-                success: false
-            };
-        }
-        return false;
-    }
-    return false;
-};
-const resolveCommand = (str, msg, app) => normalizeMessage(resolveCommandResult(str, msg, app));
-
-const MAX_SIZE_MESSAGE = 2000;
-const MAX_SIZE_FILE = 8000000;
-const send = (app, msg, content) => msg.channel
-    .send(content[0], {
-    code: content[1],
-    attachments: content[2]
-})
-    .then(msgSent => {
-    app.logger.debug(`SentMsg: ${content[0]}`);
-    content[3].onSend(msgSent);
-})
-    .catch(err => {
-    app.logger.error(`SentMsgError ${err}`);
-});
-const pipeThroughChecks = (app, msg, commandResult, content) => {
-    if (content[0].length === 0) {
-        app.logger.debug("Empty");
-        send(app, msg, dataFromValue(app.strings.infoEmpty));
-    }
-    else if (content[0].length > MAX_SIZE_MESSAGE) {
-        if (app.config.options.sendFilesForLongReply) {
-            const outputFile = Buffer.from(content[0]);
-            if (content[0].length > MAX_SIZE_FILE) {
-                app.logger.debug("TooLong");
-                send(app, msg, dataFromValue(app.strings.infoTooLong));
-            }
-            else {
-                const outputAttachment = new discord_js.Attachment(outputFile, "output.txt");
-                app.logger.debug("TooLong");
-                send(app, msg, [
-                    app.strings.infoTooLong,
-                    true,
-                    [outputAttachment],
-                    eventsDefault
-                ]);
-            }
-        }
-        else {
-            app.logger.debug("TooLong false");
-            send(app, msg, dataFromValue(app.strings.errorTooLong));
-        }
-    }
-    else {
-        // Normal case
-        app.logger.debug("Sending");
-        if (!commandResult.success) {
-            content[1] = true;
-        }
-        send(app, msg, content);
-    }
-};
-const sendMessage = (app, msg, commandResult) => {
-    const content = commandResult.result;
-    if (lightdash.isPromise(content)) {
-        content
-            .then(contentResolved => {
-            app.logger.debug("TextAsync");
-            pipeThroughChecks(app, msg, commandResult, contentResolved);
-        })
-            .catch(err => {
-            app.logger.error(`ErrorInPromise ${err}`);
-        });
-    }
-    else {
-        app.logger.debug("TextSync");
-        pipeThroughChecks(app, msg, commandResult, content);
-    }
-};
-
-const onMessage = (msg, app) => {
-    const messageText = msg.content;
-    /**
-     * Basic Check
-     * Conditions:
-     *    NOT from the system
-     *    NOT from a bot
-     *    DOES start with prefix
-     */
-    if (!msg.system &&
-        !msg.author.bot &&
-        messageText.startsWith(app.config.prefix)) {
-        const messageCommand = messageText.substr(app.config.prefix.length);
-        const commandResult = resolveCommand(messageCommand, msg, app);
-        app.logger.debug(`Resolving ${msg.author.id}: ${msg.content}`);
-        if (commandResult.ignore) {
-            app.logger.debug("Ignoring");
-        }
-        else {
-            sendMessage(app, msg, commandResult);
-            app.logger.debug(`Returning ${msg.author.id}`);
-        }
-    }
-};
-
-const RECONNECT_TIMEOUT = 10000;
-const onError = (err, app) => {
-    app.logger.warn(`reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
-    app.bot.setTimeout(() => {
-        app.connect();
-    }, RECONNECT_TIMEOUT);
 };
 
 /**
