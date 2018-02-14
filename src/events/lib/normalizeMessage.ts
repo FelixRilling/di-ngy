@@ -1,9 +1,9 @@
+import { isString, objDefaultsDeep } from "lightdash";
 import {
     IDingyCommandResolved,
     IDingyMessageResultEvents,
     IDingyMessageResultExpanded
 } from "../../interfaces";
-import { isString, objDefaultsDeep } from "lightdash";
 
 const eventsDefault: IDingyMessageResultEvents = {
     onSend: () => {}

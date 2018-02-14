@@ -1,6 +1,3 @@
-/**
- * slightly modified
- */
 import {
     isArray,
     isDate,
@@ -9,6 +6,9 @@ import {
     isRegExp,
     objKeys
 } from "lightdash";
+/**
+ * slightly modified
+ */
 /*
     cycle.js
     2017-02-07
@@ -18,8 +18,9 @@ import {
 
 const decycle = (object: any, replacer?: (val: any) => any): any => {
     const objects = new WeakMap();
-    const derez = (value, path) => {
-        let oldPath; // The path of an earlier occurance of value
+    const derez = (input, path) => {
+        let value = input;
+        let oldPath; // The path of an earlier occurrence of value
         let nu; // The new object or array
 
         // If a replacer function was provided, then call it to get a replacement value.

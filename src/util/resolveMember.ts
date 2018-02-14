@@ -2,7 +2,7 @@ import { Guild, GuildMember } from "discord.js";
 import toFullName from "./toFullName";
 
 /**
- * resolves member by id, username, name#discrim or name
+ * resolves member by id, username, name#discriminator or name
  *
  * @param {string} memberResolvable
  * @param {Guild} guild

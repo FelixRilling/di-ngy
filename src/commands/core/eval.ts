@@ -13,11 +13,13 @@ const commandCoreEval: dingyCommandFn = (args, msg, app): string => {
     let result = "";
 
     try {
+        // tslint:disable-next-line
         result = eval(<string>args.code);
     } catch (err) {
         result = err;
     }
 
+    // tslint:disable-next-line
     console.log(result);
 
     return String(result);

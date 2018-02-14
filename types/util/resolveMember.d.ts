@@ -1,6 +1,6 @@
 import { Guild, GuildMember } from "discord.js";
 /**
- * resolves member by id, username, name#discrim or name
+ * resolves member by id, username, name#discriminator or name
  *
  * @param {string} memberResolvable
  * @param {Guild} guild

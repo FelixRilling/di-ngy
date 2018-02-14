@@ -53,9 +53,9 @@ const strip = (val: any): any => {
             });
 
         return result;
-    } else {
-        return null;
     }
+
+    return null;
 };
 
 /**

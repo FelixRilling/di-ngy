@@ -1,12 +1,12 @@
-import { dingyCommandFn } from "../../types";
+import { arrFrom } from "lightdash";
 import {
-    IDingyMessageResultExpanded,
     IDingy,
+    IDingyCli,
     IDingyCliCommand,
     IDingyCliCommands,
-    IDingyCli
+    IDingyMessageResultExpanded
 } from "../../interfaces";
-import { arrFrom } from "lightdash";
+import { dingyCommandFn } from "../../types";
 
 const getHelpAll = (
     commandsMap: Map<string, IDingyCliCommand>,

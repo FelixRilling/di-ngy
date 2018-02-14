@@ -1,16 +1,16 @@
 import { Guild, GuildMember, Message } from "discord.js";
 import {
     IDingy,
-    IDingyConfigRole,
-    IDingyCliCommand,
     IDingyCliArg,
-    IDingyCliLookupSuccessful,
+    IDingyCliCommand,
+    IDingyCliLookupArgs,
     IDingyCliLookupMissingArg,
     IDingyCliLookupMissingCommand,
+    IDingyCliLookupSuccessful,
     IDingyCommandResolved,
+    IDingyConfigRole,
     IDingyMessageResultEvents,
-    IDingyMessageResultExpanded,
-    IDingyCliLookupArgs
+    IDingyMessageResultExpanded
 } from "../../interfaces";
 import { normalizeMessage } from "./normalizeMessage";
 

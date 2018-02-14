@@ -1,4 +1,4 @@
-import { objMap, isDefined, isString, objDefaultsDeep, isPromise, isArray, isDate, isObjectLike, isRegExp, objKeys, isBoolean, isFunction, isNumber, isObject, objEntries, isNil, arrFrom, isUndefined, objMerge } from 'lightdash';
+import { isDefined, objMap, isString, objDefaultsDeep, isPromise, isArray, isDate, isObjectLike, isRegExp, objKeys, isBoolean, isFunction, isNumber, isObject, objEntries, isNil, arrFrom, isUndefined, objMerge } from 'lightdash';
 import { Attachment, Client } from 'discord.js';
 import fetch from 'make-fetch-happen';
 import Clingy from 'cli-ngy';
@@ -219,8 +219,9 @@ const onMessage = (msg, app) => {
 */
 const decycle = (object, replacer) => {
     const objects = new WeakMap();
-    const derez = (value, path) => {
-        let oldPath; // The path of an earlier occurance of value
+    const derez = (input, path) => {
+        let value = input;
+        let oldPath; // The path of an earlier occurrence of value
         let nu; // The new object or array
         // If a replacer function was provided, then call it to get a replacement value.
         if (isDefined(replacer)) {
@@ -364,7 +365,7 @@ const loadAttachment = (attachment) => new Promise((resolve, reject) => {
 const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable || channel.name === channelResolvable);
 
 /**
- * creates user+discrim from user
+ * creates user+discriminator from user
  *
  * @param {User} user
  * @returns {string}
@@ -372,7 +373,7 @@ const resolveChannel = (channelResolvable, guild) => guild.channels.find((channe
 const toFullName = (user) => `${user.username}#${user.discriminator}`;
 
 /**
- * resolves member by id, username, name#discrim or name
+ * resolves member by id, username, name#discriminator or name
  *
  * @param {string} memberResolvable
  * @param {Guild} guild
@@ -386,11 +387,11 @@ const resolveMember = (memberResolvable, guild) => guild.members.find((member, i
 /**
  * resolves user by id
  *
- * @param {string} userResolveable
+ * @param {string} userResolvable
  * @param {Guild} guild
  * @returns {Promise}
  */
-const resolveUser = (userResolveable, bot) => bot.fetchUser(userResolveable);
+const resolveUser = (userResolvable, bot) => bot.fetchUser(userResolvable);
 
 const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 /**
@@ -429,9 +430,7 @@ const strip = (val) => {
         });
         return result;
     }
-    else {
-        return null;
-    }
+    return null;
 };
 /**
  * Strips sensitive data from bot output
@@ -489,11 +488,13 @@ const commandCoreEcho = args => args.text;
 const commandCoreEval = (args, msg, app) => {
     let result = "";
     try {
+        // tslint:disable-next-line
         result = eval(args.code);
     }
     catch (err) {
         result = err;
     }
+    // tslint:disable-next-line
     console.log(result);
     return String(result);
 };

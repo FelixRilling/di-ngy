@@ -1,5 +1,5 @@
-import { objMap, isDefined } from "lightdash";
-import { IDingyCliCommands, IDingyCliCommand } from "../../interfaces";
+import { isDefined, objMap } from "lightdash";
+import { IDingyCliCommand, IDingyCliCommands } from "../../interfaces";
 
 const mapCommand = (key: string, command: any): IDingyCliCommand => {
     const result = command;

@@ -1,7 +1,7 @@
 import { User } from "discord.js";
 
 /**
- * creates user+discrim from user
+ * creates user+discriminator from user
  *
  * @param {User} user
  * @returns {string}
