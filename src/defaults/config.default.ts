@@ -1,4 +1,11 @@
-import { GuildMember, User } from "discord.js";
+import {
+    DMChannel,
+    GroupDMChannel,
+    Guild,
+    GuildMember,
+    TextChannel,
+    User
+} from "discord.js";
 import { IDingyConfig } from "../interfaces";
 
 const configDefault: IDingyConfig = {
@@ -14,7 +21,11 @@ const configDefault: IDingyConfig = {
             power: 10,
             assignable: false,
             // @ts-ignore
-            check: (member: GuildMember) => [].includes(member.user.id)
+            check: (
+                member: GuildMember,
+                guild: Guild,
+                channel: TextChannel | DMChannel | GroupDMChannel
+            ) => ["yourIdHere"].includes(member.user.id)
         },
         {
             name: "User",

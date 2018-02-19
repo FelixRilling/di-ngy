@@ -194,7 +194,9 @@ const onMessage = (msg, app) => {
     if (!msg.system &&
         !msg.author.bot &&
         messageText.startsWith(app.config.prefix) &&
-        messageText !== app.config.prefix) {
+        messageText !== app.config.prefix &&
+        msg.guild // @TODO: Properly handle this
+    ) {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
         app.logger.debug(`Resolving ${msg.author.id}: ${msg.content}`);
@@ -659,7 +661,7 @@ const configDefault = {
             power: 10,
             assignable: false,
             // @ts-ignore
-            check: (member) => [].includes(member.user.id)
+            check: (member, guild, channel) => ["yourIdHere"].includes(member.user.id)
         },
         {
             name: "User",
