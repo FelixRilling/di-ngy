@@ -1,19 +1,22 @@
 import {
-    Client,
-    GuildMember,
-    Guild,
-    Message,
-    Attachment,
-    User,
-    GuildChannel,
-    MessageAttachment
-} from "discord.js";
-import {
     IClingy,
-    IClingyOptions,
+    IClingyArg,
     IClingyCommand,
-    IClingyArg
+    IClingyOptions
 } from "cli-ngy/src/interfaces";
+import {
+    Attachment,
+    Client,
+    DMChannel,
+    GroupDMChannel,
+    Guild,
+    GuildChannel,
+    GuildMember,
+    Message,
+    MessageAttachment,
+    TextChannel,
+    User
+} from "discord.js";
 import {
     dingyCliCommandMap,
     dingyCommandFn,
@@ -68,7 +71,11 @@ interface IDingyConfigRole {
     name: string;
     power: number;
     assignable: boolean;
-    check: (member: GuildMember, guild: Guild) => boolean;
+    check: (
+        member: GuildMember,
+        guild: Guild,
+        channel: TextChannel | DMChannel | GroupDMChannel
+    ) => boolean;
 }
 
 interface IDingyUserEvents {
@@ -102,7 +109,7 @@ interface IDingyUtils {
     loadAttachment: (attachment: MessageAttachment) => Promise<string>;
     resolveChannel: (channelResolvable: string, guild: Guild) => GuildChannel;
     resolveMember: (memberResolvable: string, guild: Guild) => GuildMember;
-    resolveUser: (userResolveable: string, bot: Client) => Promise<User>;
+    resolveUser: (userResolvable: string, bot: Client) => Promise<User>;
     stripBotData: (obj: any) => any;
     toFullName: (user: User) => string;
 }
@@ -112,8 +119,8 @@ interface IDingy {
     strings: IDingyStrings;
     userEvents: IDingyUserEvents;
 
-    data: objectStringKeyed;
-    dataPersisted: objectStringKeyed;
+    data: object;
+    dataPersisted: object;
 
     bot: Client;
     cli: IDingyCli;
@@ -122,30 +129,6 @@ interface IDingy {
 
     connect: () => void;
 }
-
-/*
-interfaceIDingyCliCommand {
-    alias: string[];
-    sub: IDingyCli | null;
-
-    name?: string;
-    fn: dingyCommandFn;
-    powerRequired: number;
-    hidden: boolean;
-    help: {
-        short: string;
-        long: string;
-    };
-    args: IDingyCommandArg[];
-}
-
-interface IDingyCommandArg {
-    name: string;
-    required: boolean;
-    default?: any;
-    help: string;
-}
- */
 
 /**
  * Cli

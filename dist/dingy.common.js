@@ -62,8 +62,8 @@ const normalizeMessage = (data) => {
     return data;
 };
 
-const hasPermissions = (powerRequired, roles, member, guild) => {
-    const checkResults = roles.map(role => (role.check(member, guild) ? role.power : 0));
+const hasPermissions = (powerRequired, roles, msg) => {
+    const checkResults = roles.map(role => role.check(msg.member, msg.guild, msg.channel) ? role.power : 0);
     return Math.max(...checkResults) >= powerRequired;
 };
 const resolveCommandResult = (str, msg, app) => {
@@ -72,7 +72,7 @@ const resolveCommandResult = (str, msg, app) => {
     if (commandLookup.success) {
         const command = commandLookup.command;
         // Permission check
-        if (hasPermissions(command.powerRequired, app.config.roles, msg.member, msg.guild)) {
+        if (hasPermissions(command.powerRequired, app.config.roles, msg)) {
             // Run command fn
             const result = command.fn(commandLookup.args, msg, app, commandLookup, msg.attachments);
             return {

@@ -17,11 +17,11 @@ import { normalizeMessage } from "./normalizeMessage";
 const hasPermissions = (
     powerRequired: number,
     roles: IDingyConfigRole[],
-    member: GuildMember,
-    guild: Guild
+    msg: Message
 ): boolean => {
     const checkResults = roles.map(
-        role => (role.check(member, guild) ? role.power : 0)
+        role =>
+            role.check(msg.member, msg.guild, msg.channel) ? role.power : 0
     );
 
     return Math.max(...checkResults) >= powerRequired;
@@ -35,14 +35,7 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
         const command = commandLookup.command;
 
         // Permission check
-        if (
-            hasPermissions(
-                command.powerRequired,
-                app.config.roles,
-                msg.member,
-                msg.guild
-            )
-        ) {
+        if (hasPermissions(command.powerRequired, app.config.roles, msg)) {
             // Run command fn
             const result = command.fn(
                 commandLookup.args,

@@ -1,5 +1,5 @@
-import { Client, GuildMember, Guild, Message, Attachment, User, GuildChannel, MessageAttachment } from "discord.js";
-import { IClingyOptions, IClingyCommand, IClingyArg } from "cli-ngy/src/interfaces";
+import { IClingyArg, IClingyCommand, IClingyOptions } from "cli-ngy/src/interfaces";
+import { Attachment, Client, DMChannel, GroupDMChannel, Guild, GuildChannel, GuildMember, Message, MessageAttachment, TextChannel, User } from "discord.js";
 import { dingyCliCommandMap, dingyCommandResult } from "./types";
 /**
  * General
@@ -40,7 +40,7 @@ interface IDingyConfigRole {
     name: string;
     power: number;
     assignable: boolean;
-    check: (member: GuildMember, guild: Guild) => boolean;
+    check: (member: GuildMember, guild: Guild, channel: TextChannel | DMChannel | GroupDMChannel) => boolean;
 }
 interface IDingyUserEvents {
     onInit: (app: IDingy) => void;
@@ -69,7 +69,7 @@ interface IDingyUtils {
     loadAttachment: (attachment: MessageAttachment) => Promise<string>;
     resolveChannel: (channelResolvable: string, guild: Guild) => GuildChannel;
     resolveMember: (memberResolvable: string, guild: Guild) => GuildMember;
-    resolveUser: (userResolveable: string, bot: Client) => Promise<User>;
+    resolveUser: (userResolvable: string, bot: Client) => Promise<User>;
     stripBotData: (obj: any) => any;
     toFullName: (user: User) => string;
 }
@@ -77,8 +77,8 @@ interface IDingy {
     config: IDingyConfig;
     strings: IDingyStrings;
     userEvents: IDingyUserEvents;
-    data: objectStringKeyed;
-    dataPersisted: objectStringKeyed;
+    data: object;
+    dataPersisted: object;
     bot: Client;
     cli: IDingyCli;
     logger: any;
