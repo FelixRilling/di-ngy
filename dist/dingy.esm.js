@@ -661,7 +661,7 @@ const configDefault = {
             power: 10,
             assignable: false,
             // @ts-ignore
-            check: (member, guild, channel) => ["yourIdHere"].includes(member.user.id)
+            check: (member) => ["yourIdHere"].includes(member.user.id)
         },
         {
             name: "User",
