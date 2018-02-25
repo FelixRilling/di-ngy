@@ -2,14 +2,14 @@ import { dingyCommandFn } from "../../types";
 
 /* eslint no-unused-vars: "off", no-console: "off" */
 /**
- * Evaluates
+ * Evaluates and returns
  *
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app
  * @returns {false}
  */
-const commandCoreEval: dingyCommandFn = (args, msg, app) => {
+const commandCoreDump: dingyCommandFn = (args, msg, app) => {
     let result = "";
 
     try {
@@ -22,7 +22,7 @@ const commandCoreEval: dingyCommandFn = (args, msg, app) => {
     // tslint:disable-next-line
     console.log(result);
 
-    return "Done.";
+    return [String(result), true];
 };
 
-export default commandCoreEval;
+export default commandCoreDump;

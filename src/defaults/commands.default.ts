@@ -1,4 +1,5 @@
 import core_die from "../commands/core/die";
+import core_dump from "../commands/core/dump";
 import core_echo from "../commands/core/echo";
 import core_eval from "../commands/core/eval";
 import core_help from "../commands/core/help";
@@ -26,12 +27,30 @@ const commandsDefault: IDingyCliCommands = {
                 help: "Code to run "
             }
         ],
-        alias: ["dump"],
+        alias: [],
         powerRequired: 10,
         hidden: true,
         help: {
             short: "Executes JS code",
             long: "Executes JS code, dangerous!"
+        },
+        sub: null
+    },
+    dump: {
+        fn: core_dump,
+        args: [
+            {
+                name: "code",
+                required: true,
+                help: "Code to run "
+            }
+        ],
+        alias: [],
+        powerRequired: 10,
+        hidden: true,
+        help: {
+            short: "Executes JS code and returns",
+            long: "Executes JS code and returns, dangerous!"
         },
         sub: null
     },

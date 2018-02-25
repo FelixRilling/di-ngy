@@ -474,6 +474,29 @@ const commandCoreDie = (args, msg, app) => {
     return "Shutting down.";
 };
 
+/* eslint no-unused-vars: "off", no-console: "off" */
+/**
+ * Evaluates and returns
+ *
+ * @param {Array<any>} args
+ * @param {Message} msg
+ * @param {App} app
+ * @returns {false}
+ */
+const commandCoreDump = (args, msg, app) => {
+    let result = "";
+    try {
+        // tslint:disable-next-line
+        result = eval(args.code);
+    }
+    catch (err) {
+        result = err;
+    }
+    // tslint:disable-next-line
+    console.log(result);
+    return [String(result), true];
+};
+
 /**
  * Echos text
  *
@@ -502,7 +525,7 @@ const commandCoreEval = (args, msg, app) => {
     }
     // tslint:disable-next-line
     console.log(result);
-    return String(result);
+    return "Done.";
 };
 
 const getHelpAll = (commandsMap, app) => {
@@ -604,12 +627,30 @@ const commandsDefault = {
                 help: "Code to run "
             }
         ],
-        alias: ["dump"],
+        alias: [],
         powerRequired: 10,
         hidden: true,
         help: {
             short: "Executes JS code",
             long: "Executes JS code, dangerous!"
+        },
+        sub: null
+    },
+    dump: {
+        fn: commandCoreDump,
+        args: [
+            {
+                name: "code",
+                required: true,
+                help: "Code to run "
+            }
+        ],
+        alias: [],
+        powerRequired: 10,
+        hidden: true,
+        help: {
+            short: "Executes JS code and returns",
+            long: "Executes JS code and returns, dangerous!"
         },
         sub: null
     },
