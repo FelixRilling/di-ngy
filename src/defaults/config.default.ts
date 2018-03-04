@@ -21,8 +21,7 @@ const configDefault: IDingyConfig = {
             power: 10,
             assignable: false,
             // @ts-ignore
-            check: (member: GuildMember) =>
-                ["yourIdHere"].includes(member.user.id)
+            check: msg => ["yourIdHere"].includes(msg.author.id)
         },
         {
             name: "User",

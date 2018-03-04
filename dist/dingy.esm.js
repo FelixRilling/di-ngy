@@ -64,7 +64,7 @@ const normalizeMessage = (data) => {
 };
 
 const hasPermissions = (powerRequired, roles, msg) => {
-    const checkResults = roles.map(role => role.check(msg.member, msg.guild, msg.channel) ? role.power : 0);
+    const checkResults = roles.map(role => (role.check(msg) ? role.power : 0));
     return Math.max(...checkResults) >= powerRequired;
 };
 const resolveCommandResult = (str, msg, app) => {
@@ -72,6 +72,10 @@ const resolveCommandResult = (str, msg, app) => {
     // Command check
     if (commandLookup.success) {
         const command = commandLookup.command;
+        const isDM = !msg.guild;
+        if (isDM && !command.usableInDMs) {
+            return false;
+        }
         // Permission check
         if (hasPermissions(command.powerRequired, app.config.roles, msg)) {
             // Run command fn
@@ -199,9 +203,7 @@ const onMessage = (msg, app) => {
     if (!msg.system &&
         !msg.author.bot &&
         messageText.startsWith(app.config.prefix) &&
-        messageText !== app.config.prefix &&
-        msg.guild // @TODO: Properly handle this
-    ) {
+        messageText !== app.config.prefix) {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
         app.logger.debug(`Resolving ${msg.author.id}: ${msg.content}`);
@@ -712,7 +714,7 @@ const configDefault = {
             power: 10,
             assignable: false,
             // @ts-ignore
-            check: (member) => ["yourIdHere"].includes(member.user.id)
+            check: msg => ["yourIdHere"].includes(msg.author.id)
         },
         {
             name: "User",

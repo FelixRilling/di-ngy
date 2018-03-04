@@ -13,7 +13,7 @@ const config = {
             name: "Admin",
             power: 10,
             assignable: false,
-            check: member => ["128985967875850240"].includes(member.user.id)
+            check: author => ["128985967875850240"].includes(author.id)
         },
         {
             name: "User",
@@ -97,7 +97,7 @@ const commands = {
             inDM: {
                 fn: () => "OK",
                 alias: [],
-                allowedInDMs: true
+                usableInDMs: true
             }
         }
     }

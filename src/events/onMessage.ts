@@ -18,8 +18,7 @@ const onMessage = (msg: Message, app: IDingy): void => {
         !msg.system &&
         !msg.author.bot &&
         messageText.startsWith(app.config.prefix) &&
-        messageText !== app.config.prefix &&
-        msg.guild // @TODO: Properly handle this
+        messageText !== app.config.prefix
     ) {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);

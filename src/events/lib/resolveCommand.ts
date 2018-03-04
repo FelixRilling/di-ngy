@@ -19,10 +19,7 @@ const hasPermissions = (
     roles: IDingyConfigRole[],
     msg: Message
 ): boolean => {
-    const checkResults = roles.map(
-        role =>
-            role.check(msg.member, msg.guild, msg.channel) ? role.power : 0
-    );
+    const checkResults = roles.map(role => (role.check(msg) ? role.power : 0));
 
     return Math.max(...checkResults) >= powerRequired;
 };
@@ -33,6 +30,11 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
     // Command check
     if (commandLookup.success) {
         const command = commandLookup.command;
+        const isDM = !msg.guild;
+
+        if (isDM && !command.usableInDMs) {
+            return false;
+        }
 
         // Permission check
         if (hasPermissions(command.powerRequired, app.config.roles, msg)) {

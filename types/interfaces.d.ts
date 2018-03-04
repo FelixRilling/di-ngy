@@ -1,5 +1,5 @@
 import { IClingyArg, IClingyCommand, IClingyOptions } from "cli-ngy/src/interfaces";
-import { Attachment, Client, DMChannel, GroupDMChannel, Guild, GuildChannel, GuildMember, Message, MessageAttachment, TextChannel, User } from "discord.js";
+import { Attachment, Client, Guild, GuildChannel, GuildMember, Message, MessageAttachment, User } from "discord.js";
 import { dingyCliCommandMap, dingyCommandResult } from "./types";
 /**
  * General
@@ -40,7 +40,7 @@ interface IDingyConfigRole {
     name: string;
     power: number;
     assignable: boolean;
-    check: (member: GuildMember, guild: Guild, channel: TextChannel | DMChannel | GroupDMChannel) => boolean;
+    check: (msg: Message) => boolean;
 }
 interface IDingyUserEvents {
     onInit: (app: IDingy) => void;

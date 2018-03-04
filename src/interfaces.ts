@@ -71,11 +71,7 @@ interface IDingyConfigRole {
     name: string;
     power: number;
     assignable: boolean;
-    check: (
-        member: GuildMember,
-        guild: Guild,
-        channel: TextChannel | DMChannel | GroupDMChannel
-    ) => boolean;
+    check: (msg: Message) => boolean;
 }
 
 interface IDingyUserEvents {
