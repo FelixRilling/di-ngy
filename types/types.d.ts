@@ -1,5 +1,5 @@
-import { Message, MessageAttachment, Collection } from "discord.js";
-import { IDingy, IDingyMessageResultExpanded, IDingyCliCommand, IDingyCliLookupArgs, IDingyCliLookupSuccessful } from "./interfaces";
+import { Collection, Message, MessageAttachment } from "discord.js";
+import { IDingy, IDingyCliCommand, IDingyCliLookupArgs, IDingyCliLookupSuccessful, IDingyMessageResultExpanded } from "./interfaces";
 declare type dingyCliCommandEntry = [string, IDingyCliCommand];
 declare type dingyCliCommandEntries = dingyCliCommandEntry[];
 declare type dingyCliCommandMap = Map<string, IDingyCliCommand>;

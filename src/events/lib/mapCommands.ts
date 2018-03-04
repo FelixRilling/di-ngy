@@ -1,31 +1,32 @@
-import { isDefined, objMap } from "lightdash";
+import { isDefined, isNil, objDefaultsDeep, objMap } from "lightdash";
 import { IDingyCliCommand, IDingyCliCommands } from "../../interfaces";
 
+const NO_HELP = "No help provided";
+
+const commandDefault = {
+    fn: () => "",
+    args: [],
+    alias: [],
+    powerRequired: 0,
+    hidden: false,
+    usableInDMs: false,
+    help: {
+        short: NO_HELP
+    },
+    sub: null
+};
+
 const mapCommand = (key: string, command: any): IDingyCliCommand => {
-    const result = command;
+    const result = <IDingyCliCommand>objDefaultsDeep(command, commandDefault);
 
-    result.powerRequired = isDefined(result.powerRequired)
-        ? result.powerRequired
-        : 0;
-    result.hidden = isDefined(result.hidden) ? result.hidden : false;
-    result.usableInDMs = isDefined(result.usableInDMs)
-        ? result.usableInDMs
-        : false;
+    result.args.map(arg => (isDefined(arg.help) ? arg.help : NO_HELP));
 
-    result.help = isDefined(result.help) ? result.help : {};
-    result.help.short = isDefined(result.help.short)
-        ? result.help.short
-        : "No help provided";
-    result.help.long = isDefined(result.help.long)
-        ? result.help.long
-        : result.help.short;
+    if (!isDefined(result.help.long)) {
+        result.help.long = result.help.short;
+    }
 
-    result.args = isDefined(result.args) ? result.args : [];
-    result.args.map(
-        arg => (isDefined(arg.help) ? arg.help : "No help provided")
-    );
-
-    if (result.sub) {
+    if (!isNil(result.sub)) {
+        // @ts-ignore
         result.sub = objMap(result.sub, mapCommand);
     }
 

@@ -9,22 +9,27 @@ var Clingy = _interopDefault(require('cli-ngy'));
 var flatCache = _interopDefault(require('flat-cache'));
 var winston = require('winston');
 
+const NO_HELP = "No help provided";
+const commandDefault = {
+    fn: () => "",
+    args: [],
+    alias: [],
+    powerRequired: 0,
+    hidden: false,
+    usableInDMs: false,
+    help: {
+        short: NO_HELP
+    },
+    sub: null
+};
 const mapCommand = (key, command) => {
-    const result = command;
-    result.powerRequired = lightdash.isDefined(result.powerRequired)
-        ? result.powerRequired
-        : 0;
-    result.hidden = lightdash.isDefined(result.hidden) ? result.hidden : false;
-    result.help = lightdash.isDefined(result.help) ? result.help : {};
-    result.help.short = lightdash.isDefined(result.help.short)
-        ? result.help.short
-        : "No help provided";
-    result.help.long = lightdash.isDefined(result.help.long)
-        ? result.help.long
-        : result.help.short;
-    result.args = lightdash.isDefined(result.args) ? result.args : [];
-    result.args.map(arg => (lightdash.isDefined(arg.help) ? arg.help : "No help provided"));
-    if (result.sub) {
+    const result = lightdash.objDefaultsDeep(command, commandDefault);
+    result.args.map(arg => (lightdash.isDefined(arg.help) ? arg.help : NO_HELP));
+    if (!lightdash.isDefined(result.help.long)) {
+        result.help.long = result.help.short;
+    }
+    if (!lightdash.isNil(result.sub)) {
+        // @ts-ignore
         result.sub = lightdash.objMap(result.sub, mapCommand);
     }
     return result;
@@ -612,6 +617,7 @@ const commandsDefault = {
         alias: ["quit", "exit"],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Kills the bot",
             long: "Kills the bot"
@@ -630,6 +636,7 @@ const commandsDefault = {
         alias: [],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Executes JS code",
             long: "Executes JS code, dangerous!"
@@ -648,6 +655,7 @@ const commandsDefault = {
         alias: [],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Executes JS code and returns",
             long: "Executes JS code and returns, dangerous!"
@@ -666,6 +674,7 @@ const commandsDefault = {
         alias: ["say"],
         powerRequired: 8,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Echos text",
             long: "Echos text"
@@ -683,8 +692,9 @@ const commandsDefault = {
             }
         ],
         alias: ["commands"],
-        hidden: false,
         powerRequired: 0,
+        hidden: false,
+        usableInDMs: true,
         help: {
             short: "Shows help",
             long: "Shows help for one or all commands"

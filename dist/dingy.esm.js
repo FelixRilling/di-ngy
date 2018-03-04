@@ -1,26 +1,31 @@
-import { isDefined, objMap, isString, objDefaultsDeep, isPromise, isArray, isDate, isObjectLike, isRegExp, objKeys, isBoolean, isFunction, isNumber, isObject, objEntries, isNil, arrFrom, isUndefined, objMerge } from 'lightdash';
+import { isDefined, isNil, objDefaultsDeep, objMap, isString, isPromise, isArray, isDate, isObjectLike, isRegExp, objKeys, isBoolean, isFunction, isNumber, isObject, objEntries, arrFrom, isUndefined, objMerge } from 'lightdash';
 import { Attachment, Client } from 'discord.js';
 import fetch from 'make-fetch-happen';
 import Clingy from 'cli-ngy';
 import flatCache from 'flat-cache';
 import { createLogger, format, transports } from 'winston';
 
+const NO_HELP = "No help provided";
+const commandDefault = {
+    fn: () => "",
+    args: [],
+    alias: [],
+    powerRequired: 0,
+    hidden: false,
+    usableInDMs: false,
+    help: {
+        short: NO_HELP
+    },
+    sub: null
+};
 const mapCommand = (key, command) => {
-    const result = command;
-    result.powerRequired = isDefined(result.powerRequired)
-        ? result.powerRequired
-        : 0;
-    result.hidden = isDefined(result.hidden) ? result.hidden : false;
-    result.help = isDefined(result.help) ? result.help : {};
-    result.help.short = isDefined(result.help.short)
-        ? result.help.short
-        : "No help provided";
-    result.help.long = isDefined(result.help.long)
-        ? result.help.long
-        : result.help.short;
-    result.args = isDefined(result.args) ? result.args : [];
-    result.args.map(arg => (isDefined(arg.help) ? arg.help : "No help provided"));
-    if (result.sub) {
+    const result = objDefaultsDeep(command, commandDefault);
+    result.args.map(arg => (isDefined(arg.help) ? arg.help : NO_HELP));
+    if (!isDefined(result.help.long)) {
+        result.help.long = result.help.short;
+    }
+    if (!isNil(result.sub)) {
+        // @ts-ignore
         result.sub = objMap(result.sub, mapCommand);
     }
     return result;
@@ -608,6 +613,7 @@ const commandsDefault = {
         alias: ["quit", "exit"],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Kills the bot",
             long: "Kills the bot"
@@ -626,6 +632,7 @@ const commandsDefault = {
         alias: [],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Executes JS code",
             long: "Executes JS code, dangerous!"
@@ -644,6 +651,7 @@ const commandsDefault = {
         alias: [],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Executes JS code and returns",
             long: "Executes JS code and returns, dangerous!"
@@ -662,6 +670,7 @@ const commandsDefault = {
         alias: ["say"],
         powerRequired: 8,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Echos text",
             long: "Echos text"
@@ -679,8 +688,9 @@ const commandsDefault = {
             }
         ],
         alias: ["commands"],
-        hidden: false,
         powerRequired: 0,
+        hidden: false,
+        usableInDMs: true,
         help: {
             short: "Shows help",
             long: "Shows help for one or all commands"

@@ -136,6 +136,7 @@ interface IDingyCliArg extends IClingyArg {
 interface IDingyCliCommand extends IClingyCommand {
     powerRequired: number;
     hidden: boolean;
+    usableInDMs: boolean;
     help: {
         short: string;
         long: string;
