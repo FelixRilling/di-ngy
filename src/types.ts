@@ -1,10 +1,10 @@
-import { Message, MessageAttachment, Collection } from "discord.js";
+import { Collection, Message, MessageAttachment } from "discord.js";
 import {
     IDingy,
-    IDingyMessageResultExpanded,
     IDingyCliCommand,
     IDingyCliLookupArgs,
-    IDingyCliLookupSuccessful
+    IDingyCliLookupSuccessful,
+    IDingyMessageResultExpanded
 } from "./interfaces";
 
 type dingyCliCommandEntry = [string, IDingyCliCommand];

@@ -12,6 +12,7 @@ const commandsDefault: IDingyCliCommands = {
         alias: ["quit", "exit"],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Kills the bot",
             long: "Kills the bot"
@@ -30,6 +31,7 @@ const commandsDefault: IDingyCliCommands = {
         alias: [],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Executes JS code",
             long: "Executes JS code, dangerous!"
@@ -48,6 +50,7 @@ const commandsDefault: IDingyCliCommands = {
         alias: [],
         powerRequired: 10,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Executes JS code and returns",
             long: "Executes JS code and returns, dangerous!"
@@ -66,6 +69,7 @@ const commandsDefault: IDingyCliCommands = {
         alias: ["say"],
         powerRequired: 8,
         hidden: true,
+        usableInDMs: true,
         help: {
             short: "Echos text",
             long: "Echos text"
@@ -83,8 +87,9 @@ const commandsDefault: IDingyCliCommands = {
             }
         ],
         alias: ["commands"],
-        hidden: false,
         powerRequired: 0,
+        hidden: false,
+        usableInDMs: true,
         help: {
             short: "Shows help",
             long: "Shows help for one or all commands"

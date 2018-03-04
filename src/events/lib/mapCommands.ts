@@ -8,6 +8,9 @@ const mapCommand = (key: string, command: any): IDingyCliCommand => {
         ? result.powerRequired
         : 0;
     result.hidden = isDefined(result.hidden) ? result.hidden : false;
+    result.usableInDMs = isDefined(result.usableInDMs)
+        ? result.usableInDMs
+        : false;
 
     result.help = isDefined(result.help) ? result.help : {};
     result.help.short = isDefined(result.help.short)
