@@ -34,7 +34,7 @@ const mapCommands = (commands) => objMap(commands, mapCommand);
 
 const RECONNECT_TIMEOUT = 10000;
 const onError = (err, app) => {
-    app.logger.warn(`reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
+    app.logger.warn(`Reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
     app.bot.setTimeout(() => {
         app.connect();
     }, RECONNECT_TIMEOUT);
@@ -206,13 +206,13 @@ const onMessage = (msg, app) => {
         messageText !== app.config.prefix) {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
-        app.logger.debug(`Resolving ${msg.author.id}: ${msg.content}`);
+        app.logger.info(`Resolving ${msg.author.id}: ${msg.content}`);
         if (commandResult.ignore) {
             app.logger.debug("Ignoring");
         }
         else {
             sendMessage(app, msg, commandResult);
-            app.logger.debug(`Returning ${msg.author.id}`);
+            app.logger.info(`Returning response to message from ${msg.author.id}`);
         }
     }
 };
@@ -310,6 +310,8 @@ const INDENT_SIZE = 2;
 const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
 /**
  * Formats JSON as YAML
+ *
+ * Note: the output is not fully spec compliant, strings are not escaped/quoted
  *
  * @param {any} val
  * @param {number} [factor=0]
@@ -731,7 +733,7 @@ const configDefault = {
         answerToMissingArgs: true,
         answerToMissingPerms: true,
         sendFilesForLongReply: true,
-        logLevel: "debug" // winston log level
+        logLevel: "info" // winston log level
     }
 };
 
@@ -792,23 +794,23 @@ const Dingy = class {
                 new transports.File({ filename: "bot.log" })
             ]
         });
-        this.logger.info("Init: Loaded Config");
+        this.logger.verbose("Init: Loaded Config");
         this.cli = new Clingy(mapCommands(objMerge(commandsDefault, commands)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
             validQuotes: this.config.options.validQuotes
         });
-        this.logger.info("Init: Created Clingy");
+        this.logger.verbose("Init: Created Clingy");
         /**
          * Bootstraps Client
          */
         this.bot = new Client();
-        this.logger.info("Init: Created Discord Client");
+        this.logger.verbose("Init: Created Discord Client");
         this.data = {};
         this.dataPersisted = {};
         this.config.dataPersisted.files.forEach(fileName => {
             this.dataPersisted[fileName] = flatCache.load(`${fileName}.json`, this.config.dataPersisted.dir);
         });
-        this.logger.info("Init: Loaded Data");
+        this.logger.verbose("Init: Loaded Data");
         /**
          * Binds events
          */
@@ -816,8 +818,8 @@ const Dingy = class {
             onMessage(msg, this);
             this.userEvents.onMessage(msg, this);
         });
-        this.bot.on("disConnect", (err) => {
-            this.logger.error("Dissconnect", err);
+        this.bot.on("disconnect", (err) => {
+            this.logger.error("Disconnect", err);
             onError(err, this);
         });
         this.bot.on("error", (err) => {

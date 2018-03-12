@@ -41,7 +41,7 @@ const configDefault: IDingyConfig = {
 
         sendFilesForLongReply: true, // If replies over 2000 chars should be sent as file instead
 
-        logLevel: "debug" // winston log level
+        logLevel: "info" // winston log level
     }
 };
 

@@ -86,7 +86,7 @@ const Dingy = class implements IDingy {
                 new transports.File({ filename: "bot.log" })
             ]
         });
-        this.logger.info("Init: Loaded Config");
+        this.logger.verbose("Init: Loaded Config");
 
         this.cli = <IDingyCli>new Clingy(
             mapCommands(objMerge(commandsDefault, commands)),
@@ -95,13 +95,13 @@ const Dingy = class implements IDingy {
                 validQuotes: this.config.options.validQuotes
             }
         );
-        this.logger.info("Init: Created Clingy");
+        this.logger.verbose("Init: Created Clingy");
 
         /**
          * Bootstraps Client
          */
         this.bot = new Client();
-        this.logger.info("Init: Created Discord Client");
+        this.logger.verbose("Init: Created Discord Client");
 
         this.data = {};
         this.dataPersisted = {};
@@ -111,7 +111,7 @@ const Dingy = class implements IDingy {
                 this.config.dataPersisted.dir
             );
         });
-        this.logger.info("Init: Loaded Data");
+        this.logger.verbose("Init: Loaded Data");
 
         /**
          * Binds events
@@ -120,8 +120,8 @@ const Dingy = class implements IDingy {
             onMessage(msg, this);
             this.userEvents.onMessage(msg, this);
         });
-        this.bot.on("disConnect", (err: Error) => {
-            this.logger.error("Dissconnect", err);
+        this.bot.on("disconnect", (err: Error) => {
+            this.logger.error("Disconnect", err);
             onError(err, this);
         });
         this.bot.on("error", (err: Error) => {

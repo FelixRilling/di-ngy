@@ -29,6 +29,8 @@ const indent = (str: string, factor: number): string =>
 /**
  * Formats JSON as YAML
  *
+ * Note: the output is not fully spec compliant, strings are not escaped/quoted
+ *
  * @param {any} val
  * @param {number} [factor=0]
  * @returns {string}

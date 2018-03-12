@@ -4,7 +4,7 @@ const RECONNECT_TIMEOUT = 10000;
 
 const onError = (err: Error, app: IDingy): void => {
     app.logger.warn(
-        `reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`
+        `Reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`
     );
     app.bot.setTimeout(() => {
         app.connect();

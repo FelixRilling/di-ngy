@@ -23,13 +23,15 @@ const onMessage = (msg: Message, app: IDingy): void => {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
 
-        app.logger.debug(`Resolving ${msg.author.id}: ${msg.content}`);
+        app.logger.info(`Resolving ${msg.author.id}: ${msg.content}`);
 
         if (commandResult.ignore) {
             app.logger.debug("Ignoring");
         } else {
             sendMessage(app, msg, commandResult);
-            app.logger.debug(`Returning ${msg.author.id}`);
+            app.logger.info(
+                `Returning response to message from ${msg.author.id}`
+            );
         }
     }
 };
