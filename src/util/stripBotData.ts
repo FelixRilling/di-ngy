@@ -16,6 +16,7 @@ const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 /**
  * Checks if a value is to be kept in a filter iterator
  *
+ * @private
  * @param {any} value
  * @returns {boolean}
  */
@@ -25,6 +26,7 @@ const isLegalValue = (value: any): boolean =>
 /**
  * Checks if a entry is to be kept in a filter iterator
  *
+ * @private
  * @param {Array<any>} entry
  * @returns {boolean}
  */
@@ -34,6 +36,7 @@ const isLegalEntry = (entry: [string, any]): boolean =>
 /**
  * Cycles and strips all illegal values
  *
+ * @private
  * @param {any} val
  * @returns {any}
  */
@@ -60,6 +63,7 @@ const strip = (val: any): any => {
 /**
  * Strips sensitive data from bot output
  *
+ * @private
  * @param {Object} obj
  * @returns {any}
  */

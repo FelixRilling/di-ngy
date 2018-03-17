@@ -88,6 +88,7 @@ const getHelpSingle = (
 /**
  * Displays help
  *
+ * @private
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app

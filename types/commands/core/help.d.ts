@@ -2,6 +2,7 @@ import { dingyCommandFn } from "../../types";
 /**
  * Displays help
  *
+ * @private
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app

@@ -2,6 +2,7 @@ import { dingyCommandFn } from "../../types";
 /**
  * Echos text
  *
+ * @private
  * @param {Array<any>} args
  * @returns {string}
  */

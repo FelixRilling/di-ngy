@@ -46,9 +46,9 @@ const Dingy = class implements IDingy {
      *
      * @constructor
      * @param {Object} config
-     * @param {Object} commands
-     * @param {Object} strings
-     * @param {Object} userEvents
+     * @param {Object} [commands={}]
+     * @param {Object} [strings={}]
+     * @param {Object} [userEvents={}]
      */
     constructor(
         config: any,
@@ -60,18 +60,32 @@ const Dingy = class implements IDingy {
             throw new Error("No token provided");
         }
 
+        /**
+         * Contains internal utility methods
+         */
         this.util = util;
 
         /**
          * Stores instance config
          */
         this.config = <IDingyConfig>objDefaultsDeep(config, configDefault);
+
+        /**
+         * Strings used by the bot
+         */
         this.strings = <IDingyStrings>objDefaultsDeep(strings, stringsDefault);
+
+        /**
+         * Custom user events
+         */
         this.userEvents = <IDingyUserEvents>objDefaultsDeep(
             userEvents,
             userEventsDefault
         );
 
+        /**
+         * Winston logger
+         */
         this.logger = createLogger({
             level: this.config.options.logLevel,
             exitOnError: false,
@@ -88,6 +102,9 @@ const Dingy = class implements IDingy {
         });
         this.logger.verbose("Init: Loaded Config");
 
+        /**
+         * Command interpreter
+         */
         this.cli = <IDingyCli>new Clingy(
             mapCommands(Object.assign(commandsDefault, commands)),
             {
@@ -98,12 +115,18 @@ const Dingy = class implements IDingy {
         this.logger.verbose("Init: Created Clingy");
 
         /**
-         * Bootstraps Client
+         * Discord.js client
          */
         this.bot = new Client();
         this.logger.verbose("Init: Created Discord Client");
 
+        /**
+         * Runtime data storage
+         */
         this.data = {};
+        /**
+         * Persisted data storage
+         */
         this.dataPersisted = {};
         this.config.dataPersisted.files.forEach(fileName => {
             this.dataPersisted[fileName] = flatCache.load(

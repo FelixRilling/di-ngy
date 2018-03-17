@@ -5,6 +5,7 @@ import toFullName from "./toFullName";
 /**
  * resolves channel by id or name
  *
+ * @private
  * @param {string} channelResolvable
  * @param {Guild} guild
  * @returns {Channel|null}

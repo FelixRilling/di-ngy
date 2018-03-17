@@ -14,7 +14,9 @@ import {
 
     Public Domain.
 */
-
+/**
+ * @private
+ */
 const decycle = (object: any, replacer?: (val: any) => any): any => {
     const objects = new WeakMap();
     const derez = (input, path) => {

@@ -2,6 +2,7 @@ import { Client, User } from "discord.js";
 /**
  * resolves user by id
  *
+ * @private
  * @param {string} userResolvable
  * @param {Guild} guild
  * @returns {Promise}

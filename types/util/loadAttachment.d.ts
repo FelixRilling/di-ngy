@@ -2,6 +2,7 @@ import { MessageAttachment } from "discord.js";
 /**
  * Loads an attachment and returns contents
  *
+ * @private
  * @param {MessageAttachment} attachment
  * @returns {Promise}
  */

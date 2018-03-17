@@ -8,6 +8,7 @@ const nodeFetch = fetch.defaults({
 /**
  * Loads an attachment and returns contents
  *
+ * @private
  * @param {MessageAttachment} attachment
  * @returns {Promise}
  */

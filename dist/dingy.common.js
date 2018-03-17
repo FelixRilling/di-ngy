@@ -230,6 +230,9 @@ const onMessage = (msg, app) => {
 
     Public Domain.
 */
+/**
+ * @private
+ */
 const decycle = (object, replacer) => {
     const objects = new WeakMap();
     const derez = (input, path) => {
@@ -278,6 +281,7 @@ const decycle = (object, replacer) => {
 /**
  * Turns an array into a humanized string
  *
+ * @private
  * @param {Array<string>} arr
  * @returns {string}
  */
@@ -286,6 +290,7 @@ const humanizeList = (arr) => arr.join(", ");
 /**
  * Turns an array into a humanized string of optionals
  *
+ * @private
  * @param {Array<string>} arr
  * @returns {string}
  */
@@ -307,6 +312,7 @@ const INDENT_SIZE = 2;
 /**
  * Indent string by factor
  *
+ * @private
  * @param {string} str
  * @param {number} factor
  * @returns {string}
@@ -317,6 +323,7 @@ const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
  *
  * Note: the output is not fully spec compliant, strings are not escaped/quoted
  *
+ * @private
  * @param {any} val
  * @param {number} [factor=0]
  * @returns {string}
@@ -347,6 +354,7 @@ const format = (val, factor = 0) => {
 /**
  * Decycles and trims object after formating
  *
+ * @private
  * @param {Object} obj
  * @returns {string}
  */
@@ -360,6 +368,7 @@ const nodeFetch = fetch.defaults({
 /**
  * Loads an attachment and returns contents
  *
+ * @private
  * @param {MessageAttachment} attachment
  * @returns {Promise}
  */
@@ -373,6 +382,7 @@ const loadAttachment = (attachment) => new Promise((resolve, reject) => {
 /**
  * resolves channel by id or name
  *
+ * @private
  * @param {string} channelResolvable
  * @param {Guild} guild
  * @returns {Channel|null}
@@ -382,6 +392,7 @@ const resolveChannel = (channelResolvable, guild) => guild.channels.find((channe
 /**
  * creates user+discriminator from user
  *
+ * @private
  * @param {User} user
  * @returns {string}
  */
@@ -390,6 +401,7 @@ const toFullName = (user) => `${user.username}#${user.discriminator}`;
 /**
  * resolves member by id, username, name#discriminator or name
  *
+ * @private
  * @param {string} memberResolvable
  * @param {Guild} guild
  * @returns {Member|null}
@@ -402,6 +414,7 @@ const resolveMember = (memberResolvable, guild) => guild.members.find((member, i
 /**
  * resolves user by id
  *
+ * @private
  * @param {string} userResolvable
  * @param {Guild} guild
  * @returns {Promise}
@@ -412,6 +425,7 @@ const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 /**
  * Checks if a value is to be kept in a filter iterator
  *
+ * @private
  * @param {any} value
  * @returns {boolean}
  */
@@ -419,6 +433,7 @@ const isLegalValue = (value) => !lightdash.isNil(value) && !lightdash.isFunction
 /**
  * Checks if a entry is to be kept in a filter iterator
  *
+ * @private
  * @param {Array<any>} entry
  * @returns {boolean}
  */
@@ -426,6 +441,7 @@ const isLegalEntry = (entry) => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(ent
 /**
  * Cycles and strips all illegal values
  *
+ * @private
  * @param {any} val
  * @returns {any}
  */
@@ -450,6 +466,7 @@ const strip = (val) => {
 /**
  * Strips sensitive data from bot output
  *
+ * @private
  * @param {Object} obj
  * @returns {any}
  */
@@ -471,6 +488,7 @@ const util = {
 /**
  * Exits the process
  *
+ * @private
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app
@@ -488,6 +506,7 @@ const commandCoreDie = (args, msg, app) => {
 /**
  * Evaluates and returns
  *
+ * @private
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app
@@ -510,6 +529,7 @@ const commandCoreDump = (args, msg, app) => {
 /**
  * Echos text
  *
+ * @private
  * @param {Array<any>} args
  * @returns {string}
  */
@@ -519,6 +539,7 @@ const commandCoreEcho = args => args.text;
 /**
  * Evaluates
  *
+ * @private
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app
@@ -598,6 +619,7 @@ const getHelpSingle = (command, commandPath, app) => {
 /**
  * Displays help
  *
+ * @private
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app
@@ -773,21 +795,33 @@ const Dingy = class {
      *
      * @constructor
      * @param {Object} config
-     * @param {Object} commands
-     * @param {Object} strings
-     * @param {Object} userEvents
+     * @param {Object} [commands={}]
+     * @param {Object} [strings={}]
+     * @param {Object} [userEvents={}]
      */
     constructor(config, commands = {}, strings = {}, userEvents = {}) {
         if (lightdash.isUndefined(config.token)) {
             throw new Error("No token provided");
         }
+        /**
+         * Contains internal utility methods
+         */
         this.util = util;
         /**
          * Stores instance config
          */
         this.config = lightdash.objDefaultsDeep(config, configDefault);
+        /**
+         * Strings used by the bot
+         */
         this.strings = lightdash.objDefaultsDeep(strings, stringsDefault);
+        /**
+         * Custom user events
+         */
         this.userEvents = lightdash.objDefaultsDeep(userEvents, userEventsDefault);
+        /**
+         * Winston logger
+         */
         this.logger = winston.createLogger({
             level: this.config.options.logLevel,
             exitOnError: false,
@@ -800,17 +834,26 @@ const Dingy = class {
             ]
         });
         this.logger.verbose("Init: Loaded Config");
+        /**
+         * Command interpreter
+         */
         this.cli = new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
             validQuotes: this.config.options.validQuotes
         });
         this.logger.verbose("Init: Created Clingy");
         /**
-         * Bootstraps Client
+         * Discord.js client
          */
         this.bot = new discord_js.Client();
         this.logger.verbose("Init: Created Discord Client");
+        /**
+         * Runtime data storage
+         */
         this.data = {};
+        /**
+         * Persisted data storage
+         */
         this.dataPersisted = {};
         this.config.dataPersisted.files.forEach(fileName => {
             this.dataPersisted[fileName] = flatCache.load(`${fileName}.json`, this.config.dataPersisted.dir);

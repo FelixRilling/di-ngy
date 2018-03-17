@@ -1,6 +1,7 @@
 /**
  * Decycles and trims object after formating
  *
+ * @private
  * @param {Object} obj
  * @returns {string}
  */

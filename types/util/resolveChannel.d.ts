@@ -2,6 +2,7 @@ import { Guild, GuildChannel } from "discord.js";
 /**
  * resolves channel by id or name
  *
+ * @private
  * @param {string} channelResolvable
  * @param {Guild} guild
  * @returns {Channel|null}

@@ -4,6 +4,7 @@ import toFullName from "./toFullName";
 /**
  * resolves member by id, username, name#discriminator or name
  *
+ * @private
  * @param {string} memberResolvable
  * @param {Guild} guild
  * @returns {Member|null}

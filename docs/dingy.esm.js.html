@@ -1,4 +1,44 @@
-import { isNil, isUndefined, objDefaultsDeep, objMap, isString, isPromise, isArray, isDate, isObjectLike, isRegExp, isBoolean, isFunction, isNumber, isObject } from 'lightdash';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>dingy.esm.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Dingy.html">Dingy</a><ul class='methods'><li data-type='method'><a href="Dingy.html#connect">connect</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">dingy.esm.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { isNil, isUndefined, objDefaultsDeep, objMap, isString, isPromise, isArray, isDate, isObjectLike, isRegExp, isBoolean, isFunction, isNumber, isObject } from 'lightdash';
 import { Attachment, Client } from 'discord.js';
 import fetch from 'make-fetch-happen';
 import Clingy from 'cli-ngy';
@@ -73,7 +113,7 @@ const resolveCommandResult = (str, msg, app) => {
     if (commandLookup.success) {
         const command = commandLookup.command;
         const isDM = !msg.guild;
-        if (isDM && !command.usableInDMs) {
+        if (isDM &amp;&amp; !command.usableInDMs) {
             return false;
         }
         // Permission check
@@ -200,9 +240,9 @@ const onMessage = (msg, app) => {
      *    NOT from a bot
      *    DOES start with prefix
      */
-    if (!msg.system &&
-        !msg.author.bot &&
-        messageText.startsWith(app.config.prefix) &&
+    if (!msg.system &amp;&amp;
+        !msg.author.bot &amp;&amp;
+        messageText.startsWith(app.config.prefix) &amp;&amp;
         messageText !== app.config.prefix) {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
@@ -241,7 +281,7 @@ const decycle = (object, replacer) => {
         }
         // typeof null === "object", so go on if this value is really an object but not
         // one of the weird builtin objects.
-        if (isObjectLike(value) && !isDate(value) && !isRegExp(value)) {
+        if (isObjectLike(value) &amp;&amp; !isDate(value) &amp;&amp; !isRegExp(value)) {
             // If the value is an object or array, look to see if we have already
             // encountered it. If so, return a {"$ref":PATH} object. This uses an
             // ES6 WeakMap.
@@ -278,7 +318,7 @@ const decycle = (object, replacer) => {
  * Turns an array into a humanized string
  *
  * @private
- * @param {Array<string>} arr
+ * @param {Array&lt;string>} arr
  * @returns {string}
  */
 const humanizeList = (arr) => arr.join(", ");
@@ -287,7 +327,7 @@ const humanizeList = (arr) => arr.join(", ");
  * Turns an array into a humanized string of optionals
  *
  * @private
- * @param {Array<string>} arr
+ * @param {Array&lt;string>} arr
  * @returns {string}
  */
 const humanizeListOptionals = (arr) => arr
@@ -295,7 +335,7 @@ const humanizeListOptionals = (arr) => arr
     if (index === 0) {
         return `'${item}'`;
     }
-    else if (index < data.length - 1) {
+    else if (index &lt; data.length - 1) {
         return `, '${item}'`;
     }
     return ` or '${item}'`;
@@ -325,20 +365,20 @@ const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
  * @returns {string}
  */
 const format$1 = (val, factor = 0) => {
-    if (isString(val) && val.length > 0) {
+    if (isString(val) &amp;&amp; val.length > 0) {
         return val;
     }
     else if (isNumber(val) || isBoolean(val)) {
         return String(val);
     }
-    else if (isArray(val) && val.length > 0) {
+    else if (isArray(val) &amp;&amp; val.length > 0) {
         return (LINEBREAK +
             val
                 .filter(item => !isFunction(item))
                 .map(item => indent(format$1(item, factor + 1), factor))
                 .join(LINEBREAK));
     }
-    else if (isObject(val) && Object.keys(val).length > 0) {
+    else if (isObject(val) &amp;&amp; Object.keys(val).length > 0) {
         return (LINEBREAK +
             Object.entries(val)
                 .filter(entry => !isFunction(entry[1]))
@@ -425,15 +465,15 @@ const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
  * @param {any} value
  * @returns {boolean}
  */
-const isLegalValue = (value) => !isNil(value) && !isFunction(value);
+const isLegalValue = (value) => !isNil(value) &amp;&amp; !isFunction(value);
 /**
  * Checks if a entry is to be kept in a filter iterator
  *
  * @private
- * @param {Array<any>} entry
+ * @param {Array&lt;any>} entry
  * @returns {boolean}
  */
-const isLegalEntry = (entry) => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
+const isLegalEntry = (entry) => !BLOCKED_KEYS.test(entry[0]) &amp;&amp; isLegalValue(entry[1]);
 /**
  * Cycles and strips all illegal values
  *
@@ -485,7 +525,7 @@ const util = {
  * Exits the process
  *
  * @private
- * @param {Array<any>} args
+ * @param {Array&lt;any>} args
  * @param {Message} msg
  * @param {App} app
  * @returns {string}
@@ -503,7 +543,7 @@ const commandCoreDie = (args, msg, app) => {
  * Evaluates and returns
  *
  * @private
- * @param {Array<any>} args
+ * @param {Array&lt;any>} args
  * @param {Message} msg
  * @param {App} app
  * @returns {false}
@@ -526,7 +566,7 @@ const commandCoreDump = (args, msg, app) => {
  * Echos text
  *
  * @private
- * @param {Array<any>} args
+ * @param {Array&lt;any>} args
  * @returns {string}
  */
 const commandCoreEcho = args => args.text;
@@ -536,7 +576,7 @@ const commandCoreEcho = args => args.text;
  * Evaluates
  *
  * @private
- * @param {Array<any>} args
+ * @param {Array&lt;any>} args
  * @param {Message} msg
  * @param {App} app
  * @returns {false}
@@ -616,7 +656,7 @@ const getHelpSingle = (command, commandPath, app) => {
  * Displays help
  *
  * @private
- * @param {Array<any>} args
+ * @param {Array&lt;any>} args
  * @param {Message} msg
  * @param {App} app
  * @returns {string}
@@ -893,3 +933,22 @@ const Dingy = class {
 };
 
 export default Dingy;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.0-dev</a> on Sat Mar 17 2018 15:05:12 GMT+0100 (CET) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

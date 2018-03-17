@@ -3,6 +3,7 @@ import { dingyCommandFn } from "../../types";
 /**
  * Exits the process
  *
+ * @private
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app

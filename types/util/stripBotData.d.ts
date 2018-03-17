@@ -1,6 +1,7 @@
 /**
  * Strips sensitive data from bot output
  *
+ * @private
  * @param {Object} obj
  * @returns {any}
  */

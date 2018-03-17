@@ -17,6 +17,7 @@ const INDENT_SIZE = 2;
 /**
  * Indent string by factor
  *
+ * @private
  * @param {string} str
  * @param {number} factor
  * @returns {string}
@@ -29,6 +30,7 @@ const indent = (str: string, factor: number): string =>
  *
  * Note: the output is not fully spec compliant, strings are not escaped/quoted
  *
+ * @private
  * @param {any} val
  * @param {number} [factor=0]
  * @returns {string}
@@ -67,6 +69,7 @@ const format = (val: any, factor: number = 0): string => {
 /**
  * Decycles and trims object after formating
  *
+ * @private
  * @param {Object} obj
  * @returns {string}
  */

@@ -4,6 +4,7 @@ import { dingyCommandFn } from "../../types";
 /**
  * Evaluates
  *
+ * @private
  * @param {Array<any>} args
  * @param {Message} msg
  * @param {App} app
