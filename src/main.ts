@@ -1,7 +1,7 @@
 import Clingy from "cli-ngy";
 import { Client, Message } from "discord.js";
 import flatCache from "flat-cache";
-import { isUndefined, objDefaultsDeep, objMerge } from "lightdash";
+import { isUndefined, objDefaultsDeep } from "lightdash";
 import { createLogger, format, transports } from "winston";
 
 import mapCommands from "./events/lib/mapCommands";
@@ -89,7 +89,7 @@ const Dingy = class implements IDingy {
         this.logger.verbose("Init: Loaded Config");
 
         this.cli = <IDingyCli>new Clingy(
-            mapCommands(objMerge(commandsDefault, commands)),
+            mapCommands(Object.assign(commandsDefault, commands)),
             {
                 caseSensitive: this.config.options.namesAreCaseSensitive,
                 validQuotes: this.config.options.validQuotes

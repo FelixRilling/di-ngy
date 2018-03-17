@@ -1,4 +1,4 @@
-import { isDefined, isNil, objDefaultsDeep, objMap, isString, isPromise, isArray, isDate, isObjectLike, isRegExp, objKeys, isBoolean, isFunction, isNumber, isObject, objEntries, arrFrom, isUndefined, objMerge } from 'lightdash';
+import { isNil, isUndefined, objDefaultsDeep, objMap, isString, isPromise, isArray, isDate, isObjectLike, isRegExp, isBoolean, isFunction, isNumber, isObject } from 'lightdash';
 import { Attachment, Client } from 'discord.js';
 import fetch from 'make-fetch-happen';
 import Clingy from 'cli-ngy';
@@ -20,8 +20,8 @@ const commandDefault = {
 };
 const mapCommand = (key, command) => {
     const result = objDefaultsDeep(command, commandDefault);
-    result.args.map(arg => (isDefined(arg.help) ? arg.help : NO_HELP));
-    if (!isDefined(result.help.long)) {
+    result.args.map(arg => (!isUndefined(arg.help) ? arg.help : NO_HELP));
+    if (isUndefined(result.help.long)) {
         result.help.long = result.help.short;
     }
     if (!isNil(result.sub)) {
@@ -233,7 +233,7 @@ const decycle = (object, replacer) => {
         let oldPath; // The path of an earlier occurrence of value
         let nu; // The new object or array
         // If a replacer function was provided, then call it to get a replacement value.
-        if (isDefined(replacer)) {
+        if (!isUndefined(replacer)) {
             value = replacer(value);
         }
         // typeof null === "object", so go on if this value is really an object but not
@@ -243,7 +243,7 @@ const decycle = (object, replacer) => {
             // encountered it. If so, return a {"$ref":PATH} object. This uses an
             // ES6 WeakMap.
             oldPath = objects.get(value);
-            if (isDefined(oldPath)) {
+            if (!isUndefined(oldPath)) {
                 return {
                     $ref: oldPath
                 };
@@ -260,7 +260,7 @@ const decycle = (object, replacer) => {
             else {
                 // If it is an object, replicate the object.
                 nu = {};
-                objKeys(value).forEach(name => {
+                Object.keys(value).forEach(name => {
                     nu[name] = derez(value[name], path + "[" + JSON.stringify(name) + "]");
                 });
             }
@@ -331,9 +331,9 @@ const format$1 = (val, factor = 0) => {
                 .map(item => indent(format$1(item, factor + 1), factor))
                 .join(LINEBREAK));
     }
-    else if (isObject(val) && objKeys(val).length > 0) {
+    else if (isObject(val) && Object.keys(val).length > 0) {
         return (LINEBREAK +
-            objEntries(val)
+            Object.entries(val)
                 .filter(entry => !isFunction(entry[1]))
                 .map(entry => indent(`${entry[0]}: ${format$1(entry[1], factor + 1)}`, factor))
                 .join(LINEBREAK));
@@ -434,7 +434,7 @@ const strip = (val) => {
     }
     else if (isObject(val)) {
         const result = {};
-        objEntries(val)
+        Object.entries(val)
             .filter(isLegalEntry)
             .forEach(entry => {
             result[entry[0]] = strip(entry[1]);
@@ -474,6 +474,7 @@ const util = {
  */
 const commandCoreDie = (args, msg, app) => {
     app.bot.setTimeout(() => {
+        // @ts-ignore
         process.exit();
     }, 1000);
     return "Shutting down.";
@@ -537,7 +538,7 @@ const getHelpAll = (commandsMap, app) => {
     const result = {};
     commandsMap.forEach((command, commandName) => {
         const subcommandsList = command.sub !== null
-            ? app.util.humanizeList(arrFrom(command.sub.map.keys()))
+            ? app.util.humanizeList(Array.from(command.sub.map.keys()))
             : null;
         if (!command.hidden) {
             if (command.sub) {
@@ -567,7 +568,7 @@ const getHelpSingle = (command, commandPath, app) => {
         result.alias = app.util.humanizeList(command.alias);
     }
     if (command.sub !== null) {
-        result.sub = arrFrom(command.sub.getAll().map.keys());
+        result.sub = Array.from(command.sub.getAll().map.keys());
     }
     if (command.args.length > 0) {
         result.args = {};
@@ -795,7 +796,7 @@ const Dingy = class {
             ]
         });
         this.logger.verbose("Init: Loaded Config");
-        this.cli = new Clingy(mapCommands(objMerge(commandsDefault, commands)), {
+        this.cli = new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
             validQuotes: this.config.options.validQuotes
         });

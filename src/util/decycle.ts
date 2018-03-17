@@ -1,10 +1,9 @@
 import {
     isArray,
     isDate,
-    isDefined,
     isObjectLike,
     isRegExp,
-    objKeys
+    isUndefined
 } from "lightdash";
 /**
  * slightly modified
@@ -25,7 +24,7 @@ const decycle = (object: any, replacer?: (val: any) => any): any => {
 
         // If a replacer function was provided, then call it to get a replacement value.
 
-        if (isDefined(replacer)) {
+        if (!isUndefined(replacer)) {
             value = (<(val: any) => any>replacer)(value);
         }
 
@@ -39,7 +38,7 @@ const decycle = (object: any, replacer?: (val: any) => any): any => {
 
             oldPath = objects.get(value);
 
-            if (isDefined(oldPath)) {
+            if (!isUndefined(oldPath)) {
                 return {
                     $ref: oldPath
                 };
@@ -60,7 +59,7 @@ const decycle = (object: any, replacer?: (val: any) => any): any => {
                 // If it is an object, replicate the object.
 
                 nu = {};
-                objKeys(value).forEach(name => {
+                Object.keys(value).forEach(name => {
                     nu[name] = derez(
                         value[name],
                         path + "[" + JSON.stringify(name) + "]"

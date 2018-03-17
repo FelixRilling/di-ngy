@@ -1,4 +1,3 @@
-import { arrFrom } from "lightdash";
 import {
     IDingy,
     IDingyCli,
@@ -18,7 +17,7 @@ const getHelpAll = (
         const subcommandsList =
             command.sub !== null
                 ? app.util.humanizeList(
-                      arrFrom((<IDingyCli>command.sub).map.keys())
+                      Array.from((<IDingyCli>command.sub).map.keys())
                   )
                 : null;
 
@@ -57,7 +56,7 @@ const getHelpSingle = (
     }
 
     if (command.sub !== null) {
-        result.sub = arrFrom((<IDingyCli>command.sub).getAll().map.keys());
+        result.sub = Array.from((<IDingyCli>command.sub).getAll().map.keys());
     }
 
     if (command.args.length > 0) {

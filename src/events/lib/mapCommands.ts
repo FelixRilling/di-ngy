@@ -1,4 +1,4 @@
-import { isDefined, isNil, objDefaultsDeep, objMap } from "lightdash";
+import { isNil, isUndefined, objDefaultsDeep, objMap } from "lightdash";
 import { IDingyCliCommand, IDingyCliCommands } from "../../interfaces";
 
 const NO_HELP = "No help provided";
@@ -19,9 +19,9 @@ const commandDefault = {
 const mapCommand = (key: string, command: any): IDingyCliCommand => {
     const result = <IDingyCliCommand>objDefaultsDeep(command, commandDefault);
 
-    result.args.map(arg => (isDefined(arg.help) ? arg.help : NO_HELP));
+    result.args.map(arg => (!isUndefined(arg.help) ? arg.help : NO_HELP));
 
-    if (!isDefined(result.help.long)) {
+    if (isUndefined(result.help.long)) {
         result.help.long = result.help.short;
     }
 

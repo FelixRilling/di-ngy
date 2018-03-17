@@ -7,8 +7,7 @@ import {
     isNil,
     isNumber,
     isObject,
-    isString,
-    objEntries
+    isString
 } from "lightdash";
 import decycle from "./decycle";
 
@@ -46,7 +45,7 @@ const strip = (val: any): any => {
     } else if (isObject(val)) {
         const result = {};
 
-        objEntries(val)
+        Object.entries(val)
             .filter(isLegalEntry)
             .forEach(entry => {
                 result[entry[0]] = strip(entry[1]);

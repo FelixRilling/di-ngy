@@ -24,8 +24,8 @@ const commandDefault = {
 };
 const mapCommand = (key, command) => {
     const result = lightdash.objDefaultsDeep(command, commandDefault);
-    result.args.map(arg => (lightdash.isDefined(arg.help) ? arg.help : NO_HELP));
-    if (!lightdash.isDefined(result.help.long)) {
+    result.args.map(arg => (!lightdash.isUndefined(arg.help) ? arg.help : NO_HELP));
+    if (lightdash.isUndefined(result.help.long)) {
         result.help.long = result.help.short;
     }
     if (!lightdash.isNil(result.sub)) {
@@ -237,7 +237,7 @@ const decycle = (object, replacer) => {
         let oldPath; // The path of an earlier occurrence of value
         let nu; // The new object or array
         // If a replacer function was provided, then call it to get a replacement value.
-        if (lightdash.isDefined(replacer)) {
+        if (!lightdash.isUndefined(replacer)) {
             value = replacer(value);
         }
         // typeof null === "object", so go on if this value is really an object but not
@@ -247,7 +247,7 @@ const decycle = (object, replacer) => {
             // encountered it. If so, return a {"$ref":PATH} object. This uses an
             // ES6 WeakMap.
             oldPath = objects.get(value);
-            if (lightdash.isDefined(oldPath)) {
+            if (!lightdash.isUndefined(oldPath)) {
                 return {
                     $ref: oldPath
                 };
@@ -264,7 +264,7 @@ const decycle = (object, replacer) => {
             else {
                 // If it is an object, replicate the object.
                 nu = {};
-                lightdash.objKeys(value).forEach(name => {
+                Object.keys(value).forEach(name => {
                     nu[name] = derez(value[name], path + "[" + JSON.stringify(name) + "]");
                 });
             }
@@ -335,9 +335,9 @@ const format = (val, factor = 0) => {
                 .map(item => indent(format(item, factor + 1), factor))
                 .join(LINEBREAK));
     }
-    else if (lightdash.isObject(val) && lightdash.objKeys(val).length > 0) {
+    else if (lightdash.isObject(val) && Object.keys(val).length > 0) {
         return (LINEBREAK +
-            lightdash.objEntries(val)
+            Object.entries(val)
                 .filter(entry => !lightdash.isFunction(entry[1]))
                 .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
                 .join(LINEBREAK));
@@ -438,7 +438,7 @@ const strip = (val) => {
     }
     else if (lightdash.isObject(val)) {
         const result = {};
-        lightdash.objEntries(val)
+        Object.entries(val)
             .filter(isLegalEntry)
             .forEach(entry => {
             result[entry[0]] = strip(entry[1]);
@@ -478,6 +478,7 @@ const util = {
  */
 const commandCoreDie = (args, msg, app) => {
     app.bot.setTimeout(() => {
+        // @ts-ignore
         process.exit();
     }, 1000);
     return "Shutting down.";
@@ -541,7 +542,7 @@ const getHelpAll = (commandsMap, app) => {
     const result = {};
     commandsMap.forEach((command, commandName) => {
         const subcommandsList = command.sub !== null
-            ? app.util.humanizeList(lightdash.arrFrom(command.sub.map.keys()))
+            ? app.util.humanizeList(Array.from(command.sub.map.keys()))
             : null;
         if (!command.hidden) {
             if (command.sub) {
@@ -571,7 +572,7 @@ const getHelpSingle = (command, commandPath, app) => {
         result.alias = app.util.humanizeList(command.alias);
     }
     if (command.sub !== null) {
-        result.sub = lightdash.arrFrom(command.sub.getAll().map.keys());
+        result.sub = Array.from(command.sub.getAll().map.keys());
     }
     if (command.args.length > 0) {
         result.args = {};
@@ -799,7 +800,7 @@ const Dingy = class {
             ]
         });
         this.logger.verbose("Init: Loaded Config");
-        this.cli = new Clingy(mapCommands(lightdash.objMerge(commandsDefault, commands)), {
+        this.cli = new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
             validQuotes: this.config.options.validQuotes
         });

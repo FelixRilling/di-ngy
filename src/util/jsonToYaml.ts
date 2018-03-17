@@ -6,9 +6,7 @@ import {
     isFunction,
     isNumber,
     isObject,
-    isString,
-    objEntries,
-    objKeys
+    isString
 } from "lightdash";
 import decycle from "./decycle";
 
@@ -48,10 +46,10 @@ const format = (val: any, factor: number = 0): string => {
                 .map(item => indent(format(item, factor + 1), factor))
                 .join(LINEBREAK)
         );
-    } else if (isObject(val) && objKeys(val).length > 0) {
+    } else if (isObject(val) && Object.keys(val).length > 0) {
         return (
             LINEBREAK +
-            objEntries(val)
+            Object.entries(val)
                 .filter(entry => !isFunction(entry[1]))
                 .map(entry =>
                     indent(
