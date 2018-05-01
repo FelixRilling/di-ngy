@@ -1,18 +1,11 @@
-import {
-    DMChannel,
-    GroupDMChannel,
-    Guild,
-    GuildMember,
-    TextChannel,
-    User
-} from "discord.js";
+import { Message } from "discord.js";
 import { IDingyConfig } from "../interfaces";
 
 const configDefault: IDingyConfig = {
     prefix: "myPrefix", // Prefix to respond to: prefix:'foo' => responds to "foo help"
     token: "#botToken#", // Bot-token, should be secret! (Using ENV-vars to store this is recommended)
     dataPersisted: {
-        dir: "./data/", // Directory to store JSONs, relative from base directory
+        dir: "./data/", // Directory to store JSON files, relative from base directory
         files: [] // File names, "foo" will be saved as "foo.json" and can be accessed with bot.dataPersisted.foo
     },
     roles: [
@@ -20,8 +13,7 @@ const configDefault: IDingyConfig = {
             name: "Admin",
             power: 10,
             assignable: false,
-            // @ts-ignore
-            check: msg => ["yourIdHere"].includes(msg.author.id)
+            check: (msg: Message) => ["yourIdHere"].includes(msg.author.id)
         },
         {
             name: "User",

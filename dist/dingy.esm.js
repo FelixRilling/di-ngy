@@ -738,8 +738,7 @@ const configDefault = {
             name: "Admin",
             power: 10,
             assignable: false,
-            // @ts-ignore
-            check: msg => ["yourIdHere"].includes(msg.author.id)
+            check: (msg) => ["yourIdHere"].includes(msg.author.id)
         },
         {
             name: "User",
