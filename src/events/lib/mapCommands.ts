@@ -1,5 +1,14 @@
 import { isNil, isUndefined, objDefaultsDeep, objMap } from "lightdash";
-import { IDingyCliCommand, IDingyCliCommands } from "../../interfaces";
+import {
+    IClingy,
+    IClingyCommand,
+    IClingyCommands
+} from "../../../../cli-ngy/src/interfaces";
+import {
+    IDingyCli,
+    IDingyCliCommand,
+    IDingyCliCommands
+} from "../../interfaces";
 
 const NO_HELP = "No help provided";
 
@@ -26,8 +35,10 @@ const mapCommand = (key: string, command: any): IDingyCliCommand => {
     }
 
     if (!isNil(result.sub)) {
-        // @ts-ignore
-        result.sub = objMap(result.sub, mapCommand);
+        result.sub = <IDingyCliCommand | IDingyCli>objMap(
+            <IClingyCommands | IClingy>result.sub,
+            mapCommand
+        );
     }
 
     return result;

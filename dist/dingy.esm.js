@@ -25,7 +25,6 @@ const mapCommand = (key, command) => {
         result.help.long = result.help.short;
     }
     if (!isNil(result.sub)) {
-        // @ts-ignore
         result.sub = objMap(result.sub, mapCommand);
     }
     return result;
