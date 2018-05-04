@@ -10,12 +10,10 @@ const onMessage = (msg: Message, app: IDingy): void => {
     /**
      * Basic Check
      * Conditions:
-     *    NOT from the system
      *    NOT from a bot
      *    DOES start with prefix
      */
     if (
-        !msg.system &&
         !msg.author.bot &&
         messageText.startsWith(app.config.prefix) &&
         messageText !== app.config.prefix
