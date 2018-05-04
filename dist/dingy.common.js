@@ -128,9 +128,9 @@ const resolveCommand = (str, msg, app) => normalizeMessage(resolveCommandResult(
 const MAX_SIZE_MESSAGE = 2000;
 const MAX_SIZE_FILE = 8000000;
 const send = (app, msg, content) => msg.channel
-    .send(content[0], {
+    .send(content[0].trim(), {
     code: content[1],
-    attachments: content[2]
+    files: content[2]
 })
     .then(msgSent => {
     app.logger.debug(`SentMsg: ${content[0]}`);
@@ -140,14 +140,15 @@ const send = (app, msg, content) => msg.channel
     app.logger.error(`SentMsgError ${err}`);
 });
 const pipeThroughChecks = (app, msg, commandResult, content) => {
-    if (content[0].length === 0) {
+    const text = content[0].trim();
+    if (text.length === 0) {
         app.logger.debug("Empty");
         send(app, msg, dataFromValue(app.strings.infoEmpty));
     }
-    else if (content[0].length > MAX_SIZE_MESSAGE) {
+    else if (text.length > MAX_SIZE_MESSAGE) {
         if (app.config.options.sendFilesForLongReply) {
-            const outputFile = Buffer.from(content[0]);
-            if (content[0].length > MAX_SIZE_FILE) {
+            const outputFile = Buffer.from(text);
+            if (text.length > MAX_SIZE_FILE) {
                 app.logger.debug("TooLong");
                 send(app, msg, dataFromValue(app.strings.infoTooLong));
             }
@@ -199,12 +200,10 @@ const onMessage = (msg, app) => {
     /**
      * Basic Check
      * Conditions:
-     *    NOT from the system
      *    NOT from a bot
      *    DOES start with prefix
      */
-    if (!msg.system &&
-        !msg.author.bot &&
+    if (!msg.author.bot &&
         messageText.startsWith(app.config.prefix) &&
         messageText !== app.config.prefix) {
         const messageCommand = messageText.substr(app.config.prefix.length);

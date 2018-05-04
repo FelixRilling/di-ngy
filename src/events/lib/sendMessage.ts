@@ -19,9 +19,9 @@ const send = (
     content: IDingyMessageResultExpanded
 ): Promise<void> =>
     msg.channel
-        .send(content[0], <MessageOptions>{
+        .send(content[0].trim(), <MessageOptions>{
             code: content[1],
-            attachments: content[2]
+            files: content[2]
         })
         .then(msgSent => {
             app.logger.debug(`SentMsg: ${content[0]}`);
@@ -38,14 +38,16 @@ const pipeThroughChecks = (
     commandResult: IDingyCommandResolved,
     content: IDingyMessageResultExpanded
 ) => {
-    if (content[0].length === 0) {
+    const text = content[0].trim();
+
+    if (text.length === 0) {
         app.logger.debug("Empty");
         send(app, msg, dataFromValue(app.strings.infoEmpty));
-    } else if (content[0].length > MAX_SIZE_MESSAGE) {
+    } else if (text.length > MAX_SIZE_MESSAGE) {
         if (app.config.options.sendFilesForLongReply) {
-            const outputFile = Buffer.from(content[0]);
+            const outputFile = Buffer.from(text);
 
-            if (content[0].length > MAX_SIZE_FILE) {
+            if (text.length > MAX_SIZE_FILE) {
                 app.logger.debug("TooLong");
                 send(app, msg, dataFromValue(app.strings.infoTooLong));
             } else {
@@ -83,7 +85,7 @@ const sendMessage = (
     msg: Message,
     commandResult: IDingyCommandResolved
 ): void => {
-    const content = commandResult.result.trim();
+    const content = commandResult.result;
 
     if (isPromise(content)) {
         (<Promise<IDingyMessageResultExpanded>>content)
