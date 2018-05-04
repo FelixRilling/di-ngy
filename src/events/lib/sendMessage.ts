@@ -83,7 +83,7 @@ const sendMessage = (
     msg: Message,
     commandResult: IDingyCommandResolved
 ): void => {
-    const content = commandResult.result;
+    const content = commandResult.result.trim();
 
     if (isPromise(content)) {
         (<Promise<IDingyMessageResultExpanded>>content)
