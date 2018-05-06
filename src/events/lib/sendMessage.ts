@@ -1,5 +1,4 @@
-import { Message, MessageOptions } from "discord.js";
-import { Attachment } from "discord.js";
+import { Attachment, Message, MessageOptions } from "discord.js";
 import { isPromise } from "lightdash";
 import {
     IDingy,

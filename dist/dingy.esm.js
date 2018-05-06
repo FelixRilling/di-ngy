@@ -490,13 +490,11 @@ const util = {
  */
 const commandCoreDie = (args, msg, app) => {
     app.bot.setTimeout(() => {
-        // @ts-ignore
         process.exit();
     }, 1000);
     return "Shutting down.";
 };
 
-/* eslint no-unused-vars: "off", no-console: "off" */
 /**
  * Evaluates and returns
  *
@@ -752,7 +750,7 @@ const configDefault = {
         answerToMissingArgs: true,
         answerToMissingPerms: true,
         sendFilesForLongReply: true,
-        logLevel: "info" // winston log level
+        logLevel: "info" // Winston log level
     }
 };
 

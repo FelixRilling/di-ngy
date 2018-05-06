@@ -11,7 +11,6 @@ import { dingyCommandFn } from "../../types";
  */
 const commandCoreDie: dingyCommandFn = (args, msg, app) => {
     app.bot.setTimeout(() => {
-        // @ts-ignore
         process.exit();
     }, 1000);
 

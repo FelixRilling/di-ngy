@@ -1,6 +1,5 @@
 import { dingyCommandFn } from "../../types";
 
-/* eslint no-unused-vars: "off", no-console: "off" */
 /**
  * Evaluates and returns
  *
