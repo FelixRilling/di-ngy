@@ -43,6 +43,15 @@ const onError = (err, app) => {
     }, RECONNECT_TIMEOUT);
 };
 
+/**
+ * creates user+discriminator from user
+ *
+ * @private
+ * @param {User} user
+ * @returns {string}
+ */
+const toFullName = (user) => `${user.username}#${user.discriminator}`;
+
 const eventsDefault = {
     onSend: () => { }
 };
@@ -80,20 +89,20 @@ const resolveCommandResult = (str, msg, app) => {
             return false;
         }
         // Permission check
-        if (hasPermissions(command.powerRequired, app.config.roles, msg)) {
-            // Run command fn
-            const result = command.fn(commandLookup.args, msg, app, commandLookup, msg.attachments);
-            return {
-                result,
-                success: true
-            };
+        if (!hasPermissions(command.powerRequired, app.config.roles, msg)) {
+            return app.config.options.answerToMissingPerms
+                ? {
+                    result: `${app.strings.errorPermission}`,
+                    success: false
+                }
+                : false;
         }
-        return app.config.options.answerToMissingPerms
-            ? {
-                result: `${app.strings.errorPermission}`,
-                success: false
-            }
-            : false;
+        // Run command fn
+        const result = command.fn(commandLookup.args, msg, app, commandLookup, msg.attachments);
+        return {
+            result,
+            success: true
+        };
     }
     const error = commandLookup.error;
     if (error.type === "missingCommand") {
@@ -133,7 +142,7 @@ const send = (app, msg, content) => msg.channel
     files: content[2]
 })
     .then(msgSent => {
-    app.logger.debug(`SentMsg: ${content[0]}`);
+    app.logger.debug(`SentMsg: ${JSON.stringify(content[0])}`);
     content[3].onSend(msgSent);
 })
     .catch(err => {
@@ -195,6 +204,7 @@ const sendMessage = (app, msg, commandResult) => {
     }
 };
 
+const stringifyAuthor = (author) => `${author.id}[${toFullName(author)}]`;
 const onMessage = (msg, app) => {
     const messageText = msg.content;
     /**
@@ -209,13 +219,13 @@ const onMessage = (msg, app) => {
         messageText !== app.config.prefix) {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
-        app.logger.info(`Resolving ${msg.author.id}: ${msg.content}`);
+        app.logger.info(`Resolving message from ${stringifyAuthor(msg.author)}: ${JSON.stringify(msg.content)}`);
         if (commandResult.ignore) {
             app.logger.debug("Ignoring");
         }
         else {
             sendMessage(app, msg, commandResult);
-            app.logger.info(`Returning response to message from ${msg.author.id}`);
+            app.logger.info(`Returning response to ${stringifyAuthor(msg.author)}`);
         }
     }
 };
@@ -387,15 +397,6 @@ const loadAttachment = (attachment) => new Promise((resolve, reject) => {
  * @returns {Channel|null}
  */
 const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable || channel.name === channelResolvable);
-
-/**
- * creates user+discriminator from user
- *
- * @private
- * @param {User} user
- * @returns {string}
- */
-const toFullName = (user) => `${user.username}#${user.discriminator}`;
 
 /**
  * resolves member by id, username, name#discriminator or name

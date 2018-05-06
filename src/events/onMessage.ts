@@ -1,8 +1,12 @@
-import { Message } from "discord.js";
+import { Message, User } from "discord.js";
 import { IDingy } from "../interfaces";
 
+import toFullName from "../util/toFullName";
 import resolveCommand from "./lib/resolveCommand";
 import sendMessage from "./lib/sendMessage";
+
+const stringifyAuthor = (author: User): string =>
+    `${author.id}[${toFullName(author)}]`;
 
 const onMessage = (msg: Message, app: IDingy): void => {
     const messageText = msg.content;
@@ -22,14 +26,18 @@ const onMessage = (msg: Message, app: IDingy): void => {
         const messageCommand = messageText.substr(app.config.prefix.length);
         const commandResult = resolveCommand(messageCommand, msg, app);
 
-        app.logger.info(`Resolving ${msg.author.id}: ${msg.content}`);
+        app.logger.info(
+            `Resolving message from ${stringifyAuthor(
+                msg.author
+            )}: ${JSON.stringify(msg.content)}`
+        );
 
         if (commandResult.ignore) {
             app.logger.debug("Ignoring");
         } else {
             sendMessage(app, msg, commandResult);
             app.logger.info(
-                `Returning response to message from ${msg.author.id}`
+                `Returning response to ${stringifyAuthor(msg.author)}`
             );
         }
     }

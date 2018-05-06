@@ -32,28 +32,28 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
         }
 
         // Permission check
-        if (hasPermissions(command.powerRequired, app.config.roles, msg)) {
-            // Run command fn
-            const result = command.fn(
-                commandLookup.args,
-                msg,
-                app,
-                commandLookup,
-                msg.attachments
-            );
-
-            return {
-                result,
-                success: true
-            };
+        if (!hasPermissions(command.powerRequired, app.config.roles, msg)) {
+            return app.config.options.answerToMissingPerms
+                ? {
+                      result: `${app.strings.errorPermission}`,
+                      success: false
+                  }
+                : false;
         }
 
-        return app.config.options.answerToMissingPerms
-            ? {
-                  result: `${app.strings.errorPermission}`,
-                  success: false
-              }
-            : false;
+        // Run command fn
+        const result = command.fn(
+            commandLookup.args,
+            msg,
+            app,
+            commandLookup,
+            msg.attachments
+        );
+
+        return {
+            result,
+            success: true
+        };
     }
     const error = (<
         | IDingyCliLookupMissingArg

@@ -22,7 +22,7 @@ const send = (
             files: content[2]
         })
         .then(msgSent => {
-            app.logger.debug(`SentMsg: ${content[0]}`);
+            app.logger.debug(`SentMsg: ${JSON.stringify(content[0])}`);
 
             (<IDingyMessageResultEvents>content[3]).onSend(<Message>msgSent);
         })

@@ -13,7 +13,7 @@ const config = {
             name: "Admin",
             power: 10,
             assignable: false,
-            check: author => ["128985967875850240"].includes(author.id)
+            check: msg => ["128985967875850240"].includes(msg.author.id)
         },
         {
             name: "User",
