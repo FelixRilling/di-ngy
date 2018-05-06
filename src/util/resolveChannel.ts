@@ -1,6 +1,4 @@
 import { Guild, GuildChannel } from "discord.js";
-import { resolve } from "path";
-import toFullName from "./toFullName";
 
 /**
  * resolves channel by id or name

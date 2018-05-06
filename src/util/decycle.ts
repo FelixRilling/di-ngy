@@ -59,7 +59,6 @@ const decycle = (object: any, replacer?: (val: any) => any): any => {
                 });
             } else {
                 // If it is an object, replicate the object.
-
                 nu = {};
                 Object.keys(value).forEach(name => {
                     nu[name] = derez(

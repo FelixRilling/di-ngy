@@ -202,6 +202,7 @@ const onMessage = (msg, app) => {
      * Conditions:
      *    NOT from a bot
      *    DOES start with prefix
+     *      NOT just the prefix
      */
     if (!msg.author.bot &&
         messageText.startsWith(app.config.prefix) &&

@@ -6,7 +6,6 @@ import {
     IDingyMessageResultEvents,
     IDingyMessageResultExpanded
 } from "../../interfaces";
-import { dingyCommandResult } from "../../types";
 import { dataFromValue, eventsDefault } from "./normalizeMessage";
 
 const MAX_SIZE_MESSAGE = 2000;

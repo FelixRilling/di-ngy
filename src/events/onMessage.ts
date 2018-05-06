@@ -12,6 +12,7 @@ const onMessage = (msg: Message, app: IDingy): void => {
      * Conditions:
      *    NOT from a bot
      *    DOES start with prefix
+     *      NOT just the prefix
      */
     if (
         !msg.author.bot &&
