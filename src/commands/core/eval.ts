@@ -1,6 +1,5 @@
 import { dingyCommandFn } from "../../types";
 
-/* eslint no-unused-vars: "off", no-console: "off" */
 /**
  * Evaluates
  *
@@ -14,13 +13,13 @@ const commandCoreEval: dingyCommandFn = (args, msg, app) => {
     let result = "";
 
     try {
-        // tslint:disable-next-line
+        // tslint:disable-next-line:no-eval
         result = eval(<string>args.code);
     } catch (err) {
         result = err;
     }
 
-    // tslint:disable-next-line
+    // tslint:disable-next-line:no-console
     console.log(result);
 
     return "Done.";

@@ -1,9 +1,5 @@
 import { isNil, isUndefined, objDefaultsDeep, objMap } from "lightdash";
-import {
-    IClingy,
-    IClingyCommand,
-    IClingyCommands
-} from "../../../../cli-ngy/src/interfaces";
+import { IClingy, IClingyCommands } from "../../../../cli-ngy/src/interfaces";
 import {
     IDingyCli,
     IDingyCliCommand,

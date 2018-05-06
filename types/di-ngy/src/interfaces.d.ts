@@ -1,4 +1,4 @@
-import { IClingyArg, IClingyCommand, IClingyOptions } from "cli-ngy/src/interfaces";
+import { IClingy, IClingyArg, IClingyCommand, IClingyOptions } from "cli-ngy/src/interfaces";
 import { Attachment, Client, Guild, GuildChannel, GuildMember, Message, MessageAttachment, User } from "discord.js";
 import { dingyCliCommandMap, dingyCommandResult } from "./types";
 /**
@@ -88,7 +88,7 @@ interface IDingy {
 /**
  * Cli
  */
-interface IDingyCli {
+interface IDingyCli extends IClingy {
     options: IClingyOptions;
     map: dingyCliCommandMap;
     mapAliased: dingyCliCommandMap;

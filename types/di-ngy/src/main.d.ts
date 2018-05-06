@@ -3,6 +3,7 @@ import { IDingyCli, IDingyConfig, IDingyStrings, IDingyUserEvents, IDingyUtils }
 /**
  * Di-ngy class
  *
+ * @public
  * @class
  */
 declare const Dingy: {

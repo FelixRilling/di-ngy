@@ -7,21 +7,14 @@ import {
 import {
     Attachment,
     Client,
-    DMChannel,
-    GroupDMChannel,
     Guild,
     GuildChannel,
     GuildMember,
     Message,
     MessageAttachment,
-    TextChannel,
     User
 } from "discord.js";
-import {
-    dingyCliCommandMap,
-    dingyCommandFn,
-    dingyCommandResult
-} from "./types";
+import { dingyCliCommandMap, dingyCommandResult } from "./types";
 
 /**
  * General
@@ -129,7 +122,7 @@ interface IDingy {
 /**
  * Cli
  */
-interface IDingyCli {
+interface IDingyCli extends IClingy {
     options: IClingyOptions;
     map: dingyCliCommandMap;
     mapAliased: dingyCliCommandMap;

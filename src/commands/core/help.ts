@@ -2,7 +2,6 @@ import {
     IDingy,
     IDingyCli,
     IDingyCliCommand,
-    IDingyCliCommands,
     IDingyMessageResultExpanded
 } from "../../interfaces";
 import { dingyCommandFn } from "../../types";

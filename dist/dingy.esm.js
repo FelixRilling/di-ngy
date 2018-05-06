@@ -509,13 +509,13 @@ const commandCoreDie = (args, msg, app) => {
 const commandCoreDump = (args, msg, app) => {
     let result = "";
     try {
-        // tslint:disable-next-line
+        // tslint:disable-next-line:no-eval
         result = eval(args.code);
     }
     catch (err) {
         result = err;
     }
-    // tslint:disable-next-line
+    // tslint:disable-next-line:no-console
     console.log(result);
     return [String(result), true];
 };
@@ -529,7 +529,6 @@ const commandCoreDump = (args, msg, app) => {
  */
 const commandCoreEcho = args => args.text;
 
-/* eslint no-unused-vars: "off", no-console: "off" */
 /**
  * Evaluates
  *
@@ -542,13 +541,13 @@ const commandCoreEcho = args => args.text;
 const commandCoreEval = (args, msg, app) => {
     let result = "";
     try {
-        // tslint:disable-next-line
+        // tslint:disable-next-line:no-eval
         result = eval(args.code);
     }
     catch (err) {
         result = err;
     }
-    // tslint:disable-next-line
+    // tslint:disable-next-line:no-console
     console.log(result);
     return "Done.";
 };
@@ -780,6 +779,7 @@ const userEventsDefault = {
 /**
  * Di-ngy class
  *
+ * @public
  * @class
  */
 const Dingy = class {
@@ -798,22 +798,32 @@ const Dingy = class {
         }
         /**
          * Contains internal utility methods
+         *
+         * @private
          */
         this.util = util;
         /**
          * Stores instance config
+         *
+         * @protected
          */
         this.config = objDefaultsDeep(config, configDefault);
         /**
          * Strings used by the bot
+         *
+         * @protected
          */
         this.strings = objDefaultsDeep(strings, stringsDefault);
         /**
          * Custom user events
+         *
+         * @protected
          */
         this.userEvents = objDefaultsDeep(userEvents, userEventsDefault);
         /**
          * Winston logger
+         *
+         * @protected
          */
         this.logger = createLogger({
             level: this.config.options.logLevel,
@@ -829,6 +839,8 @@ const Dingy = class {
         this.logger.verbose("Init: Loaded Config");
         /**
          * Command interpreter
+         *
+         * @protected
          */
         this.cli = new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
@@ -837,15 +849,21 @@ const Dingy = class {
         this.logger.verbose("Init: Created Clingy");
         /**
          * Discord.js client
+         *
+         * @public
          */
         this.bot = new Client();
         this.logger.verbose("Init: Created Discord Client");
         /**
          * Runtime data storage
+         *
+         * @public
          */
         this.data = {};
         /**
          * Persisted data storage
+         *
+         * @public
          */
         this.dataPersisted = {};
         this.config.dataPersisted.files.forEach(fileName => {
@@ -872,6 +890,8 @@ const Dingy = class {
     }
     /**
      * Connect to the Discord API
+     *
+     * @public
      */
     connect() {
         this.logger.info("Connect: Starting");

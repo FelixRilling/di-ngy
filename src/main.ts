@@ -26,6 +26,7 @@ import {
 /**
  * Di-ngy class
  *
+ * @public
  * @class
  */
 const Dingy = class implements IDingy {
@@ -62,21 +63,29 @@ const Dingy = class implements IDingy {
 
         /**
          * Contains internal utility methods
+         *
+         * @private
          */
         this.util = util;
 
         /**
          * Stores instance config
+         *
+         * @protected
          */
         this.config = <IDingyConfig>objDefaultsDeep(config, configDefault);
 
         /**
          * Strings used by the bot
+         *
+         * @protected
          */
         this.strings = <IDingyStrings>objDefaultsDeep(strings, stringsDefault);
 
         /**
          * Custom user events
+         *
+         * @protected
          */
         this.userEvents = <IDingyUserEvents>objDefaultsDeep(
             userEvents,
@@ -85,6 +94,8 @@ const Dingy = class implements IDingy {
 
         /**
          * Winston logger
+         *
+         * @protected
          */
         this.logger = createLogger({
             level: this.config.options.logLevel,
@@ -104,6 +115,8 @@ const Dingy = class implements IDingy {
 
         /**
          * Command interpreter
+         *
+         * @protected
          */
         this.cli = <IDingyCli>new Clingy(
             mapCommands(Object.assign(commandsDefault, commands)),
@@ -116,16 +129,22 @@ const Dingy = class implements IDingy {
 
         /**
          * Discord.js client
+         *
+         * @public
          */
         this.bot = new Client();
         this.logger.verbose("Init: Created Discord Client");
 
         /**
          * Runtime data storage
+         *
+         * @public
          */
         this.data = {};
         /**
          * Persisted data storage
+         *
+         * @public
          */
         this.dataPersisted = {};
         this.config.dataPersisted.files.forEach(fileName => {
@@ -157,6 +176,8 @@ const Dingy = class implements IDingy {
     }
     /**
      * Connect to the Discord API
+     *
+     * @public
      */
     public connect() {
         this.logger.info("Connect: Starting");
