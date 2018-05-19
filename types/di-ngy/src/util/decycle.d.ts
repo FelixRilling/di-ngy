@@ -1,8 +1,2 @@
-/**
- * slightly modified
- */
-/**
- * @private
- */
-declare const decycle: (object: any, replacer?: ((val: any) => any) | undefined) => any;
-export default decycle;
+import { objDecycle } from "lightdash";
+export default objDecycle;

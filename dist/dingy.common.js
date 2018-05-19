@@ -231,63 +231,6 @@ const onMessage = (msg, app) => {
 };
 
 /**
- * slightly modified
- */
-/*
-    cycle.js
-    2017-02-07
-
-    Public Domain.
-*/
-/**
- * @private
- */
-const decycle = (object, replacer) => {
-    const objects = new WeakMap();
-    const derez = (input, path) => {
-        let value = input;
-        let oldPath; // The path of an earlier occurrence of value
-        let nu; // The new object or array
-        // If a replacer function was provided, then call it to get a replacement value.
-        if (!lightdash.isUndefined(replacer)) {
-            value = replacer(value);
-        }
-        // typeof null === "object", so go on if this value is really an object but not
-        // one of the weird builtin objects.
-        if (lightdash.isObjectLike(value) && !lightdash.isDate(value) && !lightdash.isRegExp(value)) {
-            // If the value is an object or array, look to see if we have already
-            // encountered it. If so, return a {"$ref":PATH} object. This uses an
-            // ES6 WeakMap.
-            oldPath = objects.get(value);
-            if (!lightdash.isUndefined(oldPath)) {
-                return {
-                    $ref: oldPath
-                };
-            }
-            // Otherwise, accumulate the unique value and its path.
-            objects.set(value, path);
-            // If it is an array, replicate the array.
-            if (lightdash.isArray(value)) {
-                nu = [];
-                value.forEach((element, i) => {
-                    nu[i] = derez(element, path + "[" + i + "]");
-                });
-            }
-            else {
-                // If it is an object, replicate the object.
-                nu = {};
-                Object.keys(value).forEach(name => {
-                    nu[name] = derez(value[name], path + "[" + JSON.stringify(name) + "]");
-                });
-            }
-            return nu;
-        }
-        return value;
-    };
-    return derez(object, "$");
-};
-
-/**
  * Turns an array into a humanized string
  *
  * @private
@@ -367,7 +310,7 @@ const format = (val, factor = 0) => {
  * @param {Object} obj
  * @returns {string}
  */
-const jsonToYaml = (obj) => format(decycle(obj))
+const jsonToYaml = (obj) => format(lightdash.objDecycle(obj))
     .replace(/\s+\n/g, "\n")
     .trim();
 
@@ -470,10 +413,10 @@ const strip = (val) => {
  * @param {Object} obj
  * @returns {any}
  */
-const stripBotData = (obj) => strip(decycle(obj));
+const stripBotData = (obj) => strip(lightdash.objDecycle(obj));
 
 const util = {
-    decycle,
+    decycle: lightdash.objDecycle,
     humanizeList,
     humanizeListOptionals,
     jsonToYaml,
