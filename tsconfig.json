@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
-        "module": "esnext",
-        "target": "esnext",
+        "target": "es2017",
         "newLine": "LF",
         "removeComments": false,
         "strict": true,
