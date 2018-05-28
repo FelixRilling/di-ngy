@@ -17,4 +17,4 @@ const commandCoreDie: dingyCommandFn = (args, msg, app) => {
     return "Shutting down.";
 };
 
-export default commandCoreDie;
+export { commandCoreDie };

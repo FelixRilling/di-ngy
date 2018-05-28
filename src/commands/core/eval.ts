@@ -25,4 +25,4 @@ const commandCoreEval: dingyCommandFn = (args, msg, app) => {
     return "Done.";
 };
 
-export default commandCoreEval;
+export { commandCoreEval };

@@ -9,4 +9,4 @@ import { dingyCommandFn } from "../../types";
  * @returns {string}
  */
 declare const commandCoreHelp: dingyCommandFn;
-export default commandCoreHelp;
+export { commandCoreHelp };

@@ -109,4 +109,4 @@ const commandCoreHelp: dingyCommandFn = (args, msg, app) => {
     return getHelpAll(app.cli.getAll().map, app);
 };
 
-export default commandCoreHelp;
+export { commandCoreHelp };

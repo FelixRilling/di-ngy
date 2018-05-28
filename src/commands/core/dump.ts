@@ -25,4 +25,4 @@ const commandCoreDump: dingyCommandFn = (args, msg, app) => {
     return [String(result), true];
 };
 
-export default commandCoreDump;
+export { commandCoreDump };

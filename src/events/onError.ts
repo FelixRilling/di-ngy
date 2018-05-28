@@ -11,4 +11,4 @@ const onError = (err: Error, app: IDingy): void => {
     }, RECONNECT_TIMEOUT);
 };
 
-export default onError;
+export { onError };

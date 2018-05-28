@@ -17,4 +17,4 @@ const stringsDefault: IDingyStrings = {
     errorInternal: "Internal error"
 };
 
-export default stringsDefault;
+export { stringsDefault };

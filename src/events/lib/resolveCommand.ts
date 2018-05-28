@@ -55,9 +55,9 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
             success: true
         };
     }
-    const error = (<
-        | IDingyCliLookupMissingArg
-        | IDingyCliLookupMissingCommand>commandLookup).error;
+    const error = (<IDingyCliLookupMissingArg | IDingyCliLookupMissingCommand>(
+        commandLookup
+    )).error;
 
     if (error.type === "missingCommand") {
         if (app.config.options.answerToMissingCommand) {
@@ -103,4 +103,4 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
 const resolveCommand = (str: string, msg: Message, app: IDingy) =>
     normalizeMessage(resolveCommandResult(str, msg, app));
 
-export default resolveCommand;
+export { resolveCommand };

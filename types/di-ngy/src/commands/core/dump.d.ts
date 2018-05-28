@@ -9,4 +9,4 @@ import { dingyCommandFn } from "../../types";
  * @returns {false}
  */
 declare const commandCoreDump: dingyCommandFn;
-export default commandCoreDump;
+export { commandCoreDump };

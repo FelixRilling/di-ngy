@@ -31,9 +31,8 @@ const mapCommand = (key: string, command: any): IDingyCliCommand => {
     }
 
     if (!isNil(result.sub)) {
-        result.sub = <IDingyCliCommand | IDingyCli>objMap(
-            <IClingyCommands | IClingy>result.sub,
-            mapCommand
+        result.sub = <IDingyCliCommand | IDingyCli>(
+            objMap(<IClingyCommands | IClingy>result.sub, mapCommand)
         );
     }
 
@@ -43,4 +42,4 @@ const mapCommand = (key: string, command: any): IDingyCliCommand => {
 const mapCommands = (commands: any): IDingyCliCommands =>
     <IDingyCliCommands>objMap(commands, mapCommand);
 
-export default mapCommands;
+export { mapCommands };

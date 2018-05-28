@@ -96,13 +96,10 @@ const sendMessage = (
             });
     } else {
         app.logger.debug("TextSync");
-        pipeThroughChecks(
-            app,
-            msg,
-            commandResult,
-            <IDingyMessageResultExpanded>content
-        );
+        pipeThroughChecks(app, msg, commandResult, <
+            IDingyMessageResultExpanded
+        >content);
     }
 };
 
-export default sendMessage;
+export { sendMessage };

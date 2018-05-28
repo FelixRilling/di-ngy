@@ -2,8 +2,8 @@ import { Message, User } from "discord.js";
 import { IDingy } from "../interfaces";
 
 import { toFullName } from "../util/toFullName";
-import resolveCommand from "./lib/resolveCommand";
-import sendMessage from "./lib/sendMessage";
+import { resolveCommand } from "./lib/resolveCommand";
+import { sendMessage } from "./lib/sendMessage";
 
 const stringifyAuthor = (author: User): string =>
     `${author.id}[${toFullName(author)}]`;
@@ -43,4 +43,4 @@ const onMessage = (msg: Message, app: IDingy): void => {
     }
 };
 
-export default onMessage;
+export { onMessage };

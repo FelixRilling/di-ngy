@@ -4,14 +4,14 @@ import flatCache from "flat-cache";
 import { isUndefined, objDecycle, objDefaultsDeep } from "lightdash";
 import { createLogger, format, transports } from "winston";
 
-import mapCommands from "./events/lib/mapCommands";
-import onError from "./events/onError";
-import onMessage from "./events/onMessage";
+import { mapCommands } from "./events/lib/mapCommands";
+import { onError } from "./events/onError";
+import { onMessage } from "./events/onMessage";
 
-import commandsDefault from "./defaults/commands.default";
-import configDefault from "./defaults/config.default";
-import stringsDefault from "./defaults/strings.default";
-import userEventsDefault from "./defaults/userEvents.default";
+import { commandsDefault } from "./defaults/commands.default";
+import { configDefault } from "./defaults/config.default";
+import { stringsDefault } from "./defaults/strings.default";
+import { userEventsDefault } from "./defaults/userEvents.default";
 
 import { humanizeList, humanizeListOptionals } from "./util/humanizeList";
 import { jsonToYaml } from "./util/jsonToYaml";

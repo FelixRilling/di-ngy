@@ -9,4 +9,4 @@ import { dingyCommandFn } from "../../types";
  * @returns {false}
  */
 declare const commandCoreEval: dingyCommandFn;
-export default commandCoreEval;
+export { commandCoreEval };

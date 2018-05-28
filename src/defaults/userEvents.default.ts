@@ -6,4 +6,4 @@ const userEventsDefault: IDingyUserEvents = {
     onMessage: () => {}
 };
 
-export default userEventsDefault;
+export { userEventsDefault };

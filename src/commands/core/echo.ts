@@ -9,4 +9,4 @@ import { dingyCommandFn } from "../../types";
  */
 const commandCoreEcho: dingyCommandFn = args => <string>args.text;
 
-export default commandCoreEcho;
+export { commandCoreEcho };

@@ -7,4 +7,4 @@ import { dingyCommandFn } from "../../types";
  * @returns {string}
  */
 declare const commandCoreEcho: dingyCommandFn;
-export default commandCoreEcho;
+export { commandCoreEcho };

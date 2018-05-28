@@ -37,4 +37,4 @@ const configDefault: IDingyConfig = {
     }
 };
 
-export default configDefault;
+export { configDefault };

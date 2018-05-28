@@ -1,13 +1,13 @@
-import core_die from "../commands/core/die";
-import core_dump from "../commands/core/dump";
-import core_echo from "../commands/core/echo";
-import core_eval from "../commands/core/eval";
-import core_help from "../commands/core/help";
+import { commandCoreDie } from "../commands/core/die";
+import { commandCoreDump } from "../commands/core/dump";
+import { commandCoreEcho } from "../commands/core/echo";
+import { commandCoreEval } from "../commands/core/eval";
+import { commandCoreHelp } from "../commands/core/help";
 import { IDingyCliCommands } from "../interfaces";
 
 const commandsDefault: IDingyCliCommands = {
     die: {
-        fn: core_die,
+        fn: commandCoreDie,
         args: [],
         alias: ["quit", "exit"],
         powerRequired: 10,
@@ -20,7 +20,7 @@ const commandsDefault: IDingyCliCommands = {
         sub: null
     },
     eval: {
-        fn: core_eval,
+        fn: commandCoreEval,
         args: [
             {
                 name: "code",
@@ -39,7 +39,7 @@ const commandsDefault: IDingyCliCommands = {
         sub: null
     },
     dump: {
-        fn: core_dump,
+        fn: commandCoreDump,
         args: [
             {
                 name: "code",
@@ -58,7 +58,7 @@ const commandsDefault: IDingyCliCommands = {
         sub: null
     },
     echo: {
-        fn: core_echo,
+        fn: commandCoreEcho,
         args: [
             {
                 name: "text",
@@ -77,7 +77,7 @@ const commandsDefault: IDingyCliCommands = {
         sub: null
     },
     help: {
-        fn: core_help,
+        fn: commandCoreHelp,
         args: [
             {
                 name: "command",
@@ -98,4 +98,4 @@ const commandsDefault: IDingyCliCommands = {
     }
 };
 
-export default commandsDefault;
+export { commandsDefault };

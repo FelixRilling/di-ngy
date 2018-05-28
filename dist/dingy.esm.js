@@ -25,7 +25,7 @@ const mapCommand = (key, command) => {
         result.help.long = result.help.short;
     }
     if (!isNil(result.sub)) {
-        result.sub = objMap(result.sub, mapCommand);
+        result.sub = (objMap(result.sub, mapCommand));
     }
     return result;
 };
@@ -100,7 +100,7 @@ const resolveCommandResult = (str, msg, app) => {
             success: true
         };
     }
-    const error = commandLookup.error;
+    const error = (commandLookup).error;
     if (error.type === "missingCommand") {
         if (app.config.options.answerToMissingCommand) {
             const content = [
