@@ -1,7 +1,7 @@
 import { Message, User } from "discord.js";
 import { IDingy } from "../interfaces";
 
-import toFullName from "../util/toFullName";
+import { toFullName } from "../util/toFullName";
 import resolveCommand from "./lib/resolveCommand";
 import sendMessage from "./lib/sendMessage";
 

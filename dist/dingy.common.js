@@ -231,204 +231,6 @@ const onMessage = (msg, app) => {
 };
 
 /**
- * Turns an array into a humanized string
- *
- * @private
- * @param {Array<string>} arr
- * @returns {string}
- */
-const humanizeList = (arr) => arr.join(", ");
-
-/**
- * Turns an array into a humanized string of optionals
- *
- * @private
- * @param {Array<string>} arr
- * @returns {string}
- */
-const humanizeListOptionals = (arr) => arr
-    .map((item, index, data) => {
-    if (index === 0) {
-        return `'${item}'`;
-    }
-    else if (index < data.length - 1) {
-        return `, '${item}'`;
-    }
-    return ` or '${item}'`;
-})
-    .join("");
-
-const LINEBREAK = "\n";
-const INDENT_CHAR = " ";
-const INDENT_SIZE = 2;
-/**
- * Indent string by factor
- *
- * @private
- * @param {string} str
- * @param {number} factor
- * @returns {string}
- */
-const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
-/**
- * Formats JSON as YAML
- *
- * Note: the output is not fully spec compliant, strings are not escaped/quoted
- *
- * @private
- * @param {any} val
- * @param {number} [factor=0]
- * @returns {string}
- */
-const format = (val, factor = 0) => {
-    if (lightdash.isString(val) && val.length > 0) {
-        return val;
-    }
-    else if (lightdash.isNumber(val) || lightdash.isBoolean(val)) {
-        return String(val);
-    }
-    else if (lightdash.isArray(val) && val.length > 0) {
-        return (LINEBREAK +
-            val
-                .filter(item => !lightdash.isFunction(item))
-                .map(item => indent(format(item, factor + 1), factor))
-                .join(LINEBREAK));
-    }
-    else if (lightdash.isObject(val) && Object.keys(val).length > 0) {
-        return (LINEBREAK +
-            Object.entries(val)
-                .filter(entry => !lightdash.isFunction(entry[1]))
-                .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
-                .join(LINEBREAK));
-    }
-    return "";
-};
-/**
- * Decycles and trims object after formating
- *
- * @private
- * @param {Object} obj
- * @returns {string}
- */
-const jsonToYaml = (obj) => format(lightdash.objDecycle(obj))
-    .replace(/\s+\n/g, "\n")
-    .trim();
-
-const nodeFetch = fetch.defaults({
-    cacheManager: "./.cache/"
-});
-/**
- * Loads an attachment and returns contents
- *
- * @private
- * @param {MessageAttachment} attachment
- * @returns {Promise}
- */
-const loadAttachment = (attachment) => new Promise((resolve, reject) => {
-    nodeFetch(attachment.url)
-        .then(response => response.text())
-        .then(resolve)
-        .catch(reject);
-});
-
-/**
- * resolves channel by id or name
- *
- * @private
- * @param {string} channelResolvable
- * @param {Guild} guild
- * @returns {Channel|null}
- */
-const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable || channel.name === channelResolvable);
-
-/**
- * resolves member by id, username, name#discriminator or name
- *
- * @private
- * @param {string} memberResolvable
- * @param {Guild} guild
- * @returns {Member|null}
- */
-const resolveMember = (memberResolvable, guild) => guild.members.find((member, id) => id === memberResolvable ||
-    toFullName(member.user) === memberResolvable ||
-    member.user.username === memberResolvable ||
-    member.nickname === memberResolvable);
-
-/**
- * resolves user by id
- *
- * @private
- * @param {string} userResolvable
- * @param {Guild} guild
- * @returns {Promise}
- */
-const resolveUser = (userResolvable, bot) => bot.fetchUser(userResolvable);
-
-const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
-/**
- * Checks if a value is to be kept in a filter iterator
- *
- * @private
- * @param {any} value
- * @returns {boolean}
- */
-const isLegalValue = (value) => !lightdash.isNil(value) && !lightdash.isFunction(value);
-/**
- * Checks if a entry is to be kept in a filter iterator
- *
- * @private
- * @param {Array<any>} entry
- * @returns {boolean}
- */
-const isLegalEntry = (entry) => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
-/**
- * Cycles and strips all illegal values
- *
- * @private
- * @param {any} val
- * @returns {any}
- */
-const strip = (val) => {
-    if (lightdash.isString(val) || lightdash.isNumber(val) || lightdash.isBoolean(val)) {
-        return val;
-    }
-    else if (lightdash.isArray(val)) {
-        return val.filter(isLegalValue).map(strip);
-    }
-    else if (lightdash.isObject(val)) {
-        const result = {};
-        Object.entries(val)
-            .filter(isLegalEntry)
-            .forEach(entry => {
-            result[entry[0]] = strip(entry[1]);
-        });
-        return result;
-    }
-    return null;
-};
-/**
- * Strips sensitive data from bot output
- *
- * @private
- * @param {Object} obj
- * @returns {any}
- */
-const stripBotData = (obj) => strip(lightdash.objDecycle(obj));
-
-const util = {
-    decycle: lightdash.objDecycle,
-    humanizeList,
-    humanizeListOptionals,
-    jsonToYaml,
-    loadAttachment,
-    resolveChannel,
-    resolveMember,
-    resolveUser,
-    stripBotData,
-    toFullName
-};
-
-/**
  * Exits the process
  *
  * @private
@@ -724,6 +526,190 @@ const userEventsDefault = {
 };
 
 /**
+ * Turns an array into a humanized string
+ *
+ * @private
+ * @param {Array<string>} arr
+ * @returns {string}
+ */
+const humanizeList = (arr) => arr.join(", ");
+/**
+ * Turns an array into a humanized string of optionals
+ *
+ * @private
+ * @param {Array<string>} arr
+ * @returns {string}
+ */
+const humanizeListOptionals = (arr) => arr
+    .map((item, index, data) => {
+    if (index === 0) {
+        return `'${item}'`;
+    }
+    else if (index < data.length - 1) {
+        return `, '${item}'`;
+    }
+    return ` or '${item}'`;
+})
+    .join("");
+
+const LINEBREAK = "\n";
+const INDENT_CHAR = " ";
+const INDENT_SIZE = 2;
+/**
+ * Indent string by factor
+ *
+ * @private
+ * @param {string} str
+ * @param {number} factor
+ * @returns {string}
+ */
+const indent = (str, factor) => INDENT_CHAR.repeat(factor * INDENT_SIZE) + str;
+/**
+ * Formats JSON as YAML
+ *
+ * Note: the output is not fully spec compliant, strings are not escaped/quoted
+ *
+ * @private
+ * @param {any} val
+ * @param {number} [factor=0]
+ * @returns {string}
+ */
+const format = (val, factor = 0) => {
+    if (lightdash.isString(val) && val.length > 0) {
+        return val;
+    }
+    else if (lightdash.isNumber(val) || lightdash.isBoolean(val)) {
+        return String(val);
+    }
+    else if (lightdash.isArray(val) && val.length > 0) {
+        return (LINEBREAK +
+            val
+                .filter(item => !lightdash.isFunction(item))
+                .map(item => indent(format(item, factor + 1), factor))
+                .join(LINEBREAK));
+    }
+    else if (lightdash.isObject(val) && Object.keys(val).length > 0) {
+        return (LINEBREAK +
+            Object.entries(val)
+                .filter(entry => !lightdash.isFunction(entry[1]))
+                .map(entry => indent(`${entry[0]}: ${format(entry[1], factor + 1)}`, factor))
+                .join(LINEBREAK));
+    }
+    return "";
+};
+/**
+ * Decycles and trims object after formating
+ *
+ * @private
+ * @param {Object} obj
+ * @returns {string}
+ */
+const jsonToYaml = (obj) => format(lightdash.objDecycle(obj))
+    .replace(/\s+\n/g, "\n")
+    .trim();
+
+const nodeFetch = fetch.defaults({
+    cacheManager: "./.cache/"
+});
+/**
+ * Loads an attachment and returns contents
+ *
+ * @private
+ * @param {MessageAttachment} attachment
+ * @returns {Promise}
+ */
+const loadAttachment = (attachment) => new Promise((resolve, reject) => {
+    nodeFetch(attachment.url)
+        .then(response => response.text())
+        .then(resolve)
+        .catch(reject);
+});
+
+/**
+ * resolves channel by id or name
+ *
+ * @private
+ * @param {string} channelResolvable
+ * @param {Guild} guild
+ * @returns {Channel|null}
+ */
+const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable || channel.name === channelResolvable);
+
+/**
+ * resolves member by id, username, name#discriminator or name
+ *
+ * @private
+ * @param {string} memberResolvable
+ * @param {Guild} guild
+ * @returns {Member|null}
+ */
+const resolveMember = (memberResolvable, guild) => guild.members.find((member, id) => id === memberResolvable ||
+    toFullName(member.user) === memberResolvable ||
+    member.user.username === memberResolvable ||
+    member.nickname === memberResolvable);
+
+/**
+ * resolves user by id
+ *
+ * @private
+ * @param {string} userResolvable
+ * @param {Guild} guild
+ * @returns {Promise}
+ */
+const resolveUser = (userResolvable, bot) => bot.fetchUser(userResolvable);
+
+const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
+/**
+ * Checks if a value is to be kept in a filter iterator
+ *
+ * @private
+ * @param {any} value
+ * @returns {boolean}
+ */
+const isLegalValue = (value) => !lightdash.isNil(value) && !lightdash.isFunction(value);
+/**
+ * Checks if a entry is to be kept in a filter iterator
+ *
+ * @private
+ * @param {Array<any>} entry
+ * @returns {boolean}
+ */
+const isLegalEntry = (entry) => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
+/**
+ * Cycles and strips all illegal values
+ *
+ * @private
+ * @param {any} val
+ * @returns {any}
+ */
+const strip = (val) => {
+    if (lightdash.isString(val) || lightdash.isNumber(val) || lightdash.isBoolean(val)) {
+        return val;
+    }
+    else if (lightdash.isArray(val)) {
+        return val.filter(isLegalValue).map(strip);
+    }
+    else if (lightdash.isObject(val)) {
+        const result = {};
+        Object.entries(val)
+            .filter(isLegalEntry)
+            .forEach(entry => {
+            result[entry[0]] = strip(entry[1]);
+        });
+        return result;
+    }
+    return null;
+};
+/**
+ * Strips sensitive data from bot output
+ *
+ * @private
+ * @param {Object} obj
+ * @returns {any}
+ */
+const stripBotData = (obj) => strip(lightdash.objDecycle(obj));
+
+/**
  * Di-ngy class
  *
  * @public
@@ -748,7 +734,18 @@ const Dingy = class {
          *
          * @private
          */
-        this.util = util;
+        this.util = {
+            decycle: lightdash.objDecycle,
+            humanizeList,
+            humanizeListOptionals,
+            jsonToYaml,
+            loadAttachment,
+            resolveChannel,
+            resolveMember,
+            resolveUser,
+            stripBotData,
+            toFullName
+        };
         /**
          * Stores instance config
          *
@@ -766,7 +763,7 @@ const Dingy = class {
          *
          * @protected
          */
-        this.userEvents = lightdash.objDefaultsDeep(userEvents, userEventsDefault);
+        this.userEvents = (lightdash.objDefaultsDeep(userEvents, userEventsDefault));
         /**
          * Winston logger
          *
@@ -789,10 +786,10 @@ const Dingy = class {
          *
          * @protected
          */
-        this.cli = new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
+        this.cli = (new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
             validQuotes: this.config.options.validQuotes
-        });
+        }));
         this.logger.verbose("Init: Created Clingy");
         /**
          * Discord.js client
@@ -842,8 +839,7 @@ const Dingy = class {
      */
     connect() {
         this.logger.info("Connect: Starting");
-        this.bot
-            .login(this.config.token)
+        this.bot.login(this.config.token)
             .then(() => {
             this.logger.info("Connect: Success");
             this.bot.user.setActivity(this.strings.currentlyPlaying);

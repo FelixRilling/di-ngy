@@ -17,4 +17,4 @@ const resolveChannel = (
             id === channelResolvable || channel.name === channelResolvable
     );
 
-export default resolveChannel;
+export { resolveChannel };

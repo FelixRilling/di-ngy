@@ -91,16 +91,7 @@ interface IDingyMessageResultEvents {
 }
 
 interface IDingyUtils {
-    decycle: (object: any, replacer?: (val: any) => any) => any;
-    humanizeList: (arr: string[]) => string;
-    humanizeListOptionals: (arr: string[]) => string;
-    jsonToYaml: (obj: any) => string;
-    loadAttachment: (attachment: MessageAttachment) => Promise<string>;
-    resolveChannel: (channelResolvable: string, guild: Guild) => GuildChannel;
-    resolveMember: (memberResolvable: string, guild: Guild) => GuildMember;
-    resolveUser: (userResolvable: string, bot: Client) => Promise<User>;
-    stripBotData: (obj: any) => any;
-    toFullName: (user: User) => string;
+    [key: string]: (...args: any[]) => any;
 }
 
 interface IDingy {

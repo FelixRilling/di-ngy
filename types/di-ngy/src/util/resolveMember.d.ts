@@ -8,4 +8,4 @@ import { Guild, GuildMember } from "discord.js";
  * @returns {Member|null}
  */
 declare const resolveMember: (memberResolvable: string, guild: Guild) => GuildMember;
-export default resolveMember;
+export { resolveMember };

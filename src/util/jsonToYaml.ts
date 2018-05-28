@@ -4,9 +4,9 @@ import {
     isFunction,
     isNumber,
     isObject,
-    isString
+    isString,
+    objDecycle
 } from "lightdash";
-import decycle from "./decycle";
 
 const LINEBREAK = "\n";
 const INDENT_CHAR = " ";
@@ -72,8 +72,8 @@ const format = (val: any, factor: number = 0): string => {
  * @returns {string}
  */
 const jsonToYaml = (obj: any): string =>
-    format(decycle(obj))
+    format(objDecycle(obj))
         .replace(/\s+\n/g, "\n")
         .trim();
 
-export default jsonToYaml;
+export { jsonToYaml };

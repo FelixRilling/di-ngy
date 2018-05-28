@@ -8,4 +8,4 @@ import { Guild, GuildChannel } from "discord.js";
  * @returns {Channel|null}
  */
 declare const resolveChannel: (channelResolvable: string, guild: Guild) => GuildChannel;
-export default resolveChannel;
+export { resolveChannel };

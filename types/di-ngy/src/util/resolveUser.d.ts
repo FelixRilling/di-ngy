@@ -8,4 +8,4 @@ import { Client, User } from "discord.js";
  * @returns {Promise}
  */
 declare const resolveUser: (userResolvable: string, bot: Client) => Promise<User>;
-export default resolveUser;
+export { resolveUser };

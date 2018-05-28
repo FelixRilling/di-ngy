@@ -11,4 +11,4 @@ import { Client, User } from "discord.js";
 const resolveUser = (userResolvable: string, bot: Client): Promise<User> =>
     bot.fetchUser(userResolvable);
 
-export default resolveUser;
+export { resolveUser };

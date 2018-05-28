@@ -1,5 +1,5 @@
 import { Guild, GuildMember } from "discord.js";
-import toFullName from "./toFullName";
+import { toFullName } from "./toFullName";
 
 /**
  * resolves member by id, username, name#discriminator or name
@@ -18,4 +18,4 @@ const resolveMember = (memberResolvable: string, guild: Guild): GuildMember =>
             member.nickname === memberResolvable
     );
 
-export default resolveMember;
+export { resolveMember };

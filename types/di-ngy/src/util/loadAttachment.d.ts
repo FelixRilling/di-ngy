@@ -7,4 +7,4 @@ import { MessageAttachment } from "discord.js";
  * @returns {Promise}
  */
 declare const loadAttachment: (attachment: MessageAttachment) => Promise<string>;
-export default loadAttachment;
+export { loadAttachment };

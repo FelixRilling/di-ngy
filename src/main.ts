@@ -1,18 +1,26 @@
 import Clingy from "cli-ngy";
 import { Client, Message } from "discord.js";
 import flatCache from "flat-cache";
-import { isUndefined, objDefaultsDeep } from "lightdash";
+import { isUndefined, objDecycle, objDefaultsDeep } from "lightdash";
 import { createLogger, format, transports } from "winston";
 
 import mapCommands from "./events/lib/mapCommands";
 import onError from "./events/onError";
 import onMessage from "./events/onMessage";
-import util from "./util/index";
 
 import commandsDefault from "./defaults/commands.default";
 import configDefault from "./defaults/config.default";
 import stringsDefault from "./defaults/strings.default";
 import userEventsDefault from "./defaults/userEvents.default";
+
+import { humanizeList, humanizeListOptionals } from "./util/humanizeList";
+import { jsonToYaml } from "./util/jsonToYaml";
+import { loadAttachment } from "./util/loadAttachment";
+import { resolveChannel } from "./util/resolveChannel";
+import { resolveMember } from "./util/resolveMember";
+import { resolveUser } from "./util/resolveUser";
+import { stripBotData } from "./util/stripBotData";
+import { toFullName } from "./util/toFullName";
 
 import {
     IDingy,
@@ -66,7 +74,18 @@ const Dingy = class implements IDingy {
          *
          * @private
          */
-        this.util = util;
+        this.util = {
+            decycle: objDecycle,
+            humanizeList,
+            humanizeListOptionals,
+            jsonToYaml,
+            loadAttachment,
+            resolveChannel,
+            resolveMember,
+            resolveUser,
+            stripBotData,
+            toFullName
+        };
 
         /**
          * Stores instance config
@@ -87,9 +106,8 @@ const Dingy = class implements IDingy {
          *
          * @protected
          */
-        this.userEvents = <IDingyUserEvents>objDefaultsDeep(
-            userEvents,
-            userEventsDefault
+        this.userEvents = <IDingyUserEvents>(
+            objDefaultsDeep(userEvents, userEventsDefault)
         );
 
         /**
@@ -118,12 +136,11 @@ const Dingy = class implements IDingy {
          *
          * @protected
          */
-        this.cli = <IDingyCli>new Clingy(
-            mapCommands(Object.assign(commandsDefault, commands)),
-            {
+        this.cli = <IDingyCli>(
+            new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
                 caseSensitive: this.config.options.namesAreCaseSensitive,
                 validQuotes: this.config.options.validQuotes
-            }
+            })
         );
         this.logger.verbose("Init: Created Clingy");
 
@@ -182,8 +199,7 @@ const Dingy = class implements IDingy {
     public connect() {
         this.logger.info("Connect: Starting");
 
-        this.bot
-            .login(this.config.token)
+        this.bot.login(this.config.token)
             .then(() => {
                 this.logger.info("Connect: Success");
                 this.bot.user.setActivity(this.strings.currentlyPlaying);

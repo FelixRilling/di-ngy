@@ -6,4 +6,4 @@
  * @returns {string}
  */
 declare const jsonToYaml: (obj: any) => string;
-export default jsonToYaml;
+export { jsonToYaml };

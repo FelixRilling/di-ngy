@@ -5,9 +5,9 @@ import {
     isNil,
     isNumber,
     isObject,
-    isString
+    isString,
+    objDecycle
 } from "lightdash";
-import decycle from "./decycle";
 
 const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 
@@ -65,6 +65,6 @@ const strip = (val: any): any => {
  * @param {Object} obj
  * @returns {any}
  */
-const stripBotData = (obj: any): any => strip(decycle(obj));
+const stripBotData = (obj: any): any => strip(objDecycle(obj));
 
-export default stripBotData;
+export { stripBotData };

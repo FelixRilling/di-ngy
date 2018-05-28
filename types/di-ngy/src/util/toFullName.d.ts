@@ -7,4 +7,4 @@ import { User } from "discord.js";
  * @returns {string}
  */
 declare const toFullName: (user: User) => string;
-export default toFullName;
+export { toFullName };

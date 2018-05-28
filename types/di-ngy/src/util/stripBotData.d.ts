@@ -6,4 +6,4 @@
  * @returns {any}
  */
 declare const stripBotData: (obj: any) => any;
-export default stripBotData;
+export { stripBotData };

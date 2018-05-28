@@ -20,4 +20,4 @@ const loadAttachment = (attachment: MessageAttachment): Promise<string> =>
             .catch(reject);
     });
 
-export default loadAttachment;
+export { loadAttachment };

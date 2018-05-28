@@ -10,4 +10,4 @@ import { User } from "discord.js";
 const toFullName = (user: User): string =>
     `${user.username}#${user.discriminator}`;
 
-export default toFullName;
+export {toFullName};
