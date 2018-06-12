@@ -19,9 +19,11 @@ const dataDefaults: IDingyMessageResultExpanded = [
 const dataFromValue = (
     val: string | IDingyMessageResultExpanded
 ): IDingyMessageResultExpanded =>
-    <IDingyMessageResultExpanded>objDefaultsDeep(
-        isString(val) ? [<string>val] : <IDingyMessageResultExpanded>val,
-        dataDefaults
+    <IDingyMessageResultExpanded>(
+        objDefaultsDeep(
+            isString(val) ? [<string>val] : <IDingyMessageResultExpanded>val,
+            dataDefaults
+        )
     );
 
 const normalizeMessage = (
@@ -36,9 +38,9 @@ const normalizeMessage = (
     }
 
     data.ignore = false;
-    data.result = dataFromValue(<
-        | string
-        | IDingyMessageResultExpanded>data.result);
+    data.result = dataFromValue(<string | IDingyMessageResultExpanded>(
+        data.result
+    ));
 
     return data;
 };

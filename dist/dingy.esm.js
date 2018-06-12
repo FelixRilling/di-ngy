@@ -57,7 +57,7 @@ const dataDefaults = [
     [],
     eventsDefault
 ];
-const dataFromValue = (val) => objDefaultsDeep(isString(val) ? [val] : val, dataDefaults);
+const dataFromValue = (val) => (objDefaultsDeep(isString(val) ? [val] : val, dataDefaults));
 const normalizeMessage = (data) => {
     if (data === false) {
         return {
@@ -67,7 +67,7 @@ const normalizeMessage = (data) => {
         };
     }
     data.ignore = false;
-    data.result = dataFromValue(data.result);
+    data.result = dataFromValue((data.result));
     return data;
 };
 

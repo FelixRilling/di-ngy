@@ -4,16 +4,8 @@ import {
     IClingyCommand,
     IClingyOptions
 } from "cli-ngy/src/interfaces";
-import {
-    Attachment,
-    Client,
-    Guild,
-    GuildChannel,
-    GuildMember,
-    Message,
-    MessageAttachment,
-    User
-} from "discord.js";
+import { Attachment, Client, Message } from "discord.js";
+import { Logger } from "winston";
 import { dingyCliCommandMap, dingyCommandResult } from "./types";
 
 /**
@@ -104,7 +96,7 @@ interface IDingy {
 
     bot: Client;
     cli: IDingyCli;
-    logger: any;
+    logger: Logger;
     util: IDingyUtils;
 
     connect: () => void;

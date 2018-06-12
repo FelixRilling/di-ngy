@@ -1,5 +1,6 @@
 import { IClingy, IClingyArg, IClingyCommand, IClingyOptions } from "cli-ngy/src/interfaces";
 import { Attachment, Client, Message } from "discord.js";
+import { Logger } from "winston";
 import { dingyCliCommandMap, dingyCommandResult } from "./types";
 /**
  * General
@@ -72,7 +73,7 @@ interface IDingy {
     dataPersisted: object;
     bot: Client;
     cli: IDingyCli;
-    logger: any;
+    logger: Logger;
     util: IDingyUtils;
     connect: () => void;
 }
