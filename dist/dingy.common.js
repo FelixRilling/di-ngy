@@ -839,7 +839,8 @@ const Dingy = class {
      */
     connect() {
         this.logger.info("Connect: Starting");
-        this.bot.login(this.config.token)
+        this.bot
+            .login(this.config.token)
             .then(() => {
             this.logger.info("Connect: Success");
             this.bot.user.setActivity(this.strings.currentlyPlaying);

@@ -2,7 +2,7 @@ import Clingy from "cli-ngy";
 import { Client, Message } from "discord.js";
 import flatCache from "flat-cache";
 import { isUndefined, objDecycle, objDefaultsDeep } from "lightdash";
-import { createLogger, format, transports } from "winston";
+import { createLogger, format, Logger, transports } from "winston";
 
 import { mapCommands } from "./events/lib/mapCommands";
 import { onError } from "./events/onError";
@@ -47,7 +47,7 @@ const Dingy = class implements IDingy {
 
     public bot: Client;
     public cli: IDingyCli;
-    public logger: any;
+    public logger: Logger;
     public util: IDingyUtils;
 
     /**
@@ -199,7 +199,8 @@ const Dingy = class implements IDingy {
     public connect() {
         this.logger.info("Connect: Starting");
 
-        this.bot.login(this.config.token)
+        this.bot
+            .login(this.config.token)
             .then(() => {
                 this.logger.info("Connect: Success");
                 this.bot.user.setActivity(this.strings.currentlyPlaying);

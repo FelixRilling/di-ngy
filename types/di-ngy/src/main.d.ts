@@ -1,4 +1,5 @@
 import { Client } from "discord.js";
+import { Logger } from "winston";
 import { IDingyCli, IDingyConfig, IDingyStrings, IDingyUserEvents, IDingyUtils } from "./interfaces";
 /**
  * Di-ngy class
@@ -15,8 +16,13 @@ declare const Dingy: {
         dataPersisted: object;
         bot: Client;
         cli: IDingyCli;
-        logger: any;
+        logger: Logger;
         util: IDingyUtils;
+        /**
+         * Connect to the Discord API
+         *
+         * @public
+         */
         connect(): void;
     };
 };
