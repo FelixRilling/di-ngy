@@ -1,10 +1,14 @@
 {
     "compilerOptions": {
-        "target": "es2017",
+        "baseUrl": "./",
+        "moduleResolution": "node",
+        "module": "esnext",
+        "target": "esnext",
         "newLine": "LF",
         "removeComments": false,
         "strict": true,
-        "noImplicitAny": false
-    },
-    "include": ["src/**/*"]
+        "noImplicitAny": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
+    }
 }

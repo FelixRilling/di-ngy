@@ -29,6 +29,7 @@ const mapCommand = (key, command) => {
         result.help.long = result.help.short;
     }
     if (!lightdash.isNil(result.sub)) {
+        // @ts-ignore
         result.sub = (lightdash.objMap(result.sub, mapCommand));
     }
     return result;

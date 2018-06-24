@@ -1,5 +1,6 @@
+import { IClingy } from "cli-ngy/src/clingy";
+import { IClingyCommands } from "cli-ngy/src/lib/command";
 import { isNil, isUndefined, objDefaultsDeep, objMap } from "lightdash";
-import { IClingy, IClingyCommands } from "../../../../cli-ngy/src/interfaces";
 import {
     IDingyCli,
     IDingyCliCommand,
@@ -31,6 +32,7 @@ const mapCommand = (key: string, command: any): IDingyCliCommand => {
     }
 
     if (!isNil(result.sub)) {
+        // @ts-ignore
         result.sub = <IDingyCliCommand | IDingyCli>(
             objMap(<IClingyCommands | IClingy>result.sub, mapCommand)
         );
