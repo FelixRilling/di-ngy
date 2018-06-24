@@ -1,6 +1,7 @@
 import { IClingy } from "cli-ngy/src/clingy";
 import { IClingyArg } from "cli-ngy/src/lib/arg";
 import { IClingyCommand } from "cli-ngy/src/lib/command";
+import { missingErrorTypes } from "cli-ngy/src/lib/lookup";
 import { IClingyOptions } from "cli-ngy/src/lib/options";
 import { Attachment, Client, Message } from "discord.js";
 import { Logger } from "winston";
@@ -104,7 +105,7 @@ interface IDingyCliLookupSuccessful {
 interface IDingyCliLookupMissingCommand {
     success: false;
     error: {
-        type: "missingCommand";
+        type: missingErrorTypes.command;
         missing: string[];
         similar: string[];
     };
@@ -113,7 +114,7 @@ interface IDingyCliLookupMissingCommand {
 interface IDingyCliLookupMissingArg {
     success: false;
     error: {
-        type: "missingArg";
+        type: missingErrorTypes.arg;
         missing: IDingyCliArg[];
     };
 }

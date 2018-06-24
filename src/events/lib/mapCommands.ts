@@ -32,7 +32,6 @@ const mapCommand = (key: string, command: any): IDingyCliCommand => {
     }
 
     if (!isNil(result.sub)) {
-        // @ts-ignore
         result.sub = <IDingyCliCommand | IDingyCli>(
             objMap(<IClingyCommands | IClingy>result.sub, mapCommand)
         );
