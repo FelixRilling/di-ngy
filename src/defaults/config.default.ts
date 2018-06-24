@@ -1,5 +1,34 @@
 import { Message } from "discord.js";
-import { IDingyConfig } from "../interfaces";
+
+interface IDingyConfigRole {
+    name: string;
+    power: number;
+    assignable: boolean;
+    check: (msg: Message) => boolean;
+}
+
+interface IDingyConfig {
+    prefix: string;
+    token: string;
+    dataPersisted: {
+        dir: string;
+        files: string[];
+    };
+    roles: IDingyConfigRole[];
+    options: {
+        enableDefaultCommands: boolean;
+        namesAreCaseSensitive: boolean;
+        validQuotes: string[];
+
+        answerToMissingCommand: boolean;
+        answerToMissingArgs: boolean;
+        answerToMissingPerms: boolean;
+
+        sendFilesForLongReply: boolean;
+
+        logLevel: string;
+    };
+}
 
 const configDefault: IDingyConfig = {
     prefix: "myPrefix", // Prefix to respond to: prefix:'foo' => responds to "foo help"
@@ -37,4 +66,4 @@ const configDefault: IDingyConfig = {
     }
 };
 
-export { configDefault };
+export { configDefault, IDingyConfig, IDingyConfigRole };

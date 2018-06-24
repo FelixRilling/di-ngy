@@ -3,16 +3,17 @@ import { Client, Message } from "discord.js";
 import flatCache from "flat-cache";
 import { isUndefined, objDecycle, objDefaultsDeep } from "lightdash";
 import { createLogger, format, Logger, transports } from "winston";
-
+import { IDingyCli } from "./cli";
 import { mapCommands } from "./command";
+import { commandsDefault } from "./defaults/commands.default";
+import { configDefault, IDingyConfig } from "./defaults/config.default";
+import { IDingyStrings, stringsDefault } from "./defaults/strings.default";
+import {
+    IDingyUserEvents,
+    userEventsDefault
+} from "./defaults/userEvents.default";
 import { onError } from "./events/onError";
 import { onMessage } from "./events/onMessage";
-
-import { commandsDefault } from "./defaults/commands.default";
-import { configDefault } from "./defaults/config.default";
-import { stringsDefault } from "./defaults/strings.default";
-import { userEventsDefault } from "./defaults/userEvents.default";
-
 import { humanizeList, humanizeListOptionals } from "./util/humanizeList";
 import { jsonToYaml } from "./util/jsonToYaml";
 import { loadAttachment } from "./util/loadAttachment";
@@ -20,14 +21,25 @@ import { resolveChannel, resolveMember, resolveUser } from "./util/resolve";
 import { stripBotData } from "./util/stripBotData";
 import { toFullName } from "./util/toFullName";
 
-import {
-    IDingy,
-    IDingyCli,
-    IDingyConfig,
-    IDingyStrings,
-    IDingyUserEvents,
-    IDingyUtils
-} from "./interfaces";
+interface IDingyUtils {
+    [key: string]: (...args: any[]) => any;
+}
+
+interface IDingy {
+    config: IDingyConfig;
+    strings: IDingyStrings;
+    userEvents: IDingyUserEvents;
+
+    data: object;
+    dataPersisted: object;
+
+    bot: Client;
+    cli: IDingyCli;
+    logger: Logger;
+    util: IDingyUtils;
+
+    connect: () => void;
+}
 
 /**
  * Di-ngy class
@@ -214,4 +226,4 @@ const Dingy = class implements IDingy {
     }
 };
 
-export { Dingy };
+export { Dingy, IDingy };

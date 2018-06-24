@@ -1,12 +1,21 @@
 import { Attachment, Message, MessageOptions } from "discord.js";
-import { isString, objDefaultsDeep } from "lightdash";
-import { isPromise } from "lightdash";
-import {
-    IDingy,
-    IDingyCommandResolved,
-    IDingyMessageResultEvents,
-    IDingyMessageResultExpanded
-} from "./interfaces";
+import { isPromise, isString, objDefaultsDeep } from "lightdash";
+import { IDingyCommandResolved } from "./command";
+import { IDingy } from "./dingy";
+
+interface IDingyMessageResultEvents {
+    onSend: (msg: Message) => void;
+}
+
+interface IDingyMessageResultExpanded {
+    0: string;
+    1?: boolean | string;
+    2?: string[] | Attachment[];
+    3?: IDingyMessageResultEvents;
+}
+
+const MAX_SIZE_MESSAGE = 2000;
+const MAX_SIZE_FILE = 8000000;
 
 const eventsDefault: IDingyMessageResultEvents = {
     onSend: () => {}
@@ -47,9 +56,6 @@ const normalizeMessage = (
 
     return data;
 };
-
-const MAX_SIZE_MESSAGE = 2000;
-const MAX_SIZE_FILE = 8000000;
 
 const send = (
     app: IDingy,
@@ -147,5 +153,8 @@ export {
     dataFromValue,
     eventsDefault,
     dataDefaults,
-    sendMessage
+    sendMessage,
+    IDingyMessageResultExpanded,
+    IDingyCommandResolved,
+    IDingyMessageResultEvents
 };

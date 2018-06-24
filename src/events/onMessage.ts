@@ -1,6 +1,6 @@
 import { Message, User } from "discord.js";
 import { resolveCommand } from "../command";
-import { IDingy } from "../interfaces";
+import { IDingy } from "../dingy";
 import { sendMessage } from "../message";
 import { toFullName } from "../util/toFullName";
 

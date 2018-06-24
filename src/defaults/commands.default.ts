@@ -1,9 +1,9 @@
+import { IDingyCliCommands } from "../cli";
 import { commandCoreDie } from "../commands/core/die";
 import { commandCoreDump } from "../commands/core/dump";
 import { commandCoreEcho } from "../commands/core/echo";
 import { commandCoreEval } from "../commands/core/eval";
 import { commandCoreHelp } from "../commands/core/help";
-import { IDingyCliCommands } from "../interfaces";
 
 const commandsDefault: IDingyCliCommands = {
     die: {

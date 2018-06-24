@@ -9,6 +9,8 @@ var Clingy = _interopDefault(require('cli-ngy'));
 var flatCache = _interopDefault(require('flat-cache'));
 var winston = require('winston');
 
+const MAX_SIZE_MESSAGE = 2000;
+const MAX_SIZE_FILE = 8000000;
 const eventsDefault = {
     onSend: () => { }
 };
@@ -31,8 +33,6 @@ const normalizeMessage = (data) => {
     data.result = dataFromValue((data.result));
     return data;
 };
-const MAX_SIZE_MESSAGE = 2000;
-const MAX_SIZE_FILE = 8000000;
 const send = (app, msg, content) => msg.channel
     .send(content[0].trim(), {
     code: content[1],
@@ -184,49 +184,6 @@ const resolveCommandResult = (str, msg, app) => {
     return false;
 };
 const resolveCommand = (str, msg, app) => normalizeMessage(resolveCommandResult(str, msg, app));
-
-const RECONNECT_TIMEOUT = 10000;
-const onError = (err, app) => {
-    app.logger.warn(`Reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
-    app.bot.setTimeout(() => {
-        app.connect();
-    }, RECONNECT_TIMEOUT);
-};
-
-/**
- * creates user+discriminator from user
- *
- * @private
- * @param {User} user
- * @returns {string}
- */
-const toFullName = (user) => `${user.username}#${user.discriminator}`;
-
-const stringifyAuthor = (author) => `${author.id}[${toFullName(author)}]`;
-const onMessage = (msg, app) => {
-    const messageText = msg.content;
-    /**
-     * Basic Check
-     * Conditions:
-     *    NOT from a bot
-     *    DOES start with prefix
-     *      NOT just the prefix
-     */
-    if (!msg.author.bot &&
-        messageText.startsWith(app.config.prefix) &&
-        messageText !== app.config.prefix) {
-        const messageCommand = messageText.substr(app.config.prefix.length);
-        const commandResult = resolveCommand(messageCommand, msg, app);
-        app.logger.info(`Resolving message from ${stringifyAuthor(msg.author)}: ${JSON.stringify(msg.content)}`);
-        if (commandResult.ignore) {
-            app.logger.debug("Ignoring");
-        }
-        else {
-            sendMessage(app, msg, commandResult);
-            app.logger.info(`Returning response to ${stringifyAuthor(msg.author)}`);
-        }
-    }
-};
 
 /**
  * Exits the process
@@ -521,6 +478,49 @@ const userEventsDefault = {
     onInit: () => { },
     onConnect: () => { },
     onMessage: () => { }
+};
+
+const RECONNECT_TIMEOUT = 10000;
+const onError = (err, app) => {
+    app.logger.warn(`Reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`, err);
+    app.bot.setTimeout(() => {
+        app.connect();
+    }, RECONNECT_TIMEOUT);
+};
+
+/**
+ * creates user+discriminator from user
+ *
+ * @private
+ * @param {User} user
+ * @returns {string}
+ */
+const toFullName = (user) => `${user.username}#${user.discriminator}`;
+
+const stringifyAuthor = (author) => `${author.id}[${toFullName(author)}]`;
+const onMessage = (msg, app) => {
+    const messageText = msg.content;
+    /**
+     * Basic Check
+     * Conditions:
+     *    NOT from a bot
+     *    DOES start with prefix
+     *      NOT just the prefix
+     */
+    if (!msg.author.bot &&
+        messageText.startsWith(app.config.prefix) &&
+        messageText !== app.config.prefix) {
+        const messageCommand = messageText.substr(app.config.prefix.length);
+        const commandResult = resolveCommand(messageCommand, msg, app);
+        app.logger.info(`Resolving message from ${stringifyAuthor(msg.author)}: ${JSON.stringify(msg.content)}`);
+        if (commandResult.ignore) {
+            app.logger.debug("Ignoring");
+        }
+        else {
+            sendMessage(app, msg, commandResult);
+            app.logger.info(`Returning response to ${stringifyAuthor(msg.author)}`);
+        }
+    }
 };
 
 /**

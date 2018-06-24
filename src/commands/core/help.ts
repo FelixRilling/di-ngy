@@ -1,10 +1,7 @@
-import {
-    IDingy,
-    IDingyCli,
-    IDingyCliCommand,
-    IDingyMessageResultExpanded
-} from "../../interfaces";
-import { dingyCommandFn } from "../../types";
+import { IDingyCli, IDingyCliCommand } from "../../cli";
+import { dingyCommandFn } from "../../command";
+import { IDingy } from "../../dingy";
+import { IDingyMessageResultExpanded } from "../../message";
 
 const getHelpAll = (
     commandsMap: Map<string, IDingyCliCommand>,

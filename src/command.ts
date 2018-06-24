@@ -1,19 +1,40 @@
 import { IClingy } from "cli-ngy/src/clingy";
 import { IClingyCommands } from "cli-ngy/src/lib/command";
-import { Message } from "discord.js";
+import { Collection, Message, MessageAttachment } from "discord.js";
 import { isNil, isUndefined, objDefaultsDeep, objMap } from "lightdash";
 import {
-    IDingy,
     IDingyCli,
     IDingyCliArg,
     IDingyCliCommand,
     IDingyCliCommands,
+    IDingyCliLookupArgs,
     IDingyCliLookupMissingArg,
     IDingyCliLookupMissingCommand,
-    IDingyCommandResolved,
-    IDingyConfigRole
-} from "./interfaces";
-import { normalizeMessage } from "./message";
+    IDingyCliLookupSuccessful
+} from "./cli";
+import { IDingyConfigRole } from "./defaults/config.default";
+import { IDingy } from "./dingy";
+import { IDingyMessageResultExpanded, normalizeMessage } from "./message";
+
+type dingyCommandFn = (
+    args: IDingyCliLookupArgs,
+    msg: Message,
+    app: IDingy,
+    commandLookup: IDingyCliLookupSuccessful,
+    attachments: Collection<string, MessageAttachment>
+) => dingyCommandResult;
+
+type dingyCommandResult =
+    | string
+    | IDingyMessageResultExpanded
+    | Promise<string>
+    | Promise<IDingyMessageResultExpanded>;
+
+interface IDingyCommandResolved {
+    success: boolean;
+    result: dingyCommandResult;
+    ignore?: boolean;
+}
 
 const NO_HELP = "No help provided";
 
@@ -145,4 +166,10 @@ const resolveCommandResult = (str: string, msg: Message, app: IDingy) => {
 const resolveCommand = (str: string, msg: Message, app: IDingy) =>
     normalizeMessage(resolveCommandResult(str, msg, app));
 
-export { resolveCommand, mapCommands };
+export {
+    resolveCommand,
+    mapCommands,
+    dingyCommandFn,
+    IDingyCommandResolved,
+    dingyCommandResult
+};

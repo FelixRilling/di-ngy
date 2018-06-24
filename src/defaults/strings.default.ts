@@ -1,4 +1,19 @@
-import { IDingyStrings } from "../interfaces";
+interface IDingyStrings {
+    currentlyPlaying: string;
+
+    separator: string;
+
+    infoSimilar: string;
+    infoEmpty: string;
+    infoTooLong: string;
+    infoInternal: string;
+
+    errorUnknownCommand: string;
+    errorMissingArgs: string;
+    errorPermission: string;
+    errorTooLong: string;
+    errorInternal: string;
+}
 
 const stringsDefault: IDingyStrings = {
     currentlyPlaying: "with bots",
@@ -17,4 +32,4 @@ const stringsDefault: IDingyStrings = {
     errorInternal: "Internal error"
 };
 
-export { stringsDefault };
+export { stringsDefault, IDingyStrings };

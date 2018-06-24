@@ -1,6 +1,24 @@
 import { Client } from "discord.js";
 import { Logger } from "winston";
-import { IDingyCli, IDingyConfig, IDingyStrings, IDingyUserEvents, IDingyUtils } from "./interfaces";
+import { IDingyCli } from "./cli";
+import { IDingyConfig } from "./defaults/config.default";
+import { IDingyStrings } from "./defaults/strings.default";
+import { IDingyUserEvents } from "./defaults/userEvents.default";
+interface IDingyUtils {
+    [key: string]: (...args: any[]) => any;
+}
+interface IDingy {
+    config: IDingyConfig;
+    strings: IDingyStrings;
+    userEvents: IDingyUserEvents;
+    data: object;
+    dataPersisted: object;
+    bot: Client;
+    cli: IDingyCli;
+    logger: Logger;
+    util: IDingyUtils;
+    connect: () => void;
+}
 /**
  * Di-ngy class
  *
@@ -26,4 +44,4 @@ declare const Dingy: {
         connect(): void;
     };
 };
-export { Dingy };
+export { Dingy, IDingy };

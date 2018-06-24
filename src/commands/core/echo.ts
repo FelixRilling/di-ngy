@@ -1,4 +1,4 @@
-import { dingyCommandFn } from "../../types";
+import { dingyCommandFn } from "../../command";
 
 /**
  * Echos text
