@@ -2,55 +2,12 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var lightdash = require('lightdash');
 var discord_js = require('discord.js');
+var lightdash = require('lightdash');
 var fetch = _interopDefault(require('make-fetch-happen'));
 var Clingy = _interopDefault(require('cli-ngy'));
 var flatCache = _interopDefault(require('flat-cache'));
 var winston = require('winston');
-
-const NO_HELP = "No help provided";
-const commandDefault = {
-    fn: () => "",
-    args: [],
-    alias: [],
-    powerRequired: 0,
-    hidden: false,
-    usableInDMs: false,
-    help: {
-        short: NO_HELP
-    },
-    sub: null
-};
-const mapCommand = (key, command) => {
-    const result = lightdash.objDefaultsDeep(command, commandDefault);
-    result.args.map(arg => (!lightdash.isUndefined(arg.help) ? arg.help : NO_HELP));
-    if (lightdash.isUndefined(result.help.long)) {
-        result.help.long = result.help.short;
-    }
-    if (!lightdash.isNil(result.sub)) {
-        result.sub = (lightdash.objMap(result.sub, mapCommand));
-    }
-    return result;
-};
-const mapCommands = (commands) => lightdash.objMap(commands, mapCommand);
-
-const RECONNECT_TIMEOUT = 10000;
-const onError = (err, app) => {
-    app.logger.warn(`Reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
-    app.bot.setTimeout(() => {
-        app.connect();
-    }, RECONNECT_TIMEOUT);
-};
-
-/**
- * creates user+discriminator from user
- *
- * @private
- * @param {User} user
- * @returns {string}
- */
-const toFullName = (user) => `${user.username}#${user.discriminator}`;
 
 const eventsDefault = {
     onSend: () => { }
@@ -74,66 +31,6 @@ const normalizeMessage = (data) => {
     data.result = dataFromValue((data.result));
     return data;
 };
-
-const hasPermissions = (powerRequired, roles, msg) => {
-    const checkResults = roles.map(role => (role.check(msg) ? role.power : 0));
-    return Math.max(...checkResults) >= powerRequired;
-};
-const resolveCommandResult = (str, msg, app) => {
-    const commandLookup = app.cli.parse(str);
-    // Command check
-    if (commandLookup.success) {
-        const command = commandLookup.command;
-        const isDM = !msg.guild;
-        if (isDM && !command.usableInDMs) {
-            return false;
-        }
-        // Permission check
-        if (!hasPermissions(command.powerRequired, app.config.roles, msg)) {
-            return app.config.options.answerToMissingPerms
-                ? {
-                    result: `${app.strings.errorPermission}`,
-                    success: false
-                }
-                : false;
-        }
-        // Run command fn
-        const result = command.fn(commandLookup.args, msg, app, commandLookup, msg.attachments);
-        return {
-            result,
-            success: true
-        };
-    }
-    const error = (commandLookup).error;
-    if (error.type === "missingCommand") {
-        if (app.config.options.answerToMissingCommand) {
-            const content = [
-                `${app.strings.errorUnknownCommand} '${error.missing}'`
-            ];
-            if (error.similar.length > 0) {
-                content.push(`${app.strings.infoSimilar} ${app.util.humanizeListOptionals(error.similar)}?`);
-            }
-            return {
-                result: content.join("\n"),
-                success: false
-            };
-        }
-        return false;
-    }
-    else if (error.type === "missingArg") {
-        if (app.config.options.answerToMissingArgs) {
-            const missingNames = error.missing.map(item => item.name);
-            return {
-                result: `${app.strings.errorMissingArgs} ${missingNames.join(",")}`,
-                success: false
-            };
-        }
-        return false;
-    }
-    return false;
-};
-const resolveCommand = (str, msg, app) => normalizeMessage(resolveCommandResult(str, msg, app));
-
 const MAX_SIZE_MESSAGE = 2000;
 const MAX_SIZE_FILE = 8000000;
 const send = (app, msg, content) => msg.channel
@@ -204,6 +101,107 @@ const sendMessage = (app, msg, commandResult) => {
     }
 };
 
+const NO_HELP = "No help provided";
+const commandDefault = {
+    fn: () => "",
+    args: [],
+    alias: [],
+    powerRequired: 0,
+    hidden: false,
+    usableInDMs: false,
+    help: {
+        short: NO_HELP
+    },
+    sub: null
+};
+const mapCommand = (key, command) => {
+    const result = lightdash.objDefaultsDeep(command, commandDefault);
+    result.args.map(arg => (!lightdash.isUndefined(arg.help) ? arg.help : NO_HELP));
+    if (lightdash.isUndefined(result.help.long)) {
+        result.help.long = result.help.short;
+    }
+    if (!lightdash.isNil(result.sub)) {
+        result.sub = (lightdash.objMap(result.sub, mapCommand));
+    }
+    return result;
+};
+const mapCommands = (commands) => lightdash.objMap(commands, mapCommand);
+const hasPermissions = (powerRequired, roles, msg) => {
+    const checkResults = roles.map(role => (role.check(msg) ? role.power : 0));
+    return Math.max(...checkResults) >= powerRequired;
+};
+const resolveCommandResult = (str, msg, app) => {
+    const commandLookup = app.cli.parse(str);
+    // Command check
+    if (commandLookup.success) {
+        const command = commandLookup.command;
+        const isDM = !msg.guild;
+        if (isDM && !command.usableInDMs) {
+            return false;
+        }
+        // Permission check
+        if (!hasPermissions(command.powerRequired, app.config.roles, msg)) {
+            return app.config.options.answerToMissingPerms
+                ? {
+                    result: `${app.strings.errorPermission}`,
+                    success: false
+                }
+                : false;
+        }
+        // Run command fn
+        const result = command.fn(commandLookup.args, msg, app, commandLookup, msg.attachments);
+        return {
+            result,
+            success: true
+        };
+    }
+    const error = (commandLookup).error;
+    if (error.type === "missingCommand") {
+        if (app.config.options.answerToMissingCommand) {
+            const content = [
+                `${app.strings.errorUnknownCommand} '${error.missing}'`
+            ];
+            if (error.similar.length > 0) {
+                content.push(`${app.strings.infoSimilar} ${app.util.humanizeListOptionals(error.similar)}?`);
+            }
+            return {
+                result: content.join("\n"),
+                success: false
+            };
+        }
+        return false;
+    }
+    else if (error.type === "missingArg") {
+        if (app.config.options.answerToMissingArgs) {
+            const missingNames = error.missing.map(item => item.name);
+            return {
+                result: `${app.strings.errorMissingArgs} ${missingNames.join(",")}`,
+                success: false
+            };
+        }
+        return false;
+    }
+    return false;
+};
+const resolveCommand = (str, msg, app) => normalizeMessage(resolveCommandResult(str, msg, app));
+
+const RECONNECT_TIMEOUT = 10000;
+const onError = (err, app) => {
+    app.logger.warn(`Reconnect: Attempting to reconnect in ${RECONNECT_TIMEOUT}ms`);
+    app.bot.setTimeout(() => {
+        app.connect();
+    }, RECONNECT_TIMEOUT);
+};
+
+/**
+ * creates user+discriminator from user
+ *
+ * @private
+ * @param {User} user
+ * @returns {string}
+ */
+const toFullName = (user) => `${user.username}#${user.discriminator}`;
+
 const stringifyAuthor = (author) => `${author.id}[${toFullName(author)}]`;
 const onMessage = (msg, app) => {
     const messageText = msg.content;
@@ -255,7 +253,7 @@ const commandCoreDie = (args, msg, app) => {
  * @param {App} app
  * @returns {false}
  */
-const commandCoreDump = (args, msg, app) => {
+const commandCoreDump = args => {
     let result = "";
     try {
         // tslint:disable-next-line:no-eval
@@ -287,7 +285,7 @@ const commandCoreEcho = args => args.text;
  * @param {App} app
  * @returns {false}
  */
-const commandCoreEval = (args, msg, app) => {
+const commandCoreEval = args => {
     let result = "";
     try {
         // tslint:disable-next-line:no-eval
@@ -496,7 +494,7 @@ const configDefault = {
     options: {
         enableDefaultCommands: true,
         namesAreCaseSensitive: false,
-        validQuotes: ['"'],
+        validQuotes: ["\""],
         answerToMissingCommand: false,
         answerToMissingArgs: true,
         answerToMissingPerms: true,
@@ -626,15 +624,14 @@ const loadAttachment = (attachment) => new Promise((resolve, reject) => {
 });
 
 /**
- * resolves channel by id or name
+ * resolves user by id
  *
  * @private
- * @param {string} channelResolvable
+ * @param {string} userResolvable
  * @param {Guild} guild
- * @returns {Channel|null}
+ * @returns {Promise}
  */
-const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable || channel.name === channelResolvable);
-
+const resolveUser = (userResolvable, bot) => bot.fetchUser(userResolvable);
 /**
  * resolves member by id, username, name#discriminator or name
  *
@@ -647,16 +644,15 @@ const resolveMember = (memberResolvable, guild) => guild.members.find((member, i
     toFullName(member.user) === memberResolvable ||
     member.user.username === memberResolvable ||
     member.nickname === memberResolvable);
-
 /**
- * resolves user by id
+ * resolves channel by id or name
  *
  * @private
- * @param {string} userResolvable
+ * @param {string} channelResolvable
  * @param {Guild} guild
- * @returns {Promise}
+ * @returns {Channel|null}
  */
-const resolveUser = (userResolvable, bot) => bot.fetchUser(userResolvable);
+const resolveChannel = (channelResolvable, guild) => guild.channels.find((channel, id) => id === channelResolvable || channel.name === channelResolvable);
 
 const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 /**

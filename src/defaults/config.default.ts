@@ -25,7 +25,7 @@ const configDefault: IDingyConfig = {
     options: {
         enableDefaultCommands: true, // If the built-in "about", "help" and "eval" commands should be active
         namesAreCaseSensitive: false, // cli-ngy: If false, "#botPrefix# hElP" will work too
-        validQuotes: ['"'], // cli-ngy: List of characters to support enclosing quotedStrings for.
+        validQuotes: ["\""], // cli-ngy: List of characters to support enclosing quotedStrings for.
 
         answerToMissingCommand: false, // If a message should be that the command requested doesn't exist
         answerToMissingArgs: true, // If a message should be sent indicating that arguments were missing

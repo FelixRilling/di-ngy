@@ -1,9 +1,8 @@
 import { Message, User } from "discord.js";
+import { resolveCommand } from "../command";
 import { IDingy } from "../interfaces";
-
+import { sendMessage } from "../message";
 import { toFullName } from "../util/toFullName";
-import { resolveCommand } from "./lib/resolveCommand";
-import { sendMessage } from "./lib/sendMessage";
 
 const stringifyAuthor = (author: User): string =>
     `${author.id}[${toFullName(author)}]`;

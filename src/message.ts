@@ -1,12 +1,52 @@
 import { Attachment, Message, MessageOptions } from "discord.js";
+import { isString, objDefaultsDeep } from "lightdash";
 import { isPromise } from "lightdash";
 import {
     IDingy,
     IDingyCommandResolved,
     IDingyMessageResultEvents,
     IDingyMessageResultExpanded
-} from "../../interfaces";
-import { dataFromValue, eventsDefault } from "./normalizeMessage";
+} from "./interfaces";
+
+const eventsDefault: IDingyMessageResultEvents = {
+    onSend: () => {}
+};
+
+const dataDefaults: IDingyMessageResultExpanded = [
+    "",
+    false,
+    [],
+    eventsDefault
+];
+
+const dataFromValue = (
+    val: string | IDingyMessageResultExpanded
+): IDingyMessageResultExpanded =>
+    <IDingyMessageResultExpanded>(
+        objDefaultsDeep(
+            isString(val) ? [<string>val] : <IDingyMessageResultExpanded>val,
+            dataDefaults
+        )
+    );
+
+const normalizeMessage = (
+    data: false | IDingyCommandResolved
+): IDingyCommandResolved => {
+    if (data === false) {
+        return {
+            success: true,
+            ignore: true,
+            result: dataDefaults
+        };
+    }
+
+    data.ignore = false;
+    data.result = dataFromValue(<string | IDingyMessageResultExpanded>(
+        data.result
+    ));
+
+    return data;
+};
 
 const MAX_SIZE_MESSAGE = 2000;
 const MAX_SIZE_FILE = 8000000;
@@ -102,4 +142,10 @@ const sendMessage = (
     }
 };
 
-export { sendMessage };
+export {
+    normalizeMessage,
+    dataFromValue,
+    eventsDefault,
+    dataDefaults,
+    sendMessage
+};

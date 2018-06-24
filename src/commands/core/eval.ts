@@ -9,7 +9,7 @@ import { dingyCommandFn } from "../../types";
  * @param {App} app
  * @returns {false}
  */
-const commandCoreEval: dingyCommandFn = (args, msg, app) => {
+const commandCoreEval: dingyCommandFn = args => {
     let result = "";
 
     try {

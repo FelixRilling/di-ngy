@@ -9,7 +9,7 @@ import { dingyCommandFn } from "../../types";
  * @param {App} app
  * @returns {false}
  */
-const commandCoreDump: dingyCommandFn = (args, msg, app) => {
+const commandCoreDump: dingyCommandFn = args => {
     let result = "";
 
     try {

@@ -4,7 +4,7 @@ import flatCache from "flat-cache";
 import { isUndefined, objDecycle, objDefaultsDeep } from "lightdash";
 import { createLogger, format, Logger, transports } from "winston";
 
-import { mapCommands } from "./events/lib/mapCommands";
+import { mapCommands } from "./command";
 import { onError } from "./events/onError";
 import { onMessage } from "./events/onMessage";
 
@@ -16,9 +16,7 @@ import { userEventsDefault } from "./defaults/userEvents.default";
 import { humanizeList, humanizeListOptionals } from "./util/humanizeList";
 import { jsonToYaml } from "./util/jsonToYaml";
 import { loadAttachment } from "./util/loadAttachment";
-import { resolveChannel } from "./util/resolveChannel";
-import { resolveMember } from "./util/resolveMember";
-import { resolveUser } from "./util/resolveUser";
+import { resolveChannel, resolveMember, resolveUser } from "./util/resolve";
 import { stripBotData } from "./util/stripBotData";
 import { toFullName } from "./util/toFullName";
 
