@@ -147,10 +147,17 @@ const Dingy = class implements IDingy {
          * @protected
          */
         this.cli = <IDingyCli>(
-            new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
-                caseSensitive: this.config.options.namesAreCaseSensitive,
-                validQuotes: this.config.options.validQuotes
-            })
+            new Clingy(
+                mapCommands(
+                    this.config.options.enableDefaultCommands
+                        ? Object.assign(commandsDefault, commands)
+                        : commands
+                ),
+                {
+                    caseSensitive: this.config.options.namesAreCaseSensitive,
+                    validQuotes: this.config.options.validQuotes
+                }
+            )
         );
         this.logger.verbose("Init: Created Clingy");
 

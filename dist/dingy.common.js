@@ -782,7 +782,9 @@ const Dingy = class {
          *
          * @protected
          */
-        this.cli = (new Clingy(mapCommands(Object.assign(commandsDefault, commands)), {
+        this.cli = (new Clingy(mapCommands(this.config.options.enableDefaultCommands
+            ? Object.assign(commandsDefault, commands)
+            : commands), {
             caseSensitive: this.config.options.namesAreCaseSensitive,
             validQuotes: this.config.options.validQuotes
         }));
