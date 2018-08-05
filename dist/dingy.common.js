@@ -618,7 +618,7 @@ const nodeFetch = fetch.defaults({
  */
 const loadAttachment = (attachment) => new Promise((resolve, reject) => {
     nodeFetch(attachment.url)
-        .then(response => response.text())
+        .then((response) => response.text())
         .then(resolve)
         .catch(reject);
 });
@@ -690,6 +690,7 @@ const strip = (val) => {
         Object.entries(val)
             .filter(isLegalEntry)
             .forEach(entry => {
+            // @ts-ignore
             result[entry[0]] = strip(entry[1]);
         });
         return result;
@@ -809,6 +810,7 @@ const Dingy = class {
          */
         this.dataPersisted = {};
         this.config.dataPersisted.files.forEach(fileName => {
+            // @ts-ignore
             this.dataPersisted[fileName] = flatCache.load(`${fileName}.json`, this.config.dataPersisted.dir);
         });
         this.logger.verbose("Init: Loaded Data");

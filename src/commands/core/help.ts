@@ -7,7 +7,7 @@ const getHelpAll = (
     commandsMap: Map<string, IDingyCliCommand>,
     app: IDingy
 ): IDingyMessageResultExpanded => {
-    const result = {};
+    const result: { [key: string]: any } = {};
 
     commandsMap.forEach((command, commandName) => {
         const subcommandsList =

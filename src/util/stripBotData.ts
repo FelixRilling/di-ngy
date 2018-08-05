@@ -49,6 +49,7 @@ const strip = (val: any): any => {
         Object.entries(val)
             .filter(isLegalEntry)
             .forEach(entry => {
+                // @ts-ignore
                 result[entry[0]] = strip(entry[1]);
             });
 

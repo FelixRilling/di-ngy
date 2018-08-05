@@ -182,6 +182,7 @@ const Dingy = class implements IDingy {
          */
         this.dataPersisted = {};
         this.config.dataPersisted.files.forEach(fileName => {
+            // @ts-ignore
             this.dataPersisted[fileName] = flatCache.load(
                 `${fileName}.json`,
                 this.config.dataPersisted.dir

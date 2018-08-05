@@ -15,7 +15,7 @@ const nodeFetch = fetch.defaults({
 const loadAttachment = (attachment: MessageAttachment): Promise<string> =>
     new Promise((resolve, reject) => {
         nodeFetch(attachment.url)
-            .then(response => response.text())
+            .then((response: Response) => response.text())
             .then(resolve)
             .catch(reject);
     });
