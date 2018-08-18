@@ -67,10 +67,5 @@
         "rollup-plugin-typescript2": "^0.16.1",
         "tslint": "^5.11.0",
         "typescript": "^3.0.1"
-    },
-    "optionalDependencies": {
-        "bufferutil": "^4.0.0",
-        "erlpack": "github:discordapp/erlpack",
-        "zlib-sync": "^0.1.4"
     }
 }
