@@ -226,10 +226,6 @@ const Dingy = class implements IDingy {
             })
             .catch(() => {
                 this.logger.error("Connect: Error");
-
-                throw new Error(
-                    "An error ocurred Connecting to the Discord API"
-                );
             });
     }
 };
