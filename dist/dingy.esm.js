@@ -198,29 +198,6 @@ const commandCoreDie = (args, msg, app) => {
 };
 
 /**
- * Evaluates and returns
- *
- * @private
- * @param {Array<any>} args
- * @param {Message} msg
- * @param {App} app
- * @returns {false}
- */
-const commandCoreDump = args => {
-    let result = "";
-    try {
-        // tslint:disable-next-line:no-eval
-        result = eval(args.code);
-    }
-    catch (err) {
-        result = err;
-    }
-    // tslint:disable-next-line:no-console
-    console.log(result);
-    return [String(result), true];
-};
-
-/**
  * Echos text
  *
  * @private
@@ -228,29 +205,6 @@ const commandCoreDump = args => {
  * @returns {string}
  */
 const commandCoreEcho = args => args.text;
-
-/**
- * Evaluates
- *
- * @private
- * @param {Array<any>} args
- * @param {Message} msg
- * @param {App} app
- * @returns {false}
- */
-const commandCoreEval = args => {
-    let result = "";
-    try {
-        // tslint:disable-next-line:no-eval
-        result = eval(args.code);
-    }
-    catch (err) {
-        result = err;
-    }
-    // tslint:disable-next-line:no-console
-    console.log(result);
-    return "Done.";
-};
 
 const getHelpAll = (commandsMap, app) => {
     const result = {};
@@ -341,44 +295,6 @@ const commandsDefault = {
         help: {
             short: "Kills the bot",
             long: "Kills the bot"
-        },
-        sub: null
-    },
-    eval: {
-        fn: commandCoreEval,
-        args: [
-            {
-                name: "code",
-                required: true,
-                help: "Code to run "
-            }
-        ],
-        alias: [],
-        powerRequired: 10,
-        hidden: true,
-        usableInDMs: true,
-        help: {
-            short: "Executes JS code",
-            long: "Executes JS code, dangerous!"
-        },
-        sub: null
-    },
-    dump: {
-        fn: commandCoreDump,
-        args: [
-            {
-                name: "code",
-                required: true,
-                help: "Code to run "
-            }
-        ],
-        alias: [],
-        powerRequired: 10,
-        hidden: true,
-        usableInDMs: true,
-        help: {
-            short: "Executes JS code and returns",
-            long: "Executes JS code and returns, dangerous!"
         },
         sub: null
     },
