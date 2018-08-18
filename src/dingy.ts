@@ -224,8 +224,8 @@ const Dingy = class implements IDingy {
                 this.bot.user.setActivity(this.strings.currentlyPlaying);
                 this.userEvents.onConnect(this);
             })
-            .catch(() => {
-                this.logger.error("Connect: Error");
+            .catch((err: Error) => {
+                this.logger.error("Connect: Error", err);
             });
     }
 };

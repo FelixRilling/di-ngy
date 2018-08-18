@@ -846,8 +846,8 @@ const Dingy = class {
             this.bot.user.setActivity(this.strings.currentlyPlaying);
             this.userEvents.onConnect(this);
         })
-            .catch(() => {
-            this.logger.error("Connect: Error");
+            .catch((err) => {
+            this.logger.error("Connect: Error", err);
         });
     }
 };
