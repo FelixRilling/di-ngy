@@ -734,11 +734,13 @@ const Dingy = class {
             this.userEvents.onMessage(msg, this);
         });
         this.bot.on("disconnect", (err) => {
-            this.logger.error("Disconnect", err);
+            this.logger.error("Disconnect");
+            this.logger.error(err);
             onError(err, this);
         });
         this.bot.on("error", (err) => {
-            this.logger.error("Error", err);
+            this.logger.error("Error");
+            this.logger.error(err);
             onError(err, this);
         });
         this.logger.info("Init: Success");

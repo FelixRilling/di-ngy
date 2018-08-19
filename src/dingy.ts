@@ -198,11 +198,13 @@ const Dingy = class implements IDingy {
             this.userEvents.onMessage(msg, this);
         });
         this.bot.on("disconnect", (err: Error) => {
-            this.logger.error("Disconnect", err);
+            this.logger.error("Disconnect");
+            this.logger.error(err);
             onError(err, this);
         });
         this.bot.on("error", (err: Error) => {
-            this.logger.error("Error", err);
+            this.logger.error("Error");
+             this.logger.error(err);
             onError(err, this);
         });
 
