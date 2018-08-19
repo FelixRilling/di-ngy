@@ -763,7 +763,8 @@ const Dingy = class {
             this.userEvents.onConnect(this);
         })
             .catch((err) => {
-            this.logger.error("Connect: Error", err);
+            this.logger.error("Connect: Error");
+            this.logger.error(err);
         });
     }
 };

@@ -225,7 +225,8 @@ const Dingy = class implements IDingy {
                 this.userEvents.onConnect(this);
             })
             .catch((err: Error) => {
-                this.logger.error("Connect: Error", err);
+                this.logger.error("Connect: Error");
+                this.logger.error(err);
             });
     }
 };

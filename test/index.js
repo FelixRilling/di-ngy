@@ -3,7 +3,7 @@
 const Dingy = require("../dist/dingy.common");
 
 const config = {
-    token: process.env.DISCORD_TOKEN_TEST,
+    token: process.env.DISCORD_TOKEN_STABLE,
     prefix: "$$",
     options: {
         logLevel: "debug"
