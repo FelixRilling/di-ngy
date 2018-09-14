@@ -6,19 +6,16 @@ export default {
     input: `./src/main.ts`,
     output: [
         {
-            format: "es",
-            file: `./dist/${settings.namespace.file}.esm.js`
-        },
-        {
-            format: "cjs",
-            file: `./dist/${settings.namespace.file}.common.js`
+            format: "iife",
+            name: settings.namespace.module,
+            file: `./dist/${settings.namespace.file}.js`,
+            sourcemap: true
         }
     ],
-    external: settings.external,
     plugins: [
         resolve(),
         typescript({
-            cacheRoot: "./.cache/ts/main"
+            cacheRoot: "./.cache/ts/iife"
         })
     ]
 };
