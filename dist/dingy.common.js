@@ -26,8 +26,7 @@ class JSONStorage {
     }
     save(key, val) {
         this.data[key] = val;
-        fsExtra.writeJson(this.path, this.data)
-            .catch(e => this.logger.error("Could not save JSON", e));
+        fsExtra.writeJson(this.path, this.data).catch(e => this.logger.error("Could not save JSON", e));
     }
     load(key) {
         return this.data[key];
@@ -52,15 +51,21 @@ class MemoryStorage {
     }
 }
 
+const configDefault = {};
+
+const commandsDefault = {};
+
 class Dingy {
-    constructor() {
+    constructor(commands = {}, config = {}) {
         this.loggerRoot = dingyLoggerRoot;
         this.logger = dingyLoggerRoot.getLogger(Dingy);
         this.logger.info("Creating instance.");
+        this.logger.debug("Saving config.");
+        this.config = lightdash.objDefaultsDeep(config, configDefault);
         this.logger.debug("Creating Client.");
         this.client = new discord_js.Client();
         this.logger.debug("Creating Clingy.");
-        this.clingy = new cliNgy.Clingy();
+        this.clingy = new cliNgy.Clingy(lightdash.objDefaultsDeep(commands, commandsDefault));
         this.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();
         const storagePath = path.join("./", Dingy.DATA_DIRECTORY, "storage.json");

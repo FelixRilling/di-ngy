@@ -1,6 +1,6 @@
 import { Logby } from 'logby';
 import { pathExists, readJson, writeJson } from 'fs-extra';
-import { isNil } from 'lightdash';
+import { isNil, objDefaultsDeep } from 'lightdash';
 import { Client } from 'discord.js';
 import { Clingy } from 'cli-ngy';
 import { join } from 'path';
@@ -24,8 +24,7 @@ class JSONStorage {
     }
     save(key, val) {
         this.data[key] = val;
-        writeJson(this.path, this.data)
-            .catch(e => this.logger.error("Could not save JSON", e));
+        writeJson(this.path, this.data).catch(e => this.logger.error("Could not save JSON", e));
     }
     load(key) {
         return this.data[key];
@@ -50,15 +49,21 @@ class MemoryStorage {
     }
 }
 
+const configDefault = {};
+
+const commandsDefault = {};
+
 class Dingy {
-    constructor() {
+    constructor(commands = {}, config = {}) {
         this.loggerRoot = dingyLoggerRoot;
         this.logger = dingyLoggerRoot.getLogger(Dingy);
         this.logger.info("Creating instance.");
+        this.logger.debug("Saving config.");
+        this.config = objDefaultsDeep(config, configDefault);
         this.logger.debug("Creating Client.");
         this.client = new Client();
         this.logger.debug("Creating Clingy.");
-        this.clingy = new Clingy();
+        this.clingy = new Clingy(objDefaultsDeep(commands, commandsDefault));
         this.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();
         const storagePath = join("./", Dingy.DATA_DIRECTORY, "storage.json");

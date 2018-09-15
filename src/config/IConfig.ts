@@ -1,0 +1,5 @@
+interface IConfig {
+
+}
+
+export { IConfig };

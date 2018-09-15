@@ -26,10 +26,9 @@ class JSONStorage implements IStorage<any> {
 
     save(key: string, val: any): void {
         this.data[key] = val;
-        writeJson(this.path, this.data)
-            .catch(e =>
-                this.logger.error("Could not save JSON", e)
-            );
+        writeJson(this.path, this.data).catch(e =>
+            this.logger.error("Could not save JSON", e)
+        );
     }
 
     load(key: string): any {
