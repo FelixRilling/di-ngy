@@ -1,2 +1,2 @@
-import { Dingy } from "./dingy";
+import { Dingy } from "./Dingy";
 export default Dingy;

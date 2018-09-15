@@ -41,3 +41,9 @@ const bot = new Dingy({
 
 bot.connect();
 ```
+
+## Optional Dependencies
+```
+bufferutil
+erlpack
+```

@@ -11,9 +11,9 @@
             "file": "dingy"
         },
         "external": [
-            "discord.js",
+            "path",
             "fs-extra",
-            "flat-cache",
+            "discord.js",
             "cli-ngy",
             "logby",
             "lightdash"
@@ -22,13 +22,18 @@
     "scripts": {
         "start": "npm-run-all lint build test docs",
         "build": "rollup -c ./tasks/rollup.config.js",
+        "build:test": "rollup -c ./tasks/rollup.config.test.js",
+        "build:declarations": "tsc --build ./tasks/tsconfig.declarations.json",
+        "dist": "npm-run-all --parallel build build:declarations",
         "watch": "rollup -c ./tasks/rollup.config.js --watch",
         "lint": "npm-run-all lint:ts",
         "lint:ts": "tslint ./src/**/*.ts",
         "fix": "npm-run-all fix:ts fix:prettier",
         "fix:ts": "tslint ./src/**/*.ts --fix",
         "fix:prettier": "prettier ./src/**/* --write",
-        "docs": "jsdoc -c jsdoc.json"
+        "docs": "jsdoc -c jsdoc.json",
+        "test": "npm-run-all build:test test:jasmine",
+        "test:jasmine": "jasmine"
     },
     "repository": {
         "type": "git",
@@ -46,6 +51,8 @@
     },
     "homepage": "https://github.com/FelixRilling/di-ngy#readme",
     "dependencies": {
+        "@types/fs-extra": "^5.0.4",
+        "@types/node": "^10.9.4",
         "cli-ngy": "^10.0.0-1",
         "discord.js": "^11.4.2",
         "fs-extra": "^7.0.0",
@@ -54,7 +61,7 @@
         "make-fetch-happen": "^4.0.1"
     },
     "devDependencies": {
-        "@types/node": "^10.9.4",
+        "@types/jasmine": "^2.8.8",
         "countly-docdash": "^0.5.0",
         "eslint": "^5.5.0",
         "jasmine": "^3.2.0",

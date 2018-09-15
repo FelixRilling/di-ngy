@@ -1,0 +1,1 @@
+import "./Dingy.IT.spec";

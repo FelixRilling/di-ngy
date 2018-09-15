@@ -125,7 +125,7 @@ const Dingy = class implements IDingy {
          *
          * @protected
          */
-        this.logger = createLogger({
+        this.dingyLoggerRoot = createLogger({
             level: this.config.options.logLevel,
             exitOnError: false,
             format: format.combine(
