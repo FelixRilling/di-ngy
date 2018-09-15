@@ -9,6 +9,8 @@ import { IConfig } from "./config/IConfig";
 import { objDefaultsDeep } from "lightdash";
 import { configDefault } from "./config/config.default";
 import { commandsDefault } from "./commands/commands.default";
+import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
+import { IDingyCommandObject } from "./commands/IDingyCommandObject";
 
 class Dingy {
     private static readonly DATA_DIRECTORY = "data";
@@ -22,20 +24,23 @@ class Dingy {
     public readonly memoryStorage: MemoryStorage;
     public readonly jsonStorage: JSONStorage;
 
-    constructor(commands: object = {}, config: object = {}) {
+    constructor(commands: ITypedObject<any> = {}, config: ITypedObject<any> = {}) {
         this.loggerRoot = dingyLoggerRoot;
         this.logger = dingyLoggerRoot.getLogger(Dingy);
 
         this.logger.info("Creating instance.");
 
-        this.logger.debug("Saving config.");
-        this.config = objDefaultsDeep(config, configDefault);
+        this.logger.debug("Reading config.");
+        this.config = <IConfig>objDefaultsDeep(config, configDefault);
 
         this.logger.debug("Creating Client.");
         this.client = new Client();
 
+        const commandsDefaulted: IDingyCommandObject = this.config.enableDefaultCommands
+            ? objDefaultsDeep(commands, commandsDefault)
+            : commands;
         this.logger.debug("Creating Clingy.");
-        this.clingy = new Clingy(objDefaultsDeep(commands, commandsDefault));
+        this.clingy = new Clingy(commandsDefaulted);
 
         this.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();

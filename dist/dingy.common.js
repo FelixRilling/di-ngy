@@ -51,21 +51,51 @@ class MemoryStorage {
     }
 }
 
-const configDefault = {};
+const configDefault = {
+    prefix: "$",
+    roles: [],
+    legalQuotes: ["\""],
+    caseSensitive: false,
+    enableDefaultCommands: true,
+    answerToMissingCommand: false,
+    answerToMissingArgs: true,
+    answerToMissingPerms: true
+};
 
-const commandsDefault = {};
+const echo = {
+    fn: (args) => args.get("val"),
+    alias: [],
+    args: [{
+            name: "val",
+            required: true
+        }],
+    data: {
+        powerRequired: 8,
+        hidden: true,
+        usableInDMs: true,
+        help: ""
+    },
+    sub: null
+};
+
+const commandsDefault = {
+    echo
+};
 
 class Dingy {
     constructor(commands = {}, config = {}) {
         this.loggerRoot = dingyLoggerRoot;
         this.logger = dingyLoggerRoot.getLogger(Dingy);
         this.logger.info("Creating instance.");
-        this.logger.debug("Saving config.");
+        this.logger.debug("Reading config.");
         this.config = lightdash.objDefaultsDeep(config, configDefault);
         this.logger.debug("Creating Client.");
         this.client = new discord_js.Client();
+        const commandsDefaulted = this.config.enableDefaultCommands
+            ? lightdash.objDefaultsDeep(commands, commandsDefault)
+            : commands;
         this.logger.debug("Creating Clingy.");
-        this.clingy = new cliNgy.Clingy(lightdash.objDefaultsDeep(commands, commandsDefault));
+        this.clingy = new cliNgy.Clingy(commandsDefaulted);
         this.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();
         const storagePath = path.join("./", Dingy.DATA_DIRECTORY, "storage.json");

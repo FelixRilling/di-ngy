@@ -49,21 +49,51 @@ class MemoryStorage {
     }
 }
 
-const configDefault = {};
+const configDefault = {
+    prefix: "$",
+    roles: [],
+    legalQuotes: ["\""],
+    caseSensitive: false,
+    enableDefaultCommands: true,
+    answerToMissingCommand: false,
+    answerToMissingArgs: true,
+    answerToMissingPerms: true
+};
 
-const commandsDefault = {};
+const echo = {
+    fn: (args) => args.get("val"),
+    alias: [],
+    args: [{
+            name: "val",
+            required: true
+        }],
+    data: {
+        powerRequired: 8,
+        hidden: true,
+        usableInDMs: true,
+        help: ""
+    },
+    sub: null
+};
+
+const commandsDefault = {
+    echo
+};
 
 class Dingy {
     constructor(commands = {}, config = {}) {
         this.loggerRoot = dingyLoggerRoot;
         this.logger = dingyLoggerRoot.getLogger(Dingy);
         this.logger.info("Creating instance.");
-        this.logger.debug("Saving config.");
+        this.logger.debug("Reading config.");
         this.config = objDefaultsDeep(config, configDefault);
         this.logger.debug("Creating Client.");
         this.client = new Client();
+        const commandsDefaulted = this.config.enableDefaultCommands
+            ? objDefaultsDeep(commands, commandsDefault)
+            : commands;
         this.logger.debug("Creating Clingy.");
-        this.clingy = new Clingy(objDefaultsDeep(commands, commandsDefault));
+        this.clingy = new Clingy(commandsDefaulted);
         this.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();
         const storagePath = join("./", Dingy.DATA_DIRECTORY, "storage.json");
