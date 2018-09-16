@@ -2,19 +2,21 @@ import { IDingyCommand } from "../IDingyCommand";
 import { resolvedArgumentMap } from "cli-ngy/types/argument/resolvedArgumentMap";
 
 const echo: IDingyCommand = {
-    fn: (args: resolvedArgumentMap) => <string>args.get("val"),
-    alias: [],
-    args: [{
-        name: "val",
-        required: true
-    }],
+    alias: ["say", "send"],
+    args: [
+        {
+            name: "val",
+            required: true
+        }
+    ],
+    sub: null,
     data: {
         powerRequired: 8,
         hidden: true,
         usableInDMs: true,
-        help: ""
+        help: "Echoes a text."
     },
-    sub: null
+    fn: (args: resolvedArgumentMap) => <string>args.get("val")!
 };
 
 export { echo };

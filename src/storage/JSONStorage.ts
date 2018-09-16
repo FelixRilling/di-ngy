@@ -26,6 +26,8 @@ class JSONStorage implements IStorage<any> {
 
     save(key: string, val: any): void {
         this.data[key] = val;
+        // We don't need to wait for the saving to finish
+        // this *could* lead to locking/access issues but hey, probably works.
         writeJson(this.path, this.data).catch(e =>
             this.logger.error("Could not save JSON", e)
         );

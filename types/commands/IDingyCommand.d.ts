@@ -1,6 +1,5 @@
 import { ICommand } from "cli-ngy/types/command/ICommand";
 import { commandFn } from "./commandFn";
-
 interface IDingyCommand extends ICommand {
     fn: commandFn;
     data: {
@@ -10,5 +9,4 @@ interface IDingyCommand extends ICommand {
         help: string;
     };
 }
-
 export { IDingyCommand };

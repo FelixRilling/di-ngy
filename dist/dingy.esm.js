@@ -24,6 +24,8 @@ class JSONStorage {
     }
     save(key, val) {
         this.data[key] = val;
+        // We don't need to wait for the saving to finish
+        // this *could* lead to locking/access issues but hey, probably works.
         writeJson(this.path, this.data).catch(e => this.logger.error("Could not save JSON", e));
     }
     load(key) {
@@ -52,8 +54,6 @@ class MemoryStorage {
 const configDefault = {
     prefix: "$",
     roles: [],
-    legalQuotes: ["\""],
-    caseSensitive: false,
     enableDefaultCommands: true,
     answerToMissingCommand: false,
     answerToMissingArgs: true,
@@ -61,82 +61,157 @@ const configDefault = {
 };
 
 const echo = {
-    fn: (args) => args.get("val"),
-    alias: [],
-    args: [{
+    alias: ["say", "send"],
+    args: [
+        {
             name: "val",
             required: true
-        }],
+        }
+    ],
+    sub: null,
     data: {
         powerRequired: 8,
         hidden: true,
         usableInDMs: true,
-        help: ""
+        help: "Echoes a text."
     },
-    sub: null
+    fn: (args) => args.get("val")
 };
 
 const commandsDefault = {
     echo
 };
 
+class MessageReactor {
+    constructor(config, client, clingy, memoryStorage, jsonStorage) {
+        this.config = config;
+        this.client = client;
+        this.clingy = clingy;
+        this.memoryStorage = memoryStorage;
+        this.jsonStorage = jsonStorage;
+    }
+    handleMessage(msg) {
+        MessageReactor.logger.debug("Parsing content", msg);
+        const lookupResult = this.clingy.parse(msg.content);
+        MessageReactor.logger.debug("Parsed content", lookupResult);
+        if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
+            const lookupResultNotFound = lookupResult;
+            MessageReactor.logger.debug(`Command not found: ${lookupResultNotFound.missing}`);
+            this.handleNotFound(msg, lookupResultNotFound);
+        }
+        else if (lookupResult.type === 2 /* ERROR_MISSING_ARGUMENT */) {
+            const lookupResultMissingArg = (lookupResult);
+            MessageReactor.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}`);
+            this.handleMissingArg(msg, lookupResultMissingArg);
+        }
+        else if (lookupResult.type === 0 /* SUCCESS */) {
+            const lookupResultSuccess = lookupResult;
+            MessageReactor.logger.info("Lookup successful", lookupResultSuccess);
+            this.handleSuccess(msg, lookupResultSuccess);
+        }
+        else {
+            MessageReactor.logger.error("Every check failed, this should never happen", lookupResult);
+        }
+    }
+    handleNotFound(msg, lookupResultNotFound) {
+        if (this.config.answerToMissingCommand) {
+            MessageReactor.logger.debug("Answering to command not found.");
+            this.send(msg, "not found");
+        }
+    }
+    handleMissingArg(msg, lookupResultMissingArg) {
+        if (this.config.answerToMissingArgs) {
+            MessageReactor.logger.debug("Answering to missing arg.");
+            this.send(msg, "missing arg");
+        }
+    }
+    handleSuccess(msg, lookupResultSuccess) {
+        MessageReactor.logger.debug("Answering to successful command.");
+        this.send(msg, "ok");
+    }
+    send(msg, value) {
+        MessageReactor.logger.debug("Sending message.", value);
+        msg.channel
+            .send(value)
+            .then(() => MessageReactor.logger.debug("Sent message."))
+            .catch(err => MessageReactor.logger.error("Could not send message", err));
+    }
+}
+MessageReactor.logger = dingyLoggerRoot.getLogger(MessageReactor);
+
 class Dingy {
     constructor(commands = {}, config = {}) {
-        this.loggerRoot = dingyLoggerRoot;
-        this.logger = dingyLoggerRoot.getLogger(Dingy);
-        this.logger.info("Creating instance.");
-        this.logger.debug("Reading config.");
+        Dingy.logger.info("Creating instance.");
+        Dingy.logger.debug("Reading config.");
         this.config = objDefaultsDeep(config, configDefault);
-        this.logger.debug("Creating Client.");
+        Dingy.logger.debug("Creating Client.");
         this.client = new Client();
-        const commandsDefaulted = this.config.enableDefaultCommands
+        const commandsDefaulted = this.config
+            .enableDefaultCommands
             ? objDefaultsDeep(commands, commandsDefault)
             : commands;
-        this.logger.debug("Creating Clingy.");
+        Dingy.logger.debug("Creating Clingy.");
         this.clingy = new Clingy(commandsDefaulted);
-        this.logger.debug("Creating MemoryStorage.");
+        Dingy.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();
         const storagePath = join("./", Dingy.DATA_DIRECTORY, "storage.json");
-        this.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
+        Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
         this.jsonStorage = new JSONStorage(storagePath);
-        this.logger.debug("Binding events.");
-        this.client.on("error", e => this.logger.error("An error occurred", e));
-        this.logger.info("Created instance.");
+        Dingy.logger.debug("Creating MessageReactor.");
+        this.messageReactor = new MessageReactor(this.config, this.client, this.clingy, this.memoryStorage, this.jsonStorage);
+        this.bindEvents();
+        Dingy.logger.info("Created instance.");
     }
     async connect(token) {
-        this.logger.debug("Loading storage.");
+        Dingy.logger.debug("Loading storage.");
         try {
             await this.jsonStorage.init();
         }
         catch (e) {
             const err = e;
-            this.logger.error("Could not load storage: ", err);
+            Dingy.logger.error("Could not load storage: ", err);
             throw err;
         }
-        this.logger.info("Connecting to the Discord API.");
+        Dingy.logger.info("Connecting to the Discord API.");
         try {
             await this.client.login(token);
         }
         catch (e) {
             const err = e;
-            this.logger.error("Could not connect to the Discord API", err);
+            Dingy.logger.error("Could not connect to the Discord API", err);
             throw err;
         }
-        this.logger.info("Connected.");
+        Dingy.logger.info("Connected.");
     }
     async disconnect() {
-        this.logger.info("Disconnecting from the Discord API.");
+        Dingy.logger.info("Disconnecting from the Discord API.");
         try {
             await this.client.destroy();
         }
         catch (e) {
             const err = e;
-            this.logger.error("Could not disconnect from the Discord API", err);
+            Dingy.logger.error("Could not disconnect from the Discord API", err);
             throw err;
         }
-        this.logger.info("Disconnected.");
+        Dingy.logger.info("Disconnected.");
+    }
+    bindEvents() {
+        Dingy.logger.debug("Binding events.");
+        this.client.on("error", e => Dingy.logger.error("An error occurred", e));
+        this.client.on("message", (msg) => {
+            Dingy.logger.trace("Message was sent ", msg);
+            if (!msg.system &&
+                !msg.author.bot &&
+                msg.content.startsWith(this.config.prefix) &&
+                msg.content !== this.config.prefix) {
+                Dingy.logger.debug("Message will be processed", msg);
+                this.messageReactor.handleMessage(msg);
+            }
+        });
     }
 }
 Dingy.DATA_DIRECTORY = "data";
+Dingy.loggerRoot = dingyLoggerRoot;
+Dingy.logger = dingyLoggerRoot.getLogger(Dingy);
 
 export default Dingy;

@@ -4,8 +4,6 @@ const configDefault: IConfig = {
     prefix: "$",
     roles: [],
 
-    legalQuotes: ["\""],
-    caseSensitive: false,
     enableDefaultCommands: true,
 
     answerToMissingCommand: false,

@@ -3,11 +3,5 @@ import { Message } from "discord.js";
 import { Dingy } from "../Dingy";
 import { ICommandResponse } from "../message/response/ICommandResponse";
 import { sendable } from "../message/response/sendable";
-
-type commandFn = (
-    args: resolvedArgumentMap,
-    msg: Message,
-    instance: Dingy
-) => sendable<string> | sendable<ICommandResponse>;
-
+declare type commandFn = (args: resolvedArgumentMap, msg: Message, instance: Dingy) => sendable<string> | sendable<ICommandResponse>;
 export { commandFn };
