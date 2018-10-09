@@ -5,13 +5,13 @@ import { Client } from 'discord.js';
 import { Clingy } from 'cli-ngy';
 import { join } from 'path';
 
-const dingyLoggerRoot = new Logby();
+const dingyLogby = new Logby();
 
 class JSONStorage {
     constructor(path) {
         this.data = {};
         this.path = path;
-        this.logger = dingyLoggerRoot.getLogger(JSONStorage);
+        this.logger = dingyLogby.getLogger(JSONStorage);
     }
     async init() {
         const exists = await pathExists(this.path);
@@ -137,7 +137,7 @@ class MessageReactor {
             .catch(err => MessageReactor.logger.error("Could not send message", err));
     }
 }
-MessageReactor.logger = dingyLoggerRoot.getLogger(MessageReactor);
+MessageReactor.logger = dingyLogby.getLogger(MessageReactor);
 
 class Dingy {
     constructor(commands = {}, config = {}) {
@@ -211,7 +211,6 @@ class Dingy {
     }
 }
 Dingy.DATA_DIRECTORY = "data";
-Dingy.loggerRoot = dingyLoggerRoot;
-Dingy.logger = dingyLoggerRoot.getLogger(Dingy);
+Dingy.logger = dingyLogby.getLogger(Dingy);
 
-export default Dingy;
+export { Dingy, dingyLogby };

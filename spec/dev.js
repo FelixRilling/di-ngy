@@ -1,3 +1,7 @@
+/*
+ * Used to directly run and test the bot.
+ */
+
 const Dingy = require("../dist/dingy.common");
 
 Dingy.loggerRoot.level = { val: 999 };

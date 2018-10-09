@@ -1,5 +1,5 @@
-import { IDingyCommandObject } from "./IDingyCommandObject";
 import { echo } from "./default/echo";
+import { IDingyCommandObject } from "./IDingyCommandObject";
 
 const commandsDefault: IDingyCommandObject = {
     echo

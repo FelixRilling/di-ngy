@@ -1,5 +1,7 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 var logby = require('logby');
 var fsExtra = require('fs-extra');
 var lightdash = require('lightdash');
@@ -7,13 +9,13 @@ var discord_js = require('discord.js');
 var cliNgy = require('cli-ngy');
 var path = require('path');
 
-const dingyLoggerRoot = new logby.Logby();
+const dingyLogby = new logby.Logby();
 
 class JSONStorage {
     constructor(path$$1) {
         this.data = {};
         this.path = path$$1;
-        this.logger = dingyLoggerRoot.getLogger(JSONStorage);
+        this.logger = dingyLogby.getLogger(JSONStorage);
     }
     async init() {
         const exists = await fsExtra.pathExists(this.path);
@@ -139,7 +141,7 @@ class MessageReactor {
             .catch(err => MessageReactor.logger.error("Could not send message", err));
     }
 }
-MessageReactor.logger = dingyLoggerRoot.getLogger(MessageReactor);
+MessageReactor.logger = dingyLogby.getLogger(MessageReactor);
 
 class Dingy {
     constructor(commands = {}, config = {}) {
@@ -213,7 +215,7 @@ class Dingy {
     }
 }
 Dingy.DATA_DIRECTORY = "data";
-Dingy.loggerRoot = dingyLoggerRoot;
-Dingy.logger = dingyLoggerRoot.getLogger(Dingy);
+Dingy.logger = dingyLogby.getLogger(Dingy);
 
-module.exports = Dingy;
+exports.Dingy = Dingy;
+exports.dingyLogby = dingyLogby;

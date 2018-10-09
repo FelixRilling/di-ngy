@@ -1,7 +1,7 @@
 import { pathExists, readJson, writeJson } from "fs-extra";
 import { isNil } from "lightdash";
 import { ILogger } from "logby";
-import { dingyLoggerRoot } from "../loggerRoot";
+import { dingyLogby } from "../logger";
 
 class JSONStorage implements IStorage<any> {
     private data: { [key: string]: any };
@@ -11,7 +11,7 @@ class JSONStorage implements IStorage<any> {
     constructor(path: string) {
         this.data = {};
         this.path = path;
-        this.logger = dingyLoggerRoot.getLogger(JSONStorage);
+        this.logger = dingyLogby.getLogger(JSONStorage);
     }
 
     public async init(): Promise<void> {
@@ -24,7 +24,7 @@ class JSONStorage implements IStorage<any> {
         }
     }
 
-    save(key: string, val: any): void {
+    public save(key: string, val: any): void {
         this.data[key] = val;
         // We don't need to wait for the saving to finish
         // this *could* lead to locking/access issues but hey, probably works.
@@ -33,11 +33,11 @@ class JSONStorage implements IStorage<any> {
         );
     }
 
-    load(key: string): any {
+    public load(key: string): any {
         return this.data[key];
     }
 
-    has(key: string): boolean {
+    public has(key: string): boolean {
         return !isNil(this.data[key]);
     }
 }

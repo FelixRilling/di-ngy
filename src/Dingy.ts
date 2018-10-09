@@ -1,23 +1,22 @@
-import { Client, Message } from "discord.js";
 import { Clingy } from "cli-ngy";
-import { ILogger, Logby } from "logby";
-import { dingyLoggerRoot } from "./loggerRoot";
+import { Client, Message } from "discord.js";
+import { objDefaultsDeep } from "lightdash";
+import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
+import { ILogger } from "logby";
+import * as path from "path";
+import { commandsDefault } from "./commands/commands.default";
+import { IDingyCommandObject } from "./commands/IDingyCommandObject";
+import { configDefault } from "./config/config.default";
+import { IConfig } from "./config/IConfig";
+import { dingyLogby } from "./logger";
+import { MessageReactor } from "./message/MessageReactor";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
-import * as path from "path";
-import { IConfig } from "./config/IConfig";
-import { objDefaultsDeep } from "lightdash";
-import { configDefault } from "./config/config.default";
-import { commandsDefault } from "./commands/commands.default";
-import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
-import { IDingyCommandObject } from "./commands/IDingyCommandObject";
-import { MessageReactor } from "./message/MessageReactor";
 
 class Dingy {
     private static readonly DATA_DIRECTORY = "data";
 
-    private static readonly loggerRoot: Logby = dingyLoggerRoot;
-    private static readonly logger: ILogger = dingyLoggerRoot.getLogger(Dingy);
+    private static readonly logger: ILogger = dingyLogby.getLogger(Dingy);
 
     private readonly config: IConfig;
     private readonly messageReactor: MessageReactor;
@@ -110,7 +109,7 @@ class Dingy {
     private bindEvents() {
         Dingy.logger.debug("Binding events.");
         this.client.on("error", e =>
-            Dingy.logger.error("An error occurred", e)
+            Dingy.logger.error("An error occurred, trying to continue.", e)
         );
         this.client.on("message", (msg: Message) => {
             Dingy.logger.trace("Message was sent ", msg);

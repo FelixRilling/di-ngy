@@ -1,5 +1,5 @@
-import { IRole } from "./IRole";
 import { Message } from "discord.js";
+import { IRole } from "./IRole";
 
 const hasPower = (
     roles: IRole[],

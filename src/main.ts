@@ -1,3 +1,4 @@
 import { Dingy } from "./Dingy";
+import { dingyLogby } from "./logger";
 
-export default Dingy;
+export { Dingy, dingyLogby };

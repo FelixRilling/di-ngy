@@ -1,17 +1,17 @@
-import { Client, Message } from "discord.js";
-import { ResultType } from "cli-ngy/types/lookup/result/ILookupResult";
-import { ILookupErrorNotFound } from "cli-ngy/types/lookup/result/ILookupErrorNotFound";
-import { ILookupErrorMissingArgs } from "cli-ngy/types/lookup/result/ILookupErrorMissingArgs";
-import { ILookupSuccess } from "cli-ngy/types/lookup/result/ILookupSuccess";
-import { ILogger } from "logby";
-import { dingyLoggerRoot } from "../loggerRoot";
 import { Clingy } from "cli-ngy";
+import { ILookupErrorMissingArgs } from "cli-ngy/types/lookup/result/ILookupErrorMissingArgs";
+import { ILookupErrorNotFound } from "cli-ngy/types/lookup/result/ILookupErrorNotFound";
+import { ResultType } from "cli-ngy/types/lookup/result/ILookupResult";
+import { ILookupSuccess } from "cli-ngy/types/lookup/result/ILookupSuccess";
+import { Client, Message } from "discord.js";
+import { ILogger } from "logby";
 import { IConfig } from "../config/IConfig";
-import { MemoryStorage } from "../storage/MemoryStorage";
+import { dingyLogby } from "../logger";
 import { JSONStorage } from "../storage/JSONStorage";
+import { MemoryStorage } from "../storage/MemoryStorage";
 
 class MessageReactor {
-    private static readonly logger: ILogger = dingyLoggerRoot.getLogger(
+    private static readonly logger: ILogger = dingyLogby.getLogger(
         MessageReactor
     );
 

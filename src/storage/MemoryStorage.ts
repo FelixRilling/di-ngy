@@ -5,15 +5,15 @@ class MemoryStorage implements IStorage<any> {
         this.data = new Map<string, any>();
     }
 
-    save(key: string, val: any): void {
+    public save(key: string, val: any): void {
         this.data.set(key, val);
     }
 
-    load(key: string): any {
+    public load(key: string): any {
         return this.data.get(key);
     }
 
-    has(key: string): boolean {
+    public has(key: string): boolean {
         return this.data.has(key);
     }
 }

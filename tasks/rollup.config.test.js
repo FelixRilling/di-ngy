@@ -8,7 +8,6 @@ export default {
         format: "cjs",
         file: `./spec/out/main.spec.js`
     },
-    external: [],
     external: settings.external,
     plugins: [
         resolve(),

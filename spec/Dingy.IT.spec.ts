@@ -1,11 +1,13 @@
-import { Dingy } from "../src/Dingy";
-import { dingyLoggerRoot } from "../src/loggerRoot";
-import { Level } from "logby";
+import { Dingy } from "src/Dingy";
+import { dingyLogby } from "src/logger";
+import { Levels } from "logby";
+import { clingyLogby } from "cli-ngy";
 
 describe("Dingy", () => {
 
     beforeAll(() => {
-        dingyLoggerRoot.level = Level.DEBUG;
+        clingyLogby.setLevel(Levels.TRACE);
+        dingyLogby.setLevel(Levels.TRACE);
     });
 
     it("constructs", () => {
