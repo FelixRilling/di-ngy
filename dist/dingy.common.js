@@ -3,8 +3,8 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var logby = require('logby');
-var fsExtra = require('fs-extra');
 var lightdash = require('lightdash');
+var fsExtra = require('fs-extra');
 var cliNgy = require('cli-ngy');
 var discord_js = require('discord.js');
 var path = require('path');
@@ -76,44 +76,87 @@ class MessageReactor {
         if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
             const lookupResultNotFound = lookupResult;
             MessageReactor.logger.debug(`Command not found: ${lookupResultNotFound.missing}.`);
-            this.handleNotFound(msg, lookupResultNotFound);
+            this.handleLookupNotFound(msg, lookupResultNotFound);
         }
         else if (lookupResult.type === 2 /* ERROR_MISSING_ARGUMENT */) {
             const lookupResultMissingArg = (lookupResult);
             MessageReactor.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}.`);
-            this.handleMissingArg(msg, lookupResultMissingArg);
+            this.handleLookupMissingArg(msg, lookupResultMissingArg);
         }
         else if (lookupResult.type === 0 /* SUCCESS */) {
             const lookupResultSuccess = lookupResult;
             MessageReactor.logger.info("Lookup successful.", lookupResultSuccess);
-            this.handleSuccess(msg, lookupResultSuccess);
+            this.handleLookupSuccess(msg, lookupResultSuccess);
         }
         else {
             MessageReactor.logger.error("Every check failed, this should never happen.", lookupResult);
         }
     }
-    handleNotFound(msg, lookupResultNotFound) {
+    handleLookupNotFound(msg, lookupResultNotFound) {
         if (this.config.answerToMissingCommand) {
             MessageReactor.logger.debug("Answering to command not found.");
-            this.send(msg, this.config.strings.error.notFound + lookupResultNotFound.missing);
+            this.sendResult(msg, this.config.strings.error.notFound +
+                lookupResultNotFound.missing);
         }
     }
-    handleMissingArg(msg, lookupResultMissingArg) {
+    handleLookupMissingArg(msg, lookupResultMissingArg) {
         if (this.config.answerToMissingArgs) {
             MessageReactor.logger.debug("Answering to missing arg.");
-            this.send(msg, this.config.strings.error.missingArgs + lookupResultMissingArg.missing.map(arg => arg.name));
+            this.sendResult(msg, this.config.strings.error.missingArgs +
+                lookupResultMissingArg.missing.map(arg => arg.name));
         }
     }
-    handleSuccess(msg, lookupResultSuccess) {
-        MessageReactor.logger.debug("Answering to successful command.");
-        this.send(msg, "ok");
+    handleLookupSuccess(msg, lookupResultSuccess) {
+        const command = lookupResultSuccess.command;
+        if (this.hasPermissions(msg, command)) {
+            MessageReactor.logger.debug("Running command:", command);
+            const result = command.fn(lookupResultSuccess.args, msg, this);
+            MessageReactor.logger.debug("Command returned:", result);
+            if (result != null) {
+                MessageReactor.logger.debug("Answering to successful command.");
+                this.sendResult(msg, result);
+            }
+            else {
+                MessageReactor.logger.debug("Skipping response.");
+            }
+        }
+        else {
+            MessageReactor.logger.debug("No permissions.");
+            this.sendResult(msg, this.config.strings.error.noPermission);
+        }
+    }
+    sendResult(msg, value) {
+        if (lightdash.isPromise(value)) {
+            MessageReactor.logger.debug("Value is a promise, waiting.");
+            value
+                .then(valueResolved => this.send(msg, valueResolved))
+                .catch(err => MessageReactor.logger.error("Error while waiting for resolve: ", err));
+        }
+        else {
+            this.send(msg, value);
+        }
     }
     send(msg, value) {
         MessageReactor.logger.debug("Sending message.", value);
+        const isPlainValue = lightdash.isString(value);
+        const content = isPlainValue ? value : value.val;
+        const options = {
+            code: isPlainValue ? false : value.code,
+            files: isPlainValue ? [] : value.files
+        };
         msg.channel
-            .send(value)
-            .then(() => MessageReactor.logger.debug("Sent message."))
+            .send(content, options)
+            .then(() => MessageReactor.logger.debug("Sent message.", content, options))
             .catch(err => MessageReactor.logger.error("Could not send message.", err));
+    }
+    hasPermissions(msg, command) {
+        let maxPower = 0;
+        this.config.roles.forEach(role => {
+            if (role.power > maxPower && role.check(msg)) {
+                maxPower = role.power;
+            }
+        });
+        return maxPower >= command.data.powerRequired;
     }
 }
 MessageReactor.logger = dingyLogby.getLogger(MessageReactor);

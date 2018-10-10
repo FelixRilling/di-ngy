@@ -14,7 +14,8 @@ const configDefault: IConfig = {
         error: {
             notFound: "The command was not found: ",
             missingArgs: "Missing required arguments: ",
-            noPermission: "You do not have the permissions to use this command.",
+            noPermission:
+                "You do not have the permissions to use this command.",
             invalidDMCall: "This command cannot be used in DMs."
         },
         response: {

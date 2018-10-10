@@ -1,7 +1,7 @@
-import { Attachment } from "discord.js";
+import { Attachment, BufferResolvable, FileOptions } from "discord.js";
 
 export interface ICommandResponse {
     val: string;
     code: boolean | string;
-    attachment: Array<string | Blob | Attachment>;
+    files: (FileOptions | BufferResolvable | Attachment)[];
 }

@@ -112,7 +112,10 @@ class Dingy {
             Dingy.logger.error("An error occurred, trying to continue.", e)
         );
         this.client.on("message", (msg: Message) => {
-            Dingy.logger.trace("A message was sent.", MessageReactor.createSlimMessage(msg));
+            Dingy.logger.trace(
+                "A message was sent.",
+                MessageReactor.createSlimMessage(msg)
+            );
             this.handleMessage(msg);
         });
     }
@@ -124,7 +127,10 @@ class Dingy {
             msg.content.startsWith(this.config.prefix) &&
             msg.content !== this.config.prefix
         ) {
-            Dingy.logger.debug("Message will be processed.", MessageReactor.createSlimMessage(msg));
+            Dingy.logger.debug(
+                "Message will be processed.",
+                MessageReactor.createSlimMessage(msg)
+            );
             this.messageReactor.handleMessage(msg);
         }
     }
