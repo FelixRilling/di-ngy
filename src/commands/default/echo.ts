@@ -16,7 +16,7 @@ const echo: IDingyCommand = {
         usableInDMs: true,
         help: "Echoes a text."
     },
-    fn: (args: resolvedArgumentMap) => <string>args.get("val")!
+    fn: (args: resolvedArgumentMap) => args.get("val")!
 };
 
 export { echo };

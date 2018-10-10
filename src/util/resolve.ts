@@ -6,7 +6,7 @@ import { toFullName } from "./toFullName";
  *
  * @private
  * @param {string} userResolvable
- * @param {Guild} guild
+ * @param {Client} bot
  * @returns {Promise}
  */
 const resolveUser = (userResolvable: string, bot: Client): Promise<User> =>

@@ -3,6 +3,8 @@ import { isNil } from "lightdash";
 import { Levels } from "logby";
 import { Dingy } from "src/Dingy";
 import { dingyLogby } from "../../src/logger";
+import { DEFAULT_ROLE } from "../../src/config/config.default";
+import { Message } from "discord.js";
 
 /*
  * Used to directly run and test the bot.
@@ -32,7 +34,7 @@ const commands = {
         args: [{
             name: "xd",
             required: true
-        },{
+        }, {
             name: "1212312",
             required: true
         }],
@@ -47,6 +49,8 @@ const commands = {
 };
 const options = {
     prefix: "$$$",
+
+    roles: [DEFAULT_ROLE, { check: (msg: Message) => msg.author.id === "128985967875850240", power: 999 }],
 
     answerToMissingCommand: true,
     answerToMissingArgs: true,

@@ -30,4 +30,4 @@ const configDefault: IConfig = {
     }
 };
 
-export { configDefault };
+export { configDefault,DEFAULT_ROLE };
