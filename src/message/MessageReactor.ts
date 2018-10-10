@@ -11,16 +11,6 @@ import { JSONStorage } from "../storage/JSONStorage";
 import { MemoryStorage } from "../storage/MemoryStorage";
 
 class MessageReactor {
-    private static readonly logger: ILogger = dingyLogby.getLogger(
-        MessageReactor
-    );
-
-    private readonly config: IConfig;
-
-    public readonly client: Client;
-    public readonly clingy: Clingy;
-    public readonly memoryStorage: MemoryStorage;
-    public readonly jsonStorage: JSONStorage;
 
     constructor(
         config: IConfig,
@@ -36,15 +26,34 @@ class MessageReactor {
         this.jsonStorage = jsonStorage;
     }
 
+    private static readonly logger: ILogger = dingyLogby.getLogger(
+        MessageReactor
+    );
+
+    private readonly config: IConfig;
+
+    public readonly client: Client;
+    public readonly clingy: Clingy;
+    public readonly memoryStorage: MemoryStorage;
+    public readonly jsonStorage: JSONStorage;
+
+    public static createSlimMessage(msg: Message): object {
+        return {
+            author: { username: msg.author.username, id: msg.author.id },
+            content: msg.content
+        };
+    }
+
     public handleMessage(msg: Message): void {
-        MessageReactor.logger.debug("Parsing content", msg);
-        const lookupResult = this.clingy.parse(msg.content);
-        MessageReactor.logger.debug("Parsed content", lookupResult);
+        MessageReactor.logger.debug("Parsing content.", MessageReactor.createSlimMessage(msg));
+        const msgContent = msg.content.substr(this.config.prefix.length);
+        const lookupResult = this.clingy.parse(msgContent);
+        MessageReactor.logger.debug("Parsed content.", lookupResult);
 
         if (lookupResult.type === ResultType.ERROR_NOT_FOUND) {
             const lookupResultNotFound = <ILookupErrorNotFound>lookupResult;
             MessageReactor.logger.debug(
-                `Command not found: ${lookupResultNotFound.missing}`
+                `Command not found: ${lookupResultNotFound.missing}.`
             );
             this.handleNotFound(msg, lookupResultNotFound);
         } else if (lookupResult.type === ResultType.ERROR_MISSING_ARGUMENT) {
@@ -52,19 +61,19 @@ class MessageReactor {
                 lookupResult
             );
             MessageReactor.logger.debug(
-                `Argument missing: ${lookupResultMissingArg.missing}`
+                `Argument missing: ${lookupResultMissingArg.missing}.`
             );
             this.handleMissingArg(msg, lookupResultMissingArg);
         } else if (lookupResult.type === ResultType.SUCCESS) {
             const lookupResultSuccess = <ILookupSuccess>lookupResult;
             MessageReactor.logger.info(
-                "Lookup successful",
+                "Lookup successful.",
                 lookupResultSuccess
             );
             this.handleSuccess(msg, lookupResultSuccess);
         } else {
             MessageReactor.logger.error(
-                "Every check failed, this should never happen",
+                "Every check failed, this should never happen.",
                 lookupResult
             );
         }
@@ -76,7 +85,7 @@ class MessageReactor {
     ): void {
         if (this.config.answerToMissingCommand) {
             MessageReactor.logger.debug("Answering to command not found.");
-            this.send(msg, "not found");
+            this.send(msg, this.config.strings.error.notFound + lookupResultNotFound.missing);
         }
     }
 
@@ -86,7 +95,7 @@ class MessageReactor {
     ): void {
         if (this.config.answerToMissingArgs) {
             MessageReactor.logger.debug("Answering to missing arg.");
-            this.send(msg, "missing arg");
+            this.send(msg, this.config.strings.error.missingArgs + lookupResultMissingArg.missing.map(arg => arg.name));
         }
     }
 
@@ -104,7 +113,7 @@ class MessageReactor {
             .send(value)
             .then(() => MessageReactor.logger.debug("Sent message."))
             .catch(err =>
-                MessageReactor.logger.error("Could not send message", err)
+                MessageReactor.logger.error("Could not send message.", err)
             );
     }
 }

@@ -16,8 +16,29 @@ if (isNil(token)) {
 dingyLogby.setLevel(Levels.TRACE);
 clingyLogby.setLevel(Levels.TRACE);
 
-const commands = {};
-const options = {};
+const commands = {
+    foo: {
+        fn: () => "ok",
+        args: [],
+        alias: [],
+        data: {
+            hidden: false,
+            usableInDMs: true,
+            powerRequired: 0,
+            help: "ok"
+        }
+    }
+};
+const options = {
+    prefix: "$$$",
+    roles: [],
+
+    enableDefaultCommands: true,
+
+    answerToMissingCommand: true,
+    answerToMissingArgs: true,
+    answerToMissingPerms: true
+};
 const dingy = new Dingy(commands, options);
 
 dingy.connect(token);

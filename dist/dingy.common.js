@@ -37,7 +37,19 @@ const configDefault = {
     enableDefaultCommands: true,
     answerToMissingCommand: false,
     answerToMissingArgs: true,
-    answerToMissingPerms: true
+    answerToMissingPerms: true,
+    strings: {
+        error: {
+            notFound: "The command was not found: ",
+            missingArgs: "Missing required arguments: ",
+            noPermission: "You do not have the permissions to use this command.",
+            invalidDMCall: "This command cannot be used in DMs."
+        },
+        response: {
+            empty: "Empty response.",
+            tooLong: "The output was too long to send."
+        }
+    }
 };
 
 const dingyLogby = new logby.Logby();
@@ -50,39 +62,46 @@ class MessageReactor {
         this.memoryStorage = memoryStorage;
         this.jsonStorage = jsonStorage;
     }
+    static createSlimMessage(msg) {
+        return {
+            author: { username: msg.author.username, id: msg.author.id },
+            content: msg.content
+        };
+    }
     handleMessage(msg) {
-        MessageReactor.logger.debug("Parsing content", msg);
-        const lookupResult = this.clingy.parse(msg.content);
-        MessageReactor.logger.debug("Parsed content", lookupResult);
+        MessageReactor.logger.debug("Parsing content.", MessageReactor.createSlimMessage(msg));
+        const msgContent = msg.content.substr(this.config.prefix.length);
+        const lookupResult = this.clingy.parse(msgContent);
+        MessageReactor.logger.debug("Parsed content.", lookupResult);
         if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
             const lookupResultNotFound = lookupResult;
-            MessageReactor.logger.debug(`Command not found: ${lookupResultNotFound.missing}`);
+            MessageReactor.logger.debug(`Command not found: ${lookupResultNotFound.missing}.`);
             this.handleNotFound(msg, lookupResultNotFound);
         }
         else if (lookupResult.type === 2 /* ERROR_MISSING_ARGUMENT */) {
             const lookupResultMissingArg = (lookupResult);
-            MessageReactor.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}`);
+            MessageReactor.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}.`);
             this.handleMissingArg(msg, lookupResultMissingArg);
         }
         else if (lookupResult.type === 0 /* SUCCESS */) {
             const lookupResultSuccess = lookupResult;
-            MessageReactor.logger.info("Lookup successful", lookupResultSuccess);
+            MessageReactor.logger.info("Lookup successful.", lookupResultSuccess);
             this.handleSuccess(msg, lookupResultSuccess);
         }
         else {
-            MessageReactor.logger.error("Every check failed, this should never happen", lookupResult);
+            MessageReactor.logger.error("Every check failed, this should never happen.", lookupResult);
         }
     }
     handleNotFound(msg, lookupResultNotFound) {
         if (this.config.answerToMissingCommand) {
             MessageReactor.logger.debug("Answering to command not found.");
-            this.send(msg, "not found");
+            this.send(msg, this.config.strings.error.notFound + lookupResultNotFound.missing);
         }
     }
     handleMissingArg(msg, lookupResultMissingArg) {
         if (this.config.answerToMissingArgs) {
             MessageReactor.logger.debug("Answering to missing arg.");
-            this.send(msg, "missing arg");
+            this.send(msg, this.config.strings.error.missingArgs + lookupResultMissingArg.missing.map(arg => arg.name));
         }
     }
     handleSuccess(msg, lookupResultSuccess) {
@@ -94,7 +113,7 @@ class MessageReactor {
         msg.channel
             .send(value)
             .then(() => MessageReactor.logger.debug("Sent message."))
-            .catch(err => MessageReactor.logger.error("Could not send message", err));
+            .catch(err => MessageReactor.logger.error("Could not send message.", err));
     }
 }
 MessageReactor.logger = dingyLogby.getLogger(MessageReactor);
@@ -182,7 +201,7 @@ class Dingy {
         }
         catch (e) {
             const err = e;
-            Dingy.logger.error("Could not connect to the Discord API", err);
+            Dingy.logger.error("Could not connect to the Discord API.", err);
             throw err;
         }
         Dingy.logger.info("Connected.");
@@ -194,7 +213,7 @@ class Dingy {
         }
         catch (e) {
             const err = e;
-            Dingy.logger.error("Could not disconnect from the Discord API", err);
+            Dingy.logger.error("Could not disconnect from the Discord API.", err);
             throw err;
         }
         Dingy.logger.info("Disconnected.");
@@ -203,15 +222,18 @@ class Dingy {
         Dingy.logger.debug("Binding events.");
         this.client.on("error", e => Dingy.logger.error("An error occurred, trying to continue.", e));
         this.client.on("message", (msg) => {
-            Dingy.logger.trace("Message was sent ", msg);
-            if (!msg.system &&
-                !msg.author.bot &&
-                msg.content.startsWith(this.config.prefix) &&
-                msg.content !== this.config.prefix) {
-                Dingy.logger.debug("Message will be processed", msg);
-                this.messageReactor.handleMessage(msg);
-            }
+            Dingy.logger.trace("A message was sent.", MessageReactor.createSlimMessage(msg));
+            this.handleMessage(msg);
         });
+    }
+    handleMessage(msg) {
+        if (!msg.system &&
+            !msg.author.bot &&
+            msg.content.startsWith(this.config.prefix) &&
+            msg.content !== this.config.prefix) {
+            Dingy.logger.debug("Message will be processed.", MessageReactor.createSlimMessage(msg));
+            this.messageReactor.handleMessage(msg);
+        }
     }
 }
 Dingy.DATA_DIRECTORY = "data";

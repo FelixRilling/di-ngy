@@ -85,7 +85,7 @@ class Dingy {
             await this.client.login(token);
         } catch (e) {
             const err: Error = e;
-            Dingy.logger.error("Could not connect to the Discord API", err);
+            Dingy.logger.error("Could not connect to the Discord API.", err);
             throw err;
         }
         Dingy.logger.info("Connected.");
@@ -98,7 +98,7 @@ class Dingy {
         } catch (e) {
             const err: Error = e;
             Dingy.logger.error(
-                "Could not disconnect from the Discord API",
+                "Could not disconnect from the Discord API.",
                 err
             );
             throw err;
@@ -112,17 +112,21 @@ class Dingy {
             Dingy.logger.error("An error occurred, trying to continue.", e)
         );
         this.client.on("message", (msg: Message) => {
-            Dingy.logger.trace("Message was sent ", msg);
-            if (
-                !msg.system &&
-                !msg.author.bot &&
-                msg.content.startsWith(this.config.prefix) &&
-                msg.content !== this.config.prefix
-            ) {
-                Dingy.logger.debug("Message will be processed", msg);
-                this.messageReactor.handleMessage(msg);
-            }
+            Dingy.logger.trace("A message was sent.", MessageReactor.createSlimMessage(msg));
+            this.handleMessage(msg);
         });
+    }
+
+    private handleMessage(msg: Message) {
+        if (
+            !msg.system &&
+            !msg.author.bot &&
+            msg.content.startsWith(this.config.prefix) &&
+            msg.content !== this.config.prefix
+        ) {
+            Dingy.logger.debug("Message will be processed.", MessageReactor.createSlimMessage(msg));
+            this.messageReactor.handleMessage(msg);
+        }
     }
 }
 
