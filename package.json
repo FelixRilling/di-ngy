@@ -33,7 +33,8 @@
         "fix:prettier": "prettier ./src/**/* --write",
         "docs": "jsdoc -c jsdoc.json",
         "test": "npm-run-all build:test test:jasmine",
-        "test:jasmine": "jasmine"
+        "test:jasmine": "jasmine",
+        "test:manual": "rollup -c ./tasks/rollup.config.test-manual.js && node ./spec/out/manual/main.js"
     },
     "repository": {
         "type": "git",

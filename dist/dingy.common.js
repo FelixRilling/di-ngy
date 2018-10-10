@@ -5,64 +5,9 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var logby = require('logby');
 var fsExtra = require('fs-extra');
 var lightdash = require('lightdash');
-var discord_js = require('discord.js');
 var cliNgy = require('cli-ngy');
+var discord_js = require('discord.js');
 var path = require('path');
-
-const dingyLogby = new logby.Logby();
-
-class JSONStorage {
-    constructor(path$$1) {
-        this.data = {};
-        this.path = path$$1;
-        this.logger = dingyLogby.getLogger(JSONStorage);
-    }
-    async init() {
-        const exists = await fsExtra.pathExists(this.path);
-        if (exists) {
-            this.data = await fsExtra.readJson(this.path);
-        }
-        else {
-            await fsExtra.writeJson(this.path, this.data);
-        }
-    }
-    save(key, val) {
-        this.data[key] = val;
-        // We don't need to wait for the saving to finish
-        // this *could* lead to locking/access issues but hey, probably works.
-        fsExtra.writeJson(this.path, this.data).catch(e => this.logger.error("Could not save JSON", e));
-    }
-    load(key) {
-        return this.data[key];
-    }
-    has(key) {
-        return !lightdash.isNil(this.data[key]);
-    }
-}
-
-class MemoryStorage {
-    constructor() {
-        this.data = new Map();
-    }
-    save(key, val) {
-        this.data.set(key, val);
-    }
-    load(key) {
-        return this.data.get(key);
-    }
-    has(key) {
-        return this.data.has(key);
-    }
-}
-
-const configDefault = {
-    prefix: "$",
-    roles: [],
-    enableDefaultCommands: true,
-    answerToMissingCommand: false,
-    answerToMissingArgs: true,
-    answerToMissingPerms: true
-};
 
 const echo = {
     alias: ["say", "send"],
@@ -85,6 +30,17 @@ const echo = {
 const commandsDefault = {
     echo
 };
+
+const configDefault = {
+    prefix: "$",
+    roles: [],
+    enableDefaultCommands: true,
+    answerToMissingCommand: false,
+    answerToMissingArgs: true,
+    answerToMissingPerms: true
+};
+
+const dingyLogby = new logby.Logby();
 
 class MessageReactor {
     constructor(config, client, clingy, memoryStorage, jsonStorage) {
@@ -142,6 +98,50 @@ class MessageReactor {
     }
 }
 MessageReactor.logger = dingyLogby.getLogger(MessageReactor);
+
+class JSONStorage {
+    constructor(path$$1) {
+        this.data = {};
+        this.path = path$$1;
+        this.logger = dingyLogby.getLogger(JSONStorage);
+    }
+    async init() {
+        const exists = await fsExtra.pathExists(this.path);
+        if (exists) {
+            this.data = await fsExtra.readJson(this.path);
+        }
+        else {
+            await fsExtra.writeJson(this.path, this.data);
+        }
+    }
+    save(key, val) {
+        this.data[key] = val;
+        // We don't need to wait for the saving to finish
+        // this *could* lead to locking/access issues but hey, probably works.
+        fsExtra.writeJson(this.path, this.data).catch(e => this.logger.error("Could not save JSON", e));
+    }
+    load(key) {
+        return this.data[key];
+    }
+    has(key) {
+        return !lightdash.isNil(this.data[key]);
+    }
+}
+
+class MemoryStorage {
+    constructor() {
+        this.data = new Map();
+    }
+    save(key, val) {
+        this.data.set(key, val);
+    }
+    load(key) {
+        return this.data.get(key);
+    }
+    has(key) {
+        return this.data.has(key);
+    }
+}
 
 class Dingy {
     constructor(commands = {}, config = {}) {
@@ -201,7 +201,7 @@ class Dingy {
     }
     bindEvents() {
         Dingy.logger.debug("Binding events.");
-        this.client.on("error", e => Dingy.logger.error("An error occurred", e));
+        this.client.on("error", e => Dingy.logger.error("An error occurred, trying to continue.", e));
         this.client.on("message", (msg) => {
             Dingy.logger.trace("Message was sent ", msg);
             if (!msg.system &&

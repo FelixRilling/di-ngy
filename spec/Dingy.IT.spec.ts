@@ -1,7 +1,7 @@
+import { clingyLogby } from "cli-ngy";
+import { Levels } from "logby";
 import { Dingy } from "src/Dingy";
 import { dingyLogby } from "src/logger";
-import { Levels } from "logby";
-import { clingyLogby } from "cli-ngy";
 
 describe("Dingy", () => {
 
