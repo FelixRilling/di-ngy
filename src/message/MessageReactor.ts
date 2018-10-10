@@ -3,8 +3,8 @@ import { ILookupErrorMissingArgs } from "cli-ngy/types/lookup/result/ILookupErro
 import { ILookupErrorNotFound } from "cli-ngy/types/lookup/result/ILookupErrorNotFound";
 import { ResultType } from "cli-ngy/types/lookup/result/ILookupResult";
 import { ILookupSuccess } from "cli-ngy/types/lookup/result/ILookupSuccess";
-import { Client, Message, MessageOptions } from "discord.js";
-import { isPromise, isString } from "lightdash";
+import { Client, DMChannel, Message, MessageOptions } from "discord.js";
+import { isInstanceOf, isPromise, isString } from "lightdash";
 import { ILogger } from "logby";
 import { IDingyCommand } from "../commands/IDingyCommand";
 import { IConfig } from "../config/IConfig";
@@ -13,6 +13,7 @@ import { JSONStorage } from "../storage/JSONStorage";
 import { MemoryStorage } from "../storage/MemoryStorage";
 import { ICommandResponse } from "./response/ICommandResponse";
 import { sendable } from "./response/sendable";
+import { hasEnoughPower } from "../role/hasEnoughPower";
 
 class MessageReactor {
     constructor(
@@ -33,12 +34,13 @@ class MessageReactor {
         MessageReactor
     );
 
-    private readonly config: IConfig;
+    private static readonly MAX_LENGTH = 2000;
 
-    public readonly client: Client;
-    public readonly clingy: Clingy;
-    public readonly memoryStorage: MemoryStorage;
-    public readonly jsonStorage: JSONStorage;
+    private readonly config: IConfig;
+    private readonly client: Client;
+    private readonly clingy: Clingy;
+    private readonly memoryStorage: MemoryStorage;
+    private readonly jsonStorage: JSONStorage;
 
     public static createSlimMessage(msg: Message): object {
         return {
@@ -94,7 +96,7 @@ class MessageReactor {
             this.sendResult(
                 msg,
                 this.config.strings.error.notFound +
-                    lookupResultNotFound.missing
+                lookupResultNotFound.missing
             );
         }
     }
@@ -108,7 +110,7 @@ class MessageReactor {
             this.sendResult(
                 msg,
                 this.config.strings.error.missingArgs +
-                    lookupResultMissingArg.missing.map(arg => arg.name)
+                lookupResultMissingArg.missing.map(arg => arg.name)
             );
         }
     }
@@ -119,20 +121,29 @@ class MessageReactor {
     ): void {
         const command = <IDingyCommand>lookupResultSuccess.command;
 
-        if (this.hasPermissions(msg, <IDingyCommand>command)) {
-            MessageReactor.logger.debug("Running command:", command);
-            const result = command.fn(lookupResultSuccess.args, msg, this);
-            MessageReactor.logger.debug("Command returned:", result);
-            if (result != null) {
-                MessageReactor.logger.debug("Answering to successful command.");
-                this.sendResult(msg, result);
-            } else {
-                MessageReactor.logger.debug("Skipping response.");
-            }
-        } else {
+        if (isInstanceOf(msg.channel, DMChannel) && !command.data.usableInDMs) {
+            MessageReactor.logger.debug("Not usable in DMs.");
+            this.sendResult(msg, this.config.strings.error.invalidDMCall);
+            return;
+        }
+
+        if (!hasEnoughPower(msg, command.data.powerRequired, this.config.roles)) {
             MessageReactor.logger.debug("No permissions.");
             this.sendResult(msg, this.config.strings.error.noPermission);
+            return;
         }
+
+        MessageReactor.logger.debug("Running command:", command);
+        const result = command.fn(lookupResultSuccess.args, msg, this);
+        MessageReactor.logger.debug("Command returned:", result);
+
+        if (result == null) {
+            MessageReactor.logger.debug("Skipping response.");
+            return;
+        }
+
+        MessageReactor.logger.debug("Answering to successful command.");
+        this.sendResult(msg, result);
     }
 
     private sendResult(
@@ -157,11 +168,20 @@ class MessageReactor {
     private send(msg: Message, value: string | ICommandResponse): void {
         MessageReactor.logger.debug("Sending message.", value);
         const isPlainValue = isString(value);
-        const content = isPlainValue ? value : (<ICommandResponse>value).val;
         const options: MessageOptions = {
             code: isPlainValue ? false : (<ICommandResponse>value).code,
             files: isPlainValue ? [] : (<ICommandResponse>value).files
         };
+        let content: string = isPlainValue ? <string>value : (<ICommandResponse>value).val;
+
+        if (content.length > MessageReactor.MAX_LENGTH) {
+            MessageReactor.logger.warn("Message is too long to send:", content);
+            content = this.config.strings.response.tooLong;
+        } else if (content.length === 0) {
+            MessageReactor.logger.warn("Message is empty.");
+            content = this.config.strings.response.empty;
+        }
+
         msg.channel
             .send(content, options)
             .then(() =>
@@ -170,18 +190,6 @@ class MessageReactor {
             .catch(err =>
                 MessageReactor.logger.error("Could not send message.", err)
             );
-    }
-
-    private hasPermissions(msg: Message, command: IDingyCommand): boolean {
-        let maxPower = 0;
-
-        this.config.roles.forEach(role => {
-            if (role.power > maxPower && role.check(msg)) {
-                maxPower = role.power;
-            }
-        });
-
-        return maxPower >= command.data.powerRequired;
     }
 }
 

@@ -1,8 +1,8 @@
 import { Logby } from 'logby';
-import { isPromise, isString, isNil, objDefaultsDeep } from 'lightdash';
+import { DMChannel, Client } from 'discord.js';
+import { isInstanceOf, isPromise, isString, isNil, objDefaultsDeep } from 'lightdash';
 import { pathExists, readJson, writeJson } from 'fs-extra';
 import { Clingy } from 'cli-ngy';
-import { Client } from 'discord.js';
 import { join } from 'path';
 
 const echo = {
@@ -27,9 +27,13 @@ const commandsDefault = {
     echo
 };
 
+const DEFAULT_ROLE = {
+    power: 0,
+    check: () => true
+};
 const configDefault = {
     prefix: "$",
-    roles: [],
+    roles: [DEFAULT_ROLE],
     enableDefaultCommands: true,
     answerToMissingCommand: false,
     answerToMissingArgs: true,
@@ -37,7 +41,7 @@ const configDefault = {
     strings: {
         error: {
             notFound: "The command was not found: ",
-            missingArgs: "Missing required arguments: ",
+            missingArgs: "Missing required argument(s): ",
             noPermission: "You do not have the permissions to use this command.",
             invalidDMCall: "This command cannot be used in DMs."
         },
@@ -49,6 +53,15 @@ const configDefault = {
 };
 
 const dingyLogby = new Logby();
+
+const hasEnoughPower = (msg, powerRequired, roles) => {
+    for (const role of roles) {
+        if (role.power >= powerRequired && role.check(msg)) {
+            return true;
+        }
+    }
+    return false;
+};
 
 class MessageReactor {
     constructor(config, client, clingy, memoryStorage, jsonStorage) {
@@ -104,22 +117,25 @@ class MessageReactor {
     }
     handleLookupSuccess(msg, lookupResultSuccess) {
         const command = lookupResultSuccess.command;
-        if (this.hasPermissions(msg, command)) {
-            MessageReactor.logger.debug("Running command:", command);
-            const result = command.fn(lookupResultSuccess.args, msg, this);
-            MessageReactor.logger.debug("Command returned:", result);
-            if (result != null) {
-                MessageReactor.logger.debug("Answering to successful command.");
-                this.sendResult(msg, result);
-            }
-            else {
-                MessageReactor.logger.debug("Skipping response.");
-            }
+        if (isInstanceOf(msg.channel, DMChannel) && !command.data.usableInDMs) {
+            MessageReactor.logger.debug("Not usable in DMs.");
+            this.sendResult(msg, this.config.strings.error.invalidDMCall);
+            return;
         }
-        else {
+        if (!hasEnoughPower(msg, command.data.powerRequired, this.config.roles)) {
             MessageReactor.logger.debug("No permissions.");
             this.sendResult(msg, this.config.strings.error.noPermission);
+            return;
         }
+        MessageReactor.logger.debug("Running command:", command);
+        const result = command.fn(lookupResultSuccess.args, msg, this);
+        MessageReactor.logger.debug("Command returned:", result);
+        if (result == null) {
+            MessageReactor.logger.debug("Skipping response.");
+            return;
+        }
+        MessageReactor.logger.debug("Answering to successful command.");
+        this.sendResult(msg, result);
     }
     sendResult(msg, value) {
         if (isPromise(value)) {
@@ -135,27 +151,27 @@ class MessageReactor {
     send(msg, value) {
         MessageReactor.logger.debug("Sending message.", value);
         const isPlainValue = isString(value);
-        const content = isPlainValue ? value : value.val;
         const options = {
             code: isPlainValue ? false : value.code,
             files: isPlainValue ? [] : value.files
         };
+        let content = isPlainValue ? value : value.val;
+        if (content.length > MessageReactor.MAX_LENGTH) {
+            MessageReactor.logger.warn("Message is too long to send:", content);
+            content = this.config.strings.response.tooLong;
+        }
+        else if (content.length === 0) {
+            MessageReactor.logger.warn("Message is empty.");
+            content = this.config.strings.response.empty;
+        }
         msg.channel
             .send(content, options)
             .then(() => MessageReactor.logger.debug("Sent message.", content, options))
             .catch(err => MessageReactor.logger.error("Could not send message.", err));
     }
-    hasPermissions(msg, command) {
-        let maxPower = 0;
-        this.config.roles.forEach(role => {
-            if (role.power > maxPower && role.check(msg)) {
-                maxPower = role.power;
-            }
-        });
-        return maxPower >= command.data.powerRequired;
-    }
 }
 MessageReactor.logger = dingyLogby.getLogger(MessageReactor);
+MessageReactor.MAX_LENGTH = 2000;
 
 class JSONStorage {
     constructor(path) {

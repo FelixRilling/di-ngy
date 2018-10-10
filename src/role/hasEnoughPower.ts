@@ -1,10 +1,8 @@
 import { Message } from "discord.js";
 import { IRole } from "./IRole";
 
-const hasPower = (
-    roles: IRole[],
-    msg: Message,
-    powerRequired: number
+const hasEnoughPower = (msg: Message,
+                        powerRequired: number, roles: IRole[]
 ): boolean => {
     for (const role of roles) {
         if (role.power >= powerRequired && role.check(msg)) {
@@ -15,4 +13,4 @@ const hasPower = (
     return false;
 };
 
-export { hasPower };
+export { hasEnoughPower };

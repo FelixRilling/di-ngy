@@ -13,8 +13,8 @@ if (isNil(token)) {
     throw new Error("No token set.");
 }
 
-dingyLogby.setLevel(Levels.TRACE);
-clingyLogby.setLevel(Levels.TRACE);
+dingyLogby.setLevel(Levels.DEBUG);
+clingyLogby.setLevel(Levels.DEBUG);
 
 const commands = {
     foo: {
@@ -27,13 +27,26 @@ const commands = {
             powerRequired: 0,
             help: "ok"
         }
+    }, no: {
+        fn: () => "ok",
+        args: [{
+            name: "xd",
+            required: true
+        },{
+            name: "1212312",
+            required: true
+        }],
+        alias: [],
+        data: {
+            hidden: false,
+            usableInDMs: false,
+            powerRequired: 0,
+            help: "ok"
+        }
     }
 };
 const options = {
     prefix: "$$$",
-    roles: [],
-
-    enableDefaultCommands: true,
 
     answerToMissingCommand: true,
     answerToMissingArgs: true,

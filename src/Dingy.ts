@@ -19,12 +19,11 @@ class Dingy {
     private static readonly logger: ILogger = dingyLogby.getLogger(Dingy);
 
     private readonly config: IConfig;
-    private readonly messageReactor: MessageReactor;
-
     public readonly client: Client;
     public readonly clingy: Clingy;
     public readonly memoryStorage: MemoryStorage;
     public readonly jsonStorage: JSONStorage;
+    private readonly messageReactor: MessageReactor;
 
     constructor(
         commands: ITypedObject<any> = {},
