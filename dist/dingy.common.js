@@ -3,33 +3,11 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var logby = require('logby');
+var cliNgy = require('cli-ngy');
 var discord_js = require('discord.js');
 var lightdash = require('lightdash');
 var fsExtra = require('fs-extra');
-var cliNgy = require('cli-ngy');
 var path = require('path');
-
-const echo = {
-    alias: ["say", "send"],
-    args: [
-        {
-            name: "val",
-            required: true
-        }
-    ],
-    sub: null,
-    data: {
-        powerRequired: 8,
-        hidden: true,
-        usableInDMs: true,
-        help: "Echoes a text."
-    },
-    fn: (args) => args.get("val")
-};
-
-const commandsDefault = {
-    echo
-};
 
 const DEFAULT_ROLE = {
     power: 0,
@@ -58,6 +36,28 @@ const configDefault = {
 
 const dingyLogby = new logby.Logby();
 
+const echo = {
+    alias: ["say", "send"],
+    args: [
+        {
+            name: "val",
+            required: true
+        }
+    ],
+    sub: null,
+    data: {
+        powerRequired: 8,
+        hidden: true,
+        usableInDMs: true,
+        help: "Echoes a text."
+    },
+    fn: (args) => args.get("val")
+};
+
+const commandsDefault = {
+    echo
+};
+
 const hasEnoughPower = (msg, powerRequired, roles) => {
     for (const role of roles) {
         if (role.power >= powerRequired && role.check(msg)) {
@@ -67,23 +67,25 @@ const hasEnoughPower = (msg, powerRequired, roles) => {
     return false;
 };
 
+const createSlimMessage = (msg) => {
+    return {
+        author: { username: msg.author.username, id: msg.author.id },
+        content: msg.content
+    };
+};
+
 class MessageReactor {
-    constructor(config, client, clingy, memoryStorage, jsonStorage) {
-        this.config = config;
-        this.client = client;
-        this.clingy = clingy;
-        this.memoryStorage = memoryStorage;
-        this.jsonStorage = jsonStorage;
-    }
-    static createSlimMessage(msg) {
-        return {
-            author: { username: msg.author.username, id: msg.author.id },
-            content: msg.content
-        };
+    constructor(dingy, commands = {}) {
+        this.clingy = new cliNgy.Clingy(dingy.config.enableDefaultCommands
+            ? lightdash.objDefaultsDeep(commands, commandsDefault)
+            : commands);
+        MessageReactor.logger.debug("Creating Clingy.");
+        this.dingy = dingy;
+        MessageReactor.logger.debug("Created MessageReactor.");
     }
     handleMessage(msg) {
-        MessageReactor.logger.debug("Parsing content.", MessageReactor.createSlimMessage(msg));
-        const msgContent = msg.content.substr(this.config.prefix.length);
+        MessageReactor.logger.debug("Parsing content.", createSlimMessage(msg));
+        const msgContent = msg.content.substr(this.dingy.config.prefix.length);
         const lookupResult = this.clingy.parse(msgContent);
         MessageReactor.logger.debug("Parsed content.", lookupResult);
         if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
@@ -106,16 +108,16 @@ class MessageReactor {
         }
     }
     handleLookupNotFound(msg, lookupResultNotFound) {
-        if (this.config.answerToMissingCommand) {
+        if (this.dingy.config.answerToMissingCommand) {
             MessageReactor.logger.debug("Answering to command not found.");
-            this.sendResult(msg, this.config.strings.error.notFound +
+            this.sendResult(msg, this.dingy.config.strings.error.notFound +
                 lookupResultNotFound.missing);
         }
     }
     handleLookupMissingArg(msg, lookupResultMissingArg) {
-        if (this.config.answerToMissingArgs) {
+        if (this.dingy.config.answerToMissingArgs) {
             MessageReactor.logger.debug("Answering to missing arg.");
-            this.sendResult(msg, this.config.strings.error.missingArgs +
+            this.sendResult(msg, this.dingy.config.strings.error.missingArgs +
                 lookupResultMissingArg.missing.map(arg => arg.name));
         }
     }
@@ -123,16 +125,16 @@ class MessageReactor {
         const command = lookupResultSuccess.command;
         if (lightdash.isInstanceOf(msg.channel, discord_js.DMChannel) && !command.data.usableInDMs) {
             MessageReactor.logger.debug("Not usable in DMs.");
-            this.sendResult(msg, this.config.strings.error.invalidDMCall);
+            this.sendResult(msg, this.dingy.config.strings.error.invalidDMCall);
             return;
         }
-        if (!hasEnoughPower(msg, command.data.powerRequired, this.config.roles)) {
+        if (!hasEnoughPower(msg, command.data.powerRequired, this.dingy.config.roles)) {
             MessageReactor.logger.debug("No permissions.");
-            this.sendResult(msg, this.config.strings.error.noPermission);
+            this.sendResult(msg, this.dingy.config.strings.error.noPermission);
             return;
         }
         MessageReactor.logger.debug("Running command:", command);
-        const result = command.fn(lookupResultSuccess.args, msg, this);
+        const result = command.fn(lookupResultSuccess.args, msg, this.dingy, this);
         MessageReactor.logger.debug("Command returned:", result);
         if (result == null) {
             MessageReactor.logger.debug("Skipping response.");
@@ -153,21 +155,24 @@ class MessageReactor {
         }
     }
     send(msg, value) {
-        MessageReactor.logger.debug("Sending message.", value);
+        MessageReactor.logger.debug("Preparing sending of message.", value);
         const isPlainValue = lightdash.isString(value);
         const options = {
             code: isPlainValue ? false : value.code,
             files: isPlainValue ? [] : value.files
         };
-        let content = isPlainValue ? value : value.val;
+        let content = isPlainValue
+            ? value
+            : value.val;
         if (content.length > MessageReactor.MAX_LENGTH) {
             MessageReactor.logger.warn("Message is too long to send:", content);
-            content = this.config.strings.response.tooLong;
+            content = this.dingy.config.strings.response.tooLong;
         }
         else if (content.length === 0) {
             MessageReactor.logger.warn("Message is empty.");
-            content = this.config.strings.response.empty;
+            content = this.dingy.config.strings.response.empty;
         }
+        MessageReactor.logger.debug("Sending message.", value);
         msg.channel
             .send(content, options)
             .then(() => MessageReactor.logger.debug("Sent message.", content, options))
@@ -228,19 +233,13 @@ class Dingy {
         this.config = lightdash.objDefaultsDeep(config, configDefault);
         Dingy.logger.debug("Creating Client.");
         this.client = new discord_js.Client();
-        const commandsDefaulted = this.config
-            .enableDefaultCommands
-            ? lightdash.objDefaultsDeep(commands, commandsDefault)
-            : commands;
-        Dingy.logger.debug("Creating Clingy.");
-        this.clingy = new cliNgy.Clingy(commandsDefaulted);
         Dingy.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();
         const storagePath = path.join("./", Dingy.DATA_DIRECTORY, "storage.json");
         Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
         this.jsonStorage = new JSONStorage(storagePath);
         Dingy.logger.debug("Creating MessageReactor.");
-        this.messageReactor = new MessageReactor(this.config, this.client, this.clingy, this.memoryStorage, this.jsonStorage);
+        this.messageReactor = new MessageReactor(this, commands);
         this.bindEvents();
         Dingy.logger.info("Created instance.");
     }
@@ -279,18 +278,16 @@ class Dingy {
     }
     bindEvents() {
         Dingy.logger.debug("Binding events.");
-        this.client.on("error", e => Dingy.logger.error("An error occurred, trying to continue.", e));
-        this.client.on("message", (msg) => {
-            Dingy.logger.trace("A message was sent.", MessageReactor.createSlimMessage(msg));
-            this.handleMessage(msg);
-        });
+        this.client.on("error", err => Dingy.logger.error("An error occurred, trying to continue.", err));
+        this.client.on("message", msg => this.messageHandler(msg));
     }
-    handleMessage(msg) {
+    messageHandler(msg) {
+        Dingy.logger.trace("A message was sent.", createSlimMessage(msg));
         if (!msg.system &&
             !msg.author.bot &&
             msg.content.startsWith(this.config.prefix) &&
             msg.content !== this.config.prefix) {
-            Dingy.logger.debug("Message will be processed.", MessageReactor.createSlimMessage(msg));
+            Dingy.logger.debug("Message will be processed.", createSlimMessage(msg));
             this.messageReactor.handleMessage(msg);
         }
     }

@@ -1,26 +1,23 @@
-import { Clingy } from "cli-ngy";
 import { Client, Message } from "discord.js";
 import { objDefaultsDeep } from "lightdash";
 import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
 import { ILogger } from "logby";
 import * as path from "path";
-import { commandsDefault } from "./commands/commands.default";
-import { IDingyCommandObject } from "./commands/IDingyCommandObject";
 import { configDefault } from "./config/config.default";
 import { IConfig } from "./config/IConfig";
 import { dingyLogby } from "./logger";
 import { MessageReactor } from "./message/MessageReactor";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
+import { createSlimMessage } from "./message/createSlimMessage";
 
 class Dingy {
     private static readonly DATA_DIRECTORY = "data";
 
     private static readonly logger: ILogger = dingyLogby.getLogger(Dingy);
 
-    private readonly config: IConfig;
+    public readonly config: IConfig;
     public readonly client: Client;
-    public readonly clingy: Clingy;
     public readonly memoryStorage: MemoryStorage;
     public readonly jsonStorage: JSONStorage;
     private readonly messageReactor: MessageReactor;
@@ -37,13 +34,6 @@ class Dingy {
         Dingy.logger.debug("Creating Client.");
         this.client = new Client();
 
-        const commandsDefaulted: IDingyCommandObject = this.config
-            .enableDefaultCommands
-            ? objDefaultsDeep(commands, commandsDefault)
-            : commands;
-        Dingy.logger.debug("Creating Clingy.");
-        this.clingy = new Clingy(commandsDefaulted);
-
         Dingy.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();
 
@@ -56,13 +46,7 @@ class Dingy {
         this.jsonStorage = new JSONStorage(storagePath);
 
         Dingy.logger.debug("Creating MessageReactor.");
-        this.messageReactor = new MessageReactor(
-            this.config,
-            this.client,
-            this.clingy,
-            this.memoryStorage,
-            this.jsonStorage
-        );
+        this.messageReactor = new MessageReactor(this, commands);
 
         this.bindEvents();
 
@@ -107,19 +91,14 @@ class Dingy {
 
     private bindEvents() {
         Dingy.logger.debug("Binding events.");
-        this.client.on("error", e =>
-            Dingy.logger.error("An error occurred, trying to continue.", e)
+        this.client.on("error", err =>
+            Dingy.logger.error("An error occurred, trying to continue.", err)
         );
-        this.client.on("message", (msg: Message) => {
-            Dingy.logger.trace(
-                "A message was sent.",
-                MessageReactor.createSlimMessage(msg)
-            );
-            this.handleMessage(msg);
-        });
+        this.client.on("message", msg => this.messageHandler(msg));
     }
 
-    private handleMessage(msg: Message) {
+    private messageHandler(msg: Message) {
+        Dingy.logger.trace("A message was sent.", createSlimMessage(msg));
         if (
             !msg.system &&
             !msg.author.bot &&
@@ -128,7 +107,7 @@ class Dingy {
         ) {
             Dingy.logger.debug(
                 "Message will be processed.",
-                MessageReactor.createSlimMessage(msg)
+                createSlimMessage(msg)
             );
             this.messageReactor.handleMessage(msg);
         }

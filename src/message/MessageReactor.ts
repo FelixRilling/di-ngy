@@ -3,58 +3,43 @@ import { ILookupErrorMissingArgs } from "cli-ngy/types/lookup/result/ILookupErro
 import { ILookupErrorNotFound } from "cli-ngy/types/lookup/result/ILookupErrorNotFound";
 import { ResultType } from "cli-ngy/types/lookup/result/ILookupResult";
 import { ILookupSuccess } from "cli-ngy/types/lookup/result/ILookupSuccess";
-import { Client, DMChannel, Message, MessageOptions } from "discord.js";
-import { isInstanceOf, isPromise, isString } from "lightdash";
+import { DMChannel, Message, MessageOptions } from "discord.js";
+import { isInstanceOf, isPromise, isString, objDefaultsDeep } from "lightdash";
+import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
 import { ILogger } from "logby";
+import { commandsDefault } from "../commands/commands.default";
 import { IDingyCommand } from "../commands/IDingyCommand";
-import { IConfig } from "../config/IConfig";
+import { Dingy } from "../Dingy";
 import { dingyLogby } from "../logger";
-import { JSONStorage } from "../storage/JSONStorage";
-import { MemoryStorage } from "../storage/MemoryStorage";
+import { hasEnoughPower } from "../role/hasEnoughPower";
+import { createSlimMessage } from "./createSlimMessage";
 import { ICommandResponse } from "./response/ICommandResponse";
 import { sendable } from "./response/sendable";
-import { hasEnoughPower } from "../role/hasEnoughPower";
 
 class MessageReactor {
-    constructor(
-        config: IConfig,
-        client: Client,
-        clingy: Clingy,
-        memoryStorage: MemoryStorage,
-        jsonStorage: JSONStorage
-    ) {
-        this.config = config;
-        this.client = client;
-        this.clingy = clingy;
-        this.memoryStorage = memoryStorage;
-        this.jsonStorage = jsonStorage;
-    }
-
     private static readonly logger: ILogger = dingyLogby.getLogger(
         MessageReactor
     );
 
     private static readonly MAX_LENGTH = 2000;
 
-    private readonly config: IConfig;
-    private readonly client: Client;
+    private readonly dingy: Dingy;
     private readonly clingy: Clingy;
-    private readonly memoryStorage: MemoryStorage;
-    private readonly jsonStorage: JSONStorage;
 
-    public static createSlimMessage(msg: Message): object {
-        return {
-            author: { username: msg.author.username, id: msg.author.id },
-            content: msg.content
-        };
+    constructor(dingy: Dingy, commands: ITypedObject<any> = {}) {
+        this.clingy = new Clingy(
+            dingy.config.enableDefaultCommands
+                ? objDefaultsDeep(commands, commandsDefault)
+                : commands
+        );
+        MessageReactor.logger.debug("Creating Clingy.");
+        this.dingy = dingy;
+        MessageReactor.logger.debug("Created MessageReactor.");
     }
 
     public handleMessage(msg: Message): void {
-        MessageReactor.logger.debug(
-            "Parsing content.",
-            MessageReactor.createSlimMessage(msg)
-        );
-        const msgContent = msg.content.substr(this.config.prefix.length);
+        MessageReactor.logger.debug("Parsing content.", createSlimMessage(msg));
+        const msgContent = msg.content.substr(this.dingy.config.prefix.length);
         const lookupResult = this.clingy.parse(msgContent);
         MessageReactor.logger.debug("Parsed content.", lookupResult);
 
@@ -91,12 +76,12 @@ class MessageReactor {
         msg: Message,
         lookupResultNotFound: ILookupErrorNotFound
     ): void {
-        if (this.config.answerToMissingCommand) {
+        if (this.dingy.config.answerToMissingCommand) {
             MessageReactor.logger.debug("Answering to command not found.");
             this.sendResult(
                 msg,
-                this.config.strings.error.notFound +
-                lookupResultNotFound.missing
+                this.dingy.config.strings.error.notFound +
+                    lookupResultNotFound.missing
             );
         }
     }
@@ -105,12 +90,12 @@ class MessageReactor {
         msg: Message,
         lookupResultMissingArg: ILookupErrorMissingArgs
     ): void {
-        if (this.config.answerToMissingArgs) {
+        if (this.dingy.config.answerToMissingArgs) {
             MessageReactor.logger.debug("Answering to missing arg.");
             this.sendResult(
                 msg,
-                this.config.strings.error.missingArgs +
-                lookupResultMissingArg.missing.map(arg => arg.name)
+                this.dingy.config.strings.error.missingArgs +
+                    lookupResultMissingArg.missing.map(arg => arg.name)
             );
         }
     }
@@ -123,18 +108,29 @@ class MessageReactor {
 
         if (isInstanceOf(msg.channel, DMChannel) && !command.data.usableInDMs) {
             MessageReactor.logger.debug("Not usable in DMs.");
-            this.sendResult(msg, this.config.strings.error.invalidDMCall);
+            this.sendResult(msg, this.dingy.config.strings.error.invalidDMCall);
             return;
         }
 
-        if (!hasEnoughPower(msg, command.data.powerRequired, this.config.roles)) {
+        if (
+            !hasEnoughPower(
+                msg,
+                command.data.powerRequired,
+                this.dingy.config.roles
+            )
+        ) {
             MessageReactor.logger.debug("No permissions.");
-            this.sendResult(msg, this.config.strings.error.noPermission);
+            this.sendResult(msg, this.dingy.config.strings.error.noPermission);
             return;
         }
 
         MessageReactor.logger.debug("Running command:", command);
-        const result = command.fn(lookupResultSuccess.args, msg, this);
+        const result = command.fn(
+            lookupResultSuccess.args,
+            msg,
+            this.dingy,
+            this
+        );
         MessageReactor.logger.debug("Command returned:", result);
 
         if (result == null) {
@@ -166,22 +162,25 @@ class MessageReactor {
     }
 
     private send(msg: Message, value: string | ICommandResponse): void {
-        MessageReactor.logger.debug("Sending message.", value);
+        MessageReactor.logger.debug("Preparing sending of message.", value);
         const isPlainValue = isString(value);
         const options: MessageOptions = {
             code: isPlainValue ? false : (<ICommandResponse>value).code,
             files: isPlainValue ? [] : (<ICommandResponse>value).files
         };
-        let content: string = isPlainValue ? <string>value : (<ICommandResponse>value).val;
+        let content: string = isPlainValue
+            ? <string>value
+            : (<ICommandResponse>value).val;
 
         if (content.length > MessageReactor.MAX_LENGTH) {
             MessageReactor.logger.warn("Message is too long to send:", content);
-            content = this.config.strings.response.tooLong;
+            content = this.dingy.config.strings.response.tooLong;
         } else if (content.length === 0) {
             MessageReactor.logger.warn("Message is empty.");
-            content = this.config.strings.response.empty;
+            content = this.dingy.config.strings.response.empty;
         }
 
+        MessageReactor.logger.debug("Sending message.", value);
         msg.channel
             .send(content, options)
             .then(() =>
