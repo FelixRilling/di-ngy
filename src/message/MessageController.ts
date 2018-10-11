@@ -131,8 +131,7 @@ class MessageController {
         const result = command.fn(
             lookupResultSuccess.args,
             msg,
-            this.dingy,
-            this
+            this.dingy
         );
         MessageController.logger.debug("Command returned:", result);
 

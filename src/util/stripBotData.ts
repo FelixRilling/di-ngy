@@ -1,4 +1,13 @@
-import { isArray, isBoolean, isFunction, isNil, isNumber, isObject, isString, objDecycle } from "lightdash";
+import {
+    isArray,
+    isBoolean,
+    isFunction,
+    isNil,
+    isNumber,
+    isObject,
+    isString,
+    objDecycle
+} from "lightdash";
 
 const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 

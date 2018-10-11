@@ -57,8 +57,57 @@ const echo = {
     fn: (args) => args.get("val")
 };
 
+const EXIT_CODE_STOP = 10;
+const stop = {
+    alias: ["die", "shutdown"],
+    args: [],
+    sub: null,
+    data: {
+        powerRequired: 10,
+        hidden: true,
+        usableInDMs: true,
+        help: "Stops the bot."
+    },
+    fn: (args, msg, dingy) => {
+        dingy.client.setTimeout(async () => {
+            await dingy.disconnect();
+            process.exit(EXIT_CODE_STOP);
+        }, 1000);
+        return "Stopping...";
+    }
+};
+
+const showDetailHelp = (msg, dingy, s) => {
+    return { val: "detail", code: "yaml" };
+};
+const showGeneralHelp = (msg, dingy) => {
+    return { val: "general", code: "yaml" };
+};
+const help = {
+    alias: ["manual", "?"],
+    args: [
+        {
+            name: "command",
+            required: false,
+            defaultValue: ""
+        }
+    ],
+    sub: null,
+    data: {
+        powerRequired: 0,
+        hidden: false,
+        usableInDMs: true,
+        help: "Shows the help page."
+    },
+    fn: (args, msg, dingy, controller) => args.get("command") !== ""
+        ? showDetailHelp(msg, dingy, args.get("command"))
+        : showGeneralHelp(msg, dingy)
+};
+
 const commandsDefault = {
-    echo
+    echo,
+    stop,
+    help
 };
 
 const hasEnoughPower = (msg, powerRequired, roles) => {
@@ -130,7 +179,7 @@ class MessageController {
             return;
         }
         MessageController.logger.debug("Running command:", command);
-        const result = command.fn(lookupResultSuccess.args, msg, this.dingy, this);
+        const result = command.fn(lookupResultSuccess.args, msg, this.dingy);
         MessageController.logger.debug("Command returned:", result);
         if (result == null) {
             MessageController.logger.debug("Skipping response.");
