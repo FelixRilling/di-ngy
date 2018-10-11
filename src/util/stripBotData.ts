@@ -1,13 +1,4 @@
-import {
-    isArray,
-    isBoolean,
-    isFunction,
-    isNil,
-    isNumber,
-    isObject,
-    isString,
-    objDecycle
-} from "lightdash";
+import { isArray, isBoolean, isFunction, isNil, isNumber, isObject, isString, objDecycle } from "lightdash";
 
 const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
 
@@ -44,12 +35,11 @@ const strip = (val: any): any => {
     } else if (isArray(val)) {
         return val.filter(isLegalValue).map(strip);
     } else if (isObject(val)) {
-        const result = {};
+        const result: { [key: string]: any } = {};
 
         Object.entries(val)
             .filter(isLegalEntry)
             .forEach(entry => {
-                // @ts-ignore
                 result[entry[0]] = strip(entry[1]);
             });
 

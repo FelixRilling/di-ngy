@@ -36,6 +36,13 @@ const configDefault = {
 
 const dingyLogby = new logby.Logby();
 
+const createSlimMessage = (msg) => {
+    return {
+        author: { username: msg.author.username, id: msg.author.id },
+        content: msg.content
+    };
+};
+
 const echo = {
     alias: ["say", "send"],
     args: [
@@ -67,56 +74,49 @@ const hasEnoughPower = (msg, powerRequired, roles) => {
     return false;
 };
 
-const createSlimMessage = (msg) => {
-    return {
-        author: { username: msg.author.username, id: msg.author.id },
-        content: msg.content
-    };
-};
-
-class MessageReactor {
+class MessageController {
     constructor(dingy, commands = {}) {
         this.clingy = new cliNgy.Clingy(dingy.config.enableDefaultCommands
             ? lightdash.objDefaultsDeep(commands, commandsDefault)
             : commands);
-        MessageReactor.logger.debug("Creating Clingy.");
+        MessageController.logger.debug("Creating Clingy.");
         this.dingy = dingy;
-        MessageReactor.logger.debug("Created MessageReactor.");
+        MessageController.logger.debug("Created MessageController.");
     }
     handleMessage(msg) {
-        MessageReactor.logger.debug("Parsing content.", createSlimMessage(msg));
+        MessageController.logger.debug("Parsing content.", createSlimMessage(msg));
         const msgContent = msg.content.substr(this.dingy.config.prefix.length);
         const lookupResult = this.clingy.parse(msgContent);
-        MessageReactor.logger.debug("Parsed content.", lookupResult);
+        MessageController.logger.debug("Parsed content.", lookupResult);
         if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
             const lookupResultNotFound = lookupResult;
-            MessageReactor.logger.debug(`Command not found: ${lookupResultNotFound.missing}.`);
+            MessageController.logger.debug(`Command not found: ${lookupResultNotFound.missing}.`);
             this.handleLookupNotFound(msg, lookupResultNotFound);
         }
         else if (lookupResult.type === 2 /* ERROR_MISSING_ARGUMENT */) {
             const lookupResultMissingArg = (lookupResult);
-            MessageReactor.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}.`);
+            MessageController.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}.`);
             this.handleLookupMissingArg(msg, lookupResultMissingArg);
         }
         else if (lookupResult.type === 0 /* SUCCESS */) {
             const lookupResultSuccess = lookupResult;
-            MessageReactor.logger.info("Lookup successful.", lookupResultSuccess);
+            MessageController.logger.info("Lookup successful.", lookupResultSuccess);
             this.handleLookupSuccess(msg, lookupResultSuccess);
         }
         else {
-            MessageReactor.logger.error("Every check failed, this should never happen.", lookupResult);
+            MessageController.logger.error("Every check failed, this should never happen.", lookupResult);
         }
     }
     handleLookupNotFound(msg, lookupResultNotFound) {
         if (this.dingy.config.answerToMissingCommand) {
-            MessageReactor.logger.debug("Answering to command not found.");
+            MessageController.logger.debug("Answering to command not found.");
             this.sendResult(msg, this.dingy.config.strings.error.notFound +
                 lookupResultNotFound.missing);
         }
     }
     handleLookupMissingArg(msg, lookupResultMissingArg) {
         if (this.dingy.config.answerToMissingArgs) {
-            MessageReactor.logger.debug("Answering to missing arg.");
+            MessageController.logger.debug("Answering to missing arg.");
             this.sendResult(msg, this.dingy.config.strings.error.missingArgs +
                 lookupResultMissingArg.missing.map(arg => arg.name));
         }
@@ -124,38 +124,38 @@ class MessageReactor {
     handleLookupSuccess(msg, lookupResultSuccess) {
         const command = lookupResultSuccess.command;
         if (lightdash.isInstanceOf(msg.channel, discord_js.DMChannel) && !command.data.usableInDMs) {
-            MessageReactor.logger.debug("Not usable in DMs.");
+            MessageController.logger.debug("Not usable in DMs.");
             this.sendResult(msg, this.dingy.config.strings.error.invalidDMCall);
             return;
         }
         if (!hasEnoughPower(msg, command.data.powerRequired, this.dingy.config.roles)) {
-            MessageReactor.logger.debug("No permissions.");
+            MessageController.logger.debug("No permissions.");
             this.sendResult(msg, this.dingy.config.strings.error.noPermission);
             return;
         }
-        MessageReactor.logger.debug("Running command:", command);
+        MessageController.logger.debug("Running command:", command);
         const result = command.fn(lookupResultSuccess.args, msg, this.dingy, this);
-        MessageReactor.logger.debug("Command returned:", result);
+        MessageController.logger.debug("Command returned:", result);
         if (result == null) {
-            MessageReactor.logger.debug("Skipping response.");
+            MessageController.logger.debug("Skipping response.");
             return;
         }
-        MessageReactor.logger.debug("Answering to successful command.");
+        MessageController.logger.debug("Answering to successful command.");
         this.sendResult(msg, result);
     }
     sendResult(msg, value) {
         if (lightdash.isPromise(value)) {
-            MessageReactor.logger.debug("Value is a promise, waiting.");
+            MessageController.logger.debug("Value is a promise, waiting.");
             value
                 .then(valueResolved => this.send(msg, valueResolved))
-                .catch(err => MessageReactor.logger.error("Error while waiting for resolve: ", err));
+                .catch(err => MessageController.logger.error("Error while waiting for resolve: ", err));
         }
         else {
             this.send(msg, value);
         }
     }
     send(msg, value) {
-        MessageReactor.logger.debug("Preparing sending of message.", value);
+        MessageController.logger.debug("Preparing sending of message.", value);
         const isPlainValue = lightdash.isString(value);
         const options = {
             code: isPlainValue ? false : value.code,
@@ -164,29 +164,28 @@ class MessageReactor {
         let content = isPlainValue
             ? value
             : value.val;
-        if (content.length > MessageReactor.MAX_LENGTH) {
-            MessageReactor.logger.warn("Message is too long to send:", content);
+        if (content.length > MessageController.MAX_LENGTH) {
+            MessageController.logger.warn("Message is too long to send:", content);
             content = this.dingy.config.strings.response.tooLong;
         }
         else if (content.length === 0) {
-            MessageReactor.logger.warn("Message is empty.");
+            MessageController.logger.warn("Message is empty.");
             content = this.dingy.config.strings.response.empty;
         }
-        MessageReactor.logger.debug("Sending message.", value);
+        MessageController.logger.debug("Sending message.", value);
         msg.channel
             .send(content, options)
-            .then(() => MessageReactor.logger.debug("Sent message.", content, options))
-            .catch(err => MessageReactor.logger.error("Could not send message.", err));
+            .then(() => MessageController.logger.debug("Sent message.", content, options))
+            .catch(err => MessageController.logger.error("Could not send message.", err));
     }
 }
-MessageReactor.logger = dingyLogby.getLogger(MessageReactor);
-MessageReactor.MAX_LENGTH = 2000;
+MessageController.logger = dingyLogby.getLogger(MessageController);
+MessageController.MAX_LENGTH = 2000;
 
 class JSONStorage {
     constructor(path$$1) {
         this.data = {};
         this.path = path$$1;
-        this.logger = dingyLogby.getLogger(JSONStorage);
     }
     async init() {
         const exists = await fsExtra.pathExists(this.path);
@@ -201,7 +200,7 @@ class JSONStorage {
         this.data[key] = val;
         // We don't need to wait for the saving to finish
         // this *could* lead to locking/access issues but hey, probably works.
-        fsExtra.writeJson(this.path, this.data).catch(e => this.logger.error("Could not save JSON", e));
+        fsExtra.writeJson(this.path, this.data).catch(e => JSONStorage.logger.error("Could not save JSON", e));
     }
     load(key) {
         return this.data[key];
@@ -210,6 +209,7 @@ class JSONStorage {
         return !lightdash.isNil(this.data[key]);
     }
 }
+JSONStorage.logger = dingyLogby.getLogger(JSONStorage);
 
 class MemoryStorage {
     constructor() {
@@ -238,8 +238,8 @@ class Dingy {
         const storagePath = path.join("./", Dingy.DATA_DIRECTORY, "storage.json");
         Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
         this.jsonStorage = new JSONStorage(storagePath);
-        Dingy.logger.debug("Creating MessageReactor.");
-        this.messageReactor = new MessageReactor(this, commands);
+        Dingy.logger.debug("Creating MessageController.");
+        this.messageReactor = new MessageController(this, commands);
         this.bindEvents();
         Dingy.logger.info("Created instance.");
     }
@@ -297,3 +297,4 @@ Dingy.logger = dingyLogby.getLogger(Dingy);
 
 exports.Dingy = Dingy;
 exports.dingyLogby = dingyLogby;
+exports.DEFAULT_ROLE = DEFAULT_ROLE;

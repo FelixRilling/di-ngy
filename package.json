@@ -54,13 +54,13 @@
     "dependencies": {
         "@types/fs-extra": "^5.0.4",
         "@types/node": "^10.11.5",
-        "@types/node-fetch": "^2.1.2",
+        "@types/yamljs": "^0.2.30",
         "cli-ngy": "^10.0.1",
         "discord.js": "^11.4.2",
         "fs-extra": "^7.0.0",
         "lightdash": "^9.0.5",
         "logby": "^2.0.0",
-        "node-fetch": "^2.2.0"
+        "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "@types/jasmine": "^2.8.9",

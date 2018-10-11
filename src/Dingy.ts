@@ -6,10 +6,10 @@ import * as path from "path";
 import { configDefault } from "./config/config.default";
 import { IConfig } from "./config/IConfig";
 import { dingyLogby } from "./logger";
-import { MessageReactor } from "./message/MessageReactor";
+import { createSlimMessage } from "./message/createSlimMessage";
+import { MessageController } from "./message/MessageController";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
-import { createSlimMessage } from "./message/createSlimMessage";
 
 class Dingy {
     private static readonly DATA_DIRECTORY = "data";
@@ -20,7 +20,7 @@ class Dingy {
     public readonly client: Client;
     public readonly memoryStorage: MemoryStorage;
     public readonly jsonStorage: JSONStorage;
-    private readonly messageReactor: MessageReactor;
+    private readonly messageReactor: MessageController;
 
     constructor(
         commands: ITypedObject<any> = {},
@@ -45,8 +45,8 @@ class Dingy {
         Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
         this.jsonStorage = new JSONStorage(storagePath);
 
-        Dingy.logger.debug("Creating MessageReactor.");
-        this.messageReactor = new MessageReactor(this, commands);
+        Dingy.logger.debug("Creating MessageController.");
+        this.messageReactor = new MessageController(this, commands);
 
         this.bindEvents();
 

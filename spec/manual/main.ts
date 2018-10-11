@@ -1,10 +1,10 @@
 import { clingyLogby } from "cli-ngy";
+import { Message } from "discord.js";
 import { isNil } from "lightdash";
 import { Levels } from "logby";
 import { Dingy } from "src/Dingy";
-import { dingyLogby } from "../../src/logger";
 import { DEFAULT_ROLE } from "../../src/config/config.default";
-import { Message } from "discord.js";
+import { dingyLogby } from "../../src/logger";
 
 /*
  * Used to directly run and test the bot.

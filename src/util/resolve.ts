@@ -18,7 +18,7 @@ const resolveUser = (userResolvable: string, bot: Client): Promise<User> =>
  * @private
  * @param {string} memberResolvable
  * @param {Guild} guild
- * @returns {Member|null}
+ * @returns {GuildMember|null}
  */
 const resolveMember = (memberResolvable: string, guild: Guild): GuildMember =>
     guild.members.find(

@@ -4,14 +4,14 @@ import { ILogger } from "logby";
 import { dingyLogby } from "../logger";
 
 class JSONStorage implements IStorage<any> {
-    private data: { [key: string]: any };
+    private static readonly logger: ILogger = dingyLogby.getLogger(JSONStorage);
+
     private readonly path: string;
-    private readonly logger: ILogger;
+    private data: { [key: string]: any };
 
     constructor(path: string) {
         this.data = {};
         this.path = path;
-        this.logger = dingyLogby.getLogger(JSONStorage);
     }
 
     public async init(): Promise<void> {
@@ -29,7 +29,7 @@ class JSONStorage implements IStorage<any> {
         // We don't need to wait for the saving to finish
         // this *could* lead to locking/access issues but hey, probably works.
         writeJson(this.path, this.data).catch(e =>
-            this.logger.error("Could not save JSON", e)
+            JSONStorage.logger.error("Could not save JSON", e)
         );
     }
 

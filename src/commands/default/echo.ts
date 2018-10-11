@@ -1,5 +1,5 @@
-import { IDingyCommand } from "../IDingyCommand";
 import { resolvedArgumentMap } from "cli-ngy/types/argument/resolvedArgumentMap";
+import { IDingyCommand } from "../IDingyCommand";
 
 const echo: IDingyCommand = {
     alias: ["say", "send"],
