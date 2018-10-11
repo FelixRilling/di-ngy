@@ -12,7 +12,7 @@ const stop: IDingyCommand = {
         usableInDMs: true,
         help: "Stops the bot."
     },
-    fn: (args, msg, dingy) => {
+    fn: (args, argsAll, msg, dingy) => {
         dingy.client.setTimeout(async () => {
             await dingy.disconnect();
             process.exit(EXIT_CODE_STOP);

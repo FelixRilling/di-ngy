@@ -20,7 +20,7 @@ class Dingy {
     public readonly client: Client;
     public readonly memoryStorage: MemoryStorage;
     public readonly jsonStorage: JSONStorage;
-    private readonly messageReactor: MessageController;
+    private readonly messageController: MessageController;
 
     constructor(
         commands: ITypedObject<any> = {},
@@ -46,7 +46,7 @@ class Dingy {
         this.jsonStorage = new JSONStorage(storagePath);
 
         Dingy.logger.debug("Creating MessageController.");
-        this.messageReactor = new MessageController(this, commands);
+        this.messageController = new MessageController(this, commands);
 
         this.bindEvents();
 
@@ -105,11 +105,11 @@ class Dingy {
             msg.content.startsWith(this.config.prefix) &&
             msg.content !== this.config.prefix
         ) {
-            Dingy.logger.debug(
+            Dingy.logger.info(
                 "Message will be processed.",
                 createSlimMessage(msg)
             );
-            this.messageReactor.handleMessage(msg);
+            this.messageController.handleMessage(msg);
         }
     }
 }

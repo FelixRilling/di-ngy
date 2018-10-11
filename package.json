@@ -14,8 +14,9 @@
             "path",
             "fs-extra",
             "discord.js",
-            "cli-ngy",
+            "yamljs",
             "logby",
+            "cli-ngy",
             "lightdash"
         ]
     },

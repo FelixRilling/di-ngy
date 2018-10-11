@@ -3,6 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var logby = require('logby');
+var yamljs = require('yamljs');
 var cliNgy = require('cli-ngy');
 var discord_js = require('discord.js');
 var lightdash = require('lightdash');
@@ -72,7 +73,7 @@ const stop = {
         usableInDMs: true,
         help: "Stops the bot."
     },
-    fn: (args, msg, dingy) => {
+    fn: (args, argsAll, msg, dingy) => {
         dingy.client.setTimeout(async () => {
             await dingy.disconnect();
             process.exit(EXIT_CODE_STOP);
@@ -81,21 +82,65 @@ const stop = {
     }
 };
 
-const showDetailHelp = (msg, dingy, s) => {
-    return { val: "detail", code: "yaml" };
+const LINE_SEPARATOR = "-".repeat(9);
+const createSlimCommandTree = (map) => {
+    const result = {};
+    map.forEach((command, key) => {
+        if (!command.data.hidden) {
+            result[key] = createSlimCommand(command);
+        }
+    });
+    return result;
 };
-const showGeneralHelp = (msg, dingy) => {
-    return { val: "general", code: "yaml" };
+const createSlimCommand = (command) => {
+    const result = {
+        desc: command.data.help,
+        powerRequired: command.data.powerRequired,
+        usableInDMs: command.data.usableInDMs
+    };
+    if (command.alias.length > 0) {
+        result.alias = command.alias;
+    }
+    if (command.args.length > 0) {
+        result.args = command.args;
+    }
+    if (command.sub != null) {
+        result.sub = Array.from(command.sub.map.keys());
+    }
+    return result;
+};
+const showDetailHelp = (clingy, argsAll) => {
+    const lookupResult = clingy.getPath(argsAll);
+    // prematurely assume success to combine hidden + success check.
+    const command = lookupResult.command;
+    if (!lookupResult.successful || command.data.hidden) {
+        return {
+            val: `Command '${argsAll.join("->")}' does not exist.`,
+            code: "yaml"
+        };
+    }
+    return {
+        val: [
+            `Help for: '${lookupResult.pathUsed.join("->")}'`,
+            LINE_SEPARATOR,
+            yamljs.stringify(createSlimCommand(command))
+        ].join("\n"),
+        code: "yaml"
+    };
+};
+const showGeneralHelp = (clingy) => {
+    return {
+        val: [
+            "Help",
+            LINE_SEPARATOR,
+            yamljs.stringify(createSlimCommandTree(clingy.map))
+        ].join("\n"),
+        code: "yaml"
+    };
 };
 const help = {
     alias: ["manual", "?"],
-    args: [
-        {
-            name: "command",
-            required: false,
-            defaultValue: ""
-        }
-    ],
+    args: [],
     sub: null,
     data: {
         powerRequired: 0,
@@ -103,9 +148,9 @@ const help = {
         usableInDMs: true,
         help: "Shows the help page."
     },
-    fn: (args, msg, dingy, controller) => args.get("command") !== ""
-        ? showDetailHelp(msg, dingy, args.get("command"))
-        : showGeneralHelp(msg, dingy)
+    fn: (args, argsAll, msg, dingy, clingy) => argsAll.length > 0
+        ? showDetailHelp(clingy, argsAll)
+        : showGeneralHelp(clingy)
 };
 
 const commandsDefault = {
@@ -136,7 +181,7 @@ class MessageController {
         MessageController.logger.debug("Parsing content.", createSlimMessage(msg));
         const msgContent = msg.content.substr(this.dingy.config.prefix.length);
         const lookupResult = this.clingy.parse(msgContent);
-        MessageController.logger.debug("Parsed content.", lookupResult);
+        MessageController.logger.trace("Parsed content.", lookupResult);
         if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
             const lookupResultNotFound = lookupResult;
             MessageController.logger.debug(`Command not found: ${lookupResultNotFound.missing}.`);
@@ -149,7 +194,7 @@ class MessageController {
         }
         else if (lookupResult.type === 0 /* SUCCESS */) {
             const lookupResultSuccess = lookupResult;
-            MessageController.logger.info("Lookup successful.", lookupResultSuccess);
+            MessageController.logger.trace("Lookup successful.", lookupResultSuccess);
             this.handleLookupSuccess(msg, lookupResultSuccess);
         }
         else {
@@ -158,14 +203,14 @@ class MessageController {
     }
     handleLookupNotFound(msg, lookupResultNotFound) {
         if (this.dingy.config.answerToMissingCommand) {
-            MessageController.logger.debug("Answering to command not found.");
+            MessageController.logger.info("Answering to command not found.");
             this.sendResult(msg, this.dingy.config.strings.error.notFound +
                 lookupResultNotFound.missing);
         }
     }
     handleLookupMissingArg(msg, lookupResultMissingArg) {
         if (this.dingy.config.answerToMissingArgs) {
-            MessageController.logger.debug("Answering to missing arg.");
+            MessageController.logger.info("Answering to missing arg.");
             this.sendResult(msg, this.dingy.config.strings.error.missingArgs +
                 lookupResultMissingArg.missing.map(arg => arg.name));
         }
@@ -173,23 +218,25 @@ class MessageController {
     handleLookupSuccess(msg, lookupResultSuccess) {
         const command = lookupResultSuccess.command;
         if (lightdash.isInstanceOf(msg.channel, discord_js.DMChannel) && !command.data.usableInDMs) {
-            MessageController.logger.debug("Not usable in DMs.");
+            MessageController.logger.info("Not usable in DMs.");
             this.sendResult(msg, this.dingy.config.strings.error.invalidDMCall);
             return;
         }
         if (!hasEnoughPower(msg, command.data.powerRequired, this.dingy.config.roles)) {
-            MessageController.logger.debug("No permissions.");
+            MessageController.logger.info("No permissions.");
             this.sendResult(msg, this.dingy.config.strings.error.noPermission);
             return;
         }
         MessageController.logger.debug("Running command:", command);
-        const result = command.fn(lookupResultSuccess.args, msg, this.dingy);
-        MessageController.logger.debug("Command returned:", result);
+        const result = command.fn(lookupResultSuccess.args, lookupResultSuccess.pathDangling, msg, this.dingy, this.clingy);
+        MessageController.logger.trace("Command returned:", { result });
         if (result == null) {
-            MessageController.logger.debug("Skipping response.");
+            MessageController.logger.trace("Skipping response.");
             return;
         }
-        MessageController.logger.debug("Answering to successful command.");
+        MessageController.logger.info("Answering to successful command.", {
+            result
+        });
         this.sendResult(msg, result);
     }
     sendResult(msg, value) {
@@ -204,7 +251,9 @@ class MessageController {
         }
     }
     send(msg, value) {
-        MessageController.logger.debug("Preparing sending of message.", value);
+        MessageController.logger.trace("Preparing sending of message.", {
+            value
+        });
         const isPlainValue = lightdash.isString(value);
         const options = {
             code: isPlainValue ? false : value.code,
@@ -221,10 +270,16 @@ class MessageController {
             MessageController.logger.warn("Message is empty.");
             content = this.dingy.config.strings.response.empty;
         }
-        MessageController.logger.debug("Sending message.", value);
+        MessageController.logger.debug("Sending message.", {
+            content,
+            options
+        });
         msg.channel
             .send(content, options)
-            .then(() => MessageController.logger.debug("Sent message.", content, options))
+            .then(() => MessageController.logger.debug("Sent message.", {
+            content,
+            options
+        }))
             .catch(err => MessageController.logger.error("Could not send message.", err));
     }
 }
@@ -288,7 +343,7 @@ class Dingy {
         Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
         this.jsonStorage = new JSONStorage(storagePath);
         Dingy.logger.debug("Creating MessageController.");
-        this.messageReactor = new MessageController(this, commands);
+        this.messageController = new MessageController(this, commands);
         this.bindEvents();
         Dingy.logger.info("Created instance.");
     }
@@ -336,8 +391,8 @@ class Dingy {
             !msg.author.bot &&
             msg.content.startsWith(this.config.prefix) &&
             msg.content !== this.config.prefix) {
-            Dingy.logger.debug("Message will be processed.", createSlimMessage(msg));
-            this.messageReactor.handleMessage(msg);
+            Dingy.logger.info("Message will be processed.", createSlimMessage(msg));
+            this.messageController.handleMessage(msg);
         }
     }
 }

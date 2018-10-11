@@ -15,8 +15,8 @@ if (isNil(token)) {
     throw new Error("No token set.");
 }
 
-dingyLogby.setLevel(Levels.DEBUG);
-clingyLogby.setLevel(Levels.DEBUG);
+dingyLogby.setLevel(Levels.INFO);
+clingyLogby.setLevel(Levels.INFO);
 
 const commands = {
     foo: {
@@ -29,28 +29,42 @@ const commands = {
             powerRequired: 0,
             help: "ok"
         }
-    }, no: {
-        fn: () => "ok",
-        args: [{
-            name: "xd",
-            required: true
-        }, {
-            name: "1212312",
-            required: true
-        }],
+    },
+    nest: {
+        fn: () => "nest",
+        args: [],
         alias: [],
         data: {
             hidden: false,
             usableInDMs: false,
             powerRequired: 0,
-            help: "ok"
+            help: "nest"
+        },
+        sub: {
+            ed: {
+                fn: () => "nested",
+                args: [],
+                alias: [],
+                data: {
+                    hidden: false,
+                    usableInDMs: false,
+                    powerRequired: 0,
+                    help: "nested"
+                }
+            }
         }
     }
 };
 const options = {
     prefix: "$$$",
 
-    roles: [DEFAULT_ROLE, { check: (msg: Message) => msg.author.id === "128985967875850240", power: 999 }],
+    roles: [
+        DEFAULT_ROLE,
+        {
+            check: (msg: Message) => msg.author.id === "128985967875850240",
+            power: 999
+        }
+    ],
 
     answerToMissingCommand: true,
     answerToMissingArgs: true,

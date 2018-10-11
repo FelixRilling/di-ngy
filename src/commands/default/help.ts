@@ -1,29 +1,92 @@
-import { Message } from "discord.js";
-import { Dingy } from "../../Dingy";
+import { Clingy, ILookupSuccess } from "cli-ngy";
+import { IArgument } from "cli-ngy/types/argument/IArgument";
+import { CommandMap } from "cli-ngy/types/command/CommandMap";
+import { stringify } from "yamljs";
 import { ICommandResponse } from "../../message/response/ICommandResponse";
 import { IDingyCommand } from "../IDingyCommand";
 
-const showDetailHelp = (
-    msg: Message,
-    dingy: Dingy,
-    s: string
-): ICommandResponse => {
-    return { val: "detail", code: "yaml" };
+interface ISlimCommand {
+    desc: string;
+    powerRequired: number;
+    usableInDMs: boolean;
+    alias?: string[];
+    args?: IArgument[];
+    sub?: string[];
+}
+
+const LINE_SEPARATOR = "-".repeat(9);
+
+const createSlimCommandTree = (map: CommandMap): object => {
+    const result: { [key: string]: any } = {};
+
+    map.forEach((command, key) => {
+        if (!(<IDingyCommand>command).data.hidden) {
+            result[key] = createSlimCommand(<IDingyCommand>command);
+        }
+    });
+
+    return result;
 };
 
-const showGeneralHelp = (msg: Message, dingy: Dingy): ICommandResponse => {
-    return { val: "general", code: "yaml" };
+const createSlimCommand = (command: IDingyCommand): object => {
+    const result: ISlimCommand = {
+        desc: command.data.help,
+        powerRequired: command.data.powerRequired,
+        usableInDMs: command.data.usableInDMs
+    };
+
+    if (command.alias.length > 0) {
+        result.alias = command.alias;
+    }
+    if (command.args.length > 0) {
+        result.args = command.args;
+    }
+    if (command.sub != null) {
+        result.sub = Array.from((<Clingy>command.sub).map.keys());
+    }
+
+    return result;
+};
+
+const showDetailHelp = (
+    clingy: Clingy,
+    argsAll: string[]
+): ICommandResponse => {
+    const lookupResult = clingy.getPath(argsAll);
+
+    // prematurely assume success to combine hidden + success check.
+    const command = <IDingyCommand>(<ILookupSuccess>lookupResult).command;
+    if (!lookupResult.successful || command.data.hidden) {
+        return {
+            val: `Command '${argsAll.join("->")}' does not exist.`,
+            code: "yaml"
+        };
+    }
+
+    return {
+        val: [
+            `Help for: '${lookupResult.pathUsed.join("->")}'`,
+            LINE_SEPARATOR,
+            stringify(createSlimCommand(command))
+        ].join("\n"),
+        code: "yaml"
+    };
+};
+
+const showGeneralHelp = (clingy: Clingy): ICommandResponse => {
+    return {
+        val: [
+            "Help",
+            LINE_SEPARATOR,
+            stringify(createSlimCommandTree(clingy.map))
+        ].join("\n"),
+        code: "yaml"
+    };
 };
 
 const help: IDingyCommand = {
     alias: ["manual", "?"],
-    args: [
-        {
-            name: "command",
-            required: false,
-            defaultValue: ""
-        }
-    ],
+    args: [],
     sub: null,
     data: {
         powerRequired: 0,
@@ -31,10 +94,10 @@ const help: IDingyCommand = {
         usableInDMs: true,
         help: "Shows the help page."
     },
-    fn: (args, msg, dingy, controller) =>
-        args.get("command") !== ""
-            ? showDetailHelp(msg, dingy, args.get("command")!)
-            : showGeneralHelp(msg, dingy)
+    fn: (args, argsAll, msg, dingy, clingy) =>
+        argsAll.length > 0
+            ? showDetailHelp(clingy, argsAll)
+            : showGeneralHelp(clingy)
 };
 
 export { help };

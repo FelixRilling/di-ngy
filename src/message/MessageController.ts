@@ -44,7 +44,7 @@ class MessageController {
         );
         const msgContent = msg.content.substr(this.dingy.config.prefix.length);
         const lookupResult = this.clingy.parse(msgContent);
-        MessageController.logger.debug("Parsed content.", lookupResult);
+        MessageController.logger.trace("Parsed content.", lookupResult);
 
         if (lookupResult.type === ResultType.ERROR_NOT_FOUND) {
             const lookupResultNotFound = <ILookupErrorNotFound>lookupResult;
@@ -62,7 +62,7 @@ class MessageController {
             this.handleLookupMissingArg(msg, lookupResultMissingArg);
         } else if (lookupResult.type === ResultType.SUCCESS) {
             const lookupResultSuccess = <ILookupSuccess>lookupResult;
-            MessageController.logger.info(
+            MessageController.logger.trace(
                 "Lookup successful.",
                 lookupResultSuccess
             );
@@ -80,11 +80,11 @@ class MessageController {
         lookupResultNotFound: ILookupErrorNotFound
     ): void {
         if (this.dingy.config.answerToMissingCommand) {
-            MessageController.logger.debug("Answering to command not found.");
+            MessageController.logger.info("Answering to command not found.");
             this.sendResult(
                 msg,
                 this.dingy.config.strings.error.notFound +
-                lookupResultNotFound.missing
+                    lookupResultNotFound.missing
             );
         }
     }
@@ -94,11 +94,11 @@ class MessageController {
         lookupResultMissingArg: ILookupErrorMissingArgs
     ): void {
         if (this.dingy.config.answerToMissingArgs) {
-            MessageController.logger.debug("Answering to missing arg.");
+            MessageController.logger.info("Answering to missing arg.");
             this.sendResult(
                 msg,
                 this.dingy.config.strings.error.missingArgs +
-                lookupResultMissingArg.missing.map(arg => arg.name)
+                    lookupResultMissingArg.missing.map(arg => arg.name)
             );
         }
     }
@@ -110,7 +110,7 @@ class MessageController {
         const command = <IDingyCommand>lookupResultSuccess.command;
 
         if (isInstanceOf(msg.channel, DMChannel) && !command.data.usableInDMs) {
-            MessageController.logger.debug("Not usable in DMs.");
+            MessageController.logger.info("Not usable in DMs.");
             this.sendResult(msg, this.dingy.config.strings.error.invalidDMCall);
             return;
         }
@@ -122,7 +122,7 @@ class MessageController {
                 this.dingy.config.roles
             )
         ) {
-            MessageController.logger.debug("No permissions.");
+            MessageController.logger.info("No permissions.");
             this.sendResult(msg, this.dingy.config.strings.error.noPermission);
             return;
         }
@@ -130,17 +130,21 @@ class MessageController {
         MessageController.logger.debug("Running command:", command);
         const result = command.fn(
             lookupResultSuccess.args,
+            lookupResultSuccess.pathDangling,
             msg,
-            this.dingy
+            this.dingy,
+            this.clingy
         );
-        MessageController.logger.debug("Command returned:", result);
+        MessageController.logger.trace("Command returned:", { result });
 
         if (result == null) {
-            MessageController.logger.debug("Skipping response.");
+            MessageController.logger.trace("Skipping response.");
             return;
         }
 
-        MessageController.logger.debug("Answering to successful command.");
+        MessageController.logger.info("Answering to successful command.", {
+            result
+        });
         this.sendResult(msg, result);
     }
 
@@ -164,7 +168,9 @@ class MessageController {
     }
 
     private send(msg: Message, value: string | ICommandResponse): void {
-        MessageController.logger.debug("Preparing sending of message.", value);
+        MessageController.logger.trace("Preparing sending of message.", {
+            value
+        });
         const isPlainValue = isString(value);
         const options: MessageOptions = {
             code: isPlainValue ? false : (<ICommandResponse>value).code,
@@ -185,15 +191,17 @@ class MessageController {
             content = this.dingy.config.strings.response.empty;
         }
 
-        MessageController.logger.debug("Sending message.", value);
+        MessageController.logger.debug("Sending message.", {
+            content,
+            options
+        });
         msg.channel
             .send(content, options)
             .then(() =>
-                MessageController.logger.debug(
-                    "Sent message.",
+                MessageController.logger.debug("Sent message.", {
                     content,
                     options
-                )
+                })
             )
             .catch(err =>
                 MessageController.logger.error("Could not send message.", err)
