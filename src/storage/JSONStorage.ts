@@ -3,6 +3,9 @@ import { isNil } from "lightdash";
 import { ILogger } from "logby";
 import { dingyLogby } from "../logger";
 
+/**
+ * @private
+ */
 class JSONStorage implements IStorage<any> {
     private static readonly logger: ILogger = dingyLogby.getLogger(JSONStorage);
 

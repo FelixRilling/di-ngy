@@ -16,6 +16,9 @@ interface ISlimCommand {
 
 const LINE_SEPARATOR = "-".repeat(9);
 
+/**
+ * @private
+ */
 const createSlimCommandTree = (map: CommandMap): object => {
     const result: { [key: string]: any } = {};
 
@@ -28,6 +31,9 @@ const createSlimCommandTree = (map: CommandMap): object => {
     return result;
 };
 
+/**
+ * @private
+ */
 const createSlimCommand = (command: IDingyCommand): object => {
     const result: ISlimCommand = {
         desc: command.data.help,
@@ -48,6 +54,9 @@ const createSlimCommand = (command: IDingyCommand): object => {
     return result;
 };
 
+/**
+ * @private
+ */
 const showDetailHelp = (
     clingy: Clingy,
     argsAll: string[]
@@ -73,6 +82,9 @@ const showDetailHelp = (
     };
 };
 
+/**
+ * @private
+ */
 const showGeneralHelp = (clingy: Clingy): ICommandResponse => {
     return {
         val: [
@@ -84,6 +96,11 @@ const showGeneralHelp = (clingy: Clingy): ICommandResponse => {
     };
 };
 
+/**
+ * Built-in "help" command.
+ *
+ * @private
+ */
 const help: IDingyCommand = {
     alias: ["manual", "?"],
     args: [],

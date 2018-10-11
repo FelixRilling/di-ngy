@@ -6,5 +6,17 @@ interface IConfig {
     answerToMissingCommand: boolean;
     answerToMissingArgs: boolean;
     answerToMissingPerms: boolean;
+    strings: {
+        error: {
+            notFound: string;
+            missingArgs: string;
+            noPermission: string;
+            invalidDMCall: string;
+        };
+        response: {
+            empty: string;
+            tooLong: string;
+        };
+    };
 }
 export { IConfig };

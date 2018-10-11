@@ -16,6 +16,11 @@ import { createSlimMessage } from "./createSlimMessage";
 import { ICommandResponse } from "./response/ICommandResponse";
 import { sendable } from "./response/sendable";
 
+/**
+ * Handles resolving messages and sending the response.
+ *
+ * @private
+ */
 class MessageController {
     private static readonly logger: ILogger = dingyLogby.getLogger(
         MessageController
@@ -26,6 +31,12 @@ class MessageController {
     private readonly dingy: Dingy;
     private readonly clingy: Clingy;
 
+    /**
+     * Creates a new MessageController
+     *
+     * @param dingy Dingy instance this controller belongs to.
+     * @param commands Command object.
+     */
     constructor(dingy: Dingy, commands: ITypedObject<any> = {}) {
         this.clingy = new Clingy(
             dingy.config.enableDefaultCommands
@@ -37,6 +48,11 @@ class MessageController {
         MessageController.logger.debug("Created MessageController.");
     }
 
+    /**
+     * Handle an incoming message.
+     *
+     * @param msg Discord message to process.
+     */
     public handleMessage(msg: Message): void {
         MessageController.logger.debug(
             "Parsing content.",

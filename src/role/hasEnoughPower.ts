@@ -1,6 +1,9 @@
 import { Message } from "discord.js";
 import { IRole } from "./IRole";
 
+/**
+ * @private
+ */
 const hasEnoughPower = (
     msg: Message,
     powerRequired: number,

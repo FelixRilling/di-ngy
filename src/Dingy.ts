@@ -11,6 +11,9 @@ import { MessageController } from "./message/MessageController";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
 
+/**
+ * Main Dingy class.
+ */
 class Dingy {
     private static readonly DATA_DIRECTORY = "data";
 
@@ -22,6 +25,12 @@ class Dingy {
     public readonly jsonStorage: JSONStorage;
     private readonly messageController: MessageController;
 
+    /**
+     * Creates a new Dingy instance.
+     *
+     * @param commands Object containing commands for the bot to use.
+     * @param config Config object.
+     */
     constructor(
         commands: ITypedObject<any> = {},
         config: ITypedObject<any> = {}
@@ -53,6 +62,11 @@ class Dingy {
         Dingy.logger.info("Created instance.");
     }
 
+    /**
+     * Connects the instance to the Discord API.
+     *
+     * @param token API token.
+     */
     public async connect(token: string): Promise<void> {
         Dingy.logger.debug("Loading storage.");
         try {
@@ -74,6 +88,9 @@ class Dingy {
         Dingy.logger.info("Connected.");
     }
 
+    /**
+     * Disconnects the instance from the discord API.
+     */
     public async disconnect(): Promise<void> {
         Dingy.logger.info("Disconnecting from the Discord API.");
         try {

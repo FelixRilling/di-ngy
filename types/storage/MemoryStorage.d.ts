@@ -1,3 +1,6 @@
+/**
+ * @private
+ */
 declare class MemoryStorage implements IStorage<any> {
     private readonly data;
     constructor();

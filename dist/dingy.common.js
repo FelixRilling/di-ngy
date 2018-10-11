@@ -10,10 +10,18 @@ var lightdash = require('lightdash');
 var fsExtra = require('fs-extra');
 var path = require('path');
 
+/**
+ * Default role for everyone.
+ */
 const DEFAULT_ROLE = {
     power: 0,
     check: () => true
 };
+/**
+ * Default config settings.
+ *
+ * @private
+ */
 const configDefault = {
     prefix: "$",
     roles: [DEFAULT_ROLE],
@@ -35,8 +43,14 @@ const configDefault = {
     }
 };
 
+/**
+ * Logby instance used by Di-ngy.
+ */
 const dingyLogby = new logby.Logby();
 
+/**
+ * @private
+ */
 const createSlimMessage = (msg) => {
     return {
         author: { username: msg.author.username, id: msg.author.id },
@@ -44,6 +58,11 @@ const createSlimMessage = (msg) => {
     };
 };
 
+/**
+ * Built-in "echo" command.
+ *
+ * @private
+ */
 const echo = {
     alias: ["say", "send"],
     args: [
@@ -62,27 +81,10 @@ const echo = {
     fn: (args) => args.get("val")
 };
 
-const EXIT_CODE_STOP = 10;
-const stop = {
-    alias: ["die", "shutdown"],
-    args: [],
-    sub: null,
-    data: {
-        powerRequired: 10,
-        hidden: true,
-        usableInDMs: true,
-        help: "Stops the bot."
-    },
-    fn: (args, argsAll, msg, dingy) => {
-        dingy.client.setTimeout(async () => {
-            await dingy.disconnect();
-            process.exit(EXIT_CODE_STOP);
-        }, 1000);
-        return "Stopping...";
-    }
-};
-
 const LINE_SEPARATOR = "-".repeat(9);
+/**
+ * @private
+ */
 const createSlimCommandTree = (map) => {
     const result = {};
     map.forEach((command, key) => {
@@ -92,6 +94,9 @@ const createSlimCommandTree = (map) => {
     });
     return result;
 };
+/**
+ * @private
+ */
 const createSlimCommand = (command) => {
     const result = {
         desc: command.data.help,
@@ -109,6 +114,9 @@ const createSlimCommand = (command) => {
     }
     return result;
 };
+/**
+ * @private
+ */
 const showDetailHelp = (clingy, argsAll) => {
     const lookupResult = clingy.getPath(argsAll);
     // prematurely assume success to combine hidden + success check.
@@ -128,6 +136,9 @@ const showDetailHelp = (clingy, argsAll) => {
         code: "yaml"
     };
 };
+/**
+ * @private
+ */
 const showGeneralHelp = (clingy) => {
     return {
         val: [
@@ -138,6 +149,11 @@ const showGeneralHelp = (clingy) => {
         code: "yaml"
     };
 };
+/**
+ * Built-in "help" command.
+ *
+ * @private
+ */
 const help = {
     alias: ["manual", "?"],
     args: [],
@@ -153,12 +169,40 @@ const help = {
         : showGeneralHelp(clingy)
 };
 
+const EXIT_CODE_STOP = 10;
+/**
+ * Built-in "stop" command.
+ *
+ * @private
+ */
+const stop = {
+    alias: ["die", "shutdown"],
+    args: [],
+    sub: null,
+    data: {
+        powerRequired: 10,
+        hidden: true,
+        usableInDMs: true,
+        help: "Stops the bot."
+    },
+    fn: (args, argsAll, msg, dingy) => {
+        dingy.client.setTimeout(async () => {
+            await dingy.disconnect();
+            process.exit(EXIT_CODE_STOP);
+        }, 1000);
+        return "Stopping...";
+    }
+};
+
 const commandsDefault = {
     echo,
     stop,
     help
 };
 
+/**
+ * @private
+ */
 const hasEnoughPower = (msg, powerRequired, roles) => {
     for (const role of roles) {
         if (role.power >= powerRequired && role.check(msg)) {
@@ -168,7 +212,18 @@ const hasEnoughPower = (msg, powerRequired, roles) => {
     return false;
 };
 
+/**
+ * Handles resolving messages and sending the response.
+ *
+ * @private
+ */
 class MessageController {
+    /**
+     * Creates a new MessageController
+     *
+     * @param dingy Dingy instance this controller belongs to.
+     * @param commands Command object.
+     */
     constructor(dingy, commands = {}) {
         this.clingy = new cliNgy.Clingy(dingy.config.enableDefaultCommands
             ? lightdash.objDefaultsDeep(commands, commandsDefault)
@@ -177,6 +232,11 @@ class MessageController {
         this.dingy = dingy;
         MessageController.logger.debug("Created MessageController.");
     }
+    /**
+     * Handle an incoming message.
+     *
+     * @param msg Discord message to process.
+     */
     handleMessage(msg) {
         MessageController.logger.debug("Parsing content.", createSlimMessage(msg));
         const msgContent = msg.content.substr(this.dingy.config.prefix.length);
@@ -286,6 +346,9 @@ class MessageController {
 MessageController.logger = dingyLogby.getLogger(MessageController);
 MessageController.MAX_LENGTH = 2000;
 
+/**
+ * @private
+ */
 class JSONStorage {
     constructor(path$$1) {
         this.data = {};
@@ -315,6 +378,9 @@ class JSONStorage {
 }
 JSONStorage.logger = dingyLogby.getLogger(JSONStorage);
 
+/**
+ * @private
+ */
 class MemoryStorage {
     constructor() {
         this.data = new Map();
@@ -330,7 +396,16 @@ class MemoryStorage {
     }
 }
 
+/**
+ * Main Dingy class.
+ */
 class Dingy {
+    /**
+     * Creates a new Dingy instance.
+     *
+     * @param commands Object containing commands for the bot to use.
+     * @param config Config object.
+     */
     constructor(commands = {}, config = {}) {
         Dingy.logger.info("Creating instance.");
         Dingy.logger.debug("Reading config.");
@@ -347,6 +422,11 @@ class Dingy {
         this.bindEvents();
         Dingy.logger.info("Created instance.");
     }
+    /**
+     * Connects the instance to the Discord API.
+     *
+     * @param token API token.
+     */
     async connect(token) {
         Dingy.logger.debug("Loading storage.");
         try {
@@ -368,6 +448,9 @@ class Dingy {
         }
         Dingy.logger.info("Connected.");
     }
+    /**
+     * Disconnects the instance from the discord API.
+     */
     async disconnect() {
         Dingy.logger.info("Disconnecting from the Discord API.");
         try {

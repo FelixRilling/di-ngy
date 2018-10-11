@@ -2,6 +2,11 @@ import { IDingyCommand } from "../IDingyCommand";
 
 const EXIT_CODE_STOP = 10;
 
+/**
+ * Built-in "stop" command.
+ *
+ * @private
+ */
 const stop: IDingyCommand = {
     alias: ["die", "shutdown"],
     args: [],

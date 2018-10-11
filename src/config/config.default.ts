@@ -1,10 +1,18 @@
 import { IConfig } from "./IConfig";
 
+/**
+ * Default role for everyone.
+ */
 const DEFAULT_ROLE = {
     power: 0,
     check: () => true
 };
 
+/**
+ * Default config settings.
+ *
+ * @private
+ */
 const configDefault: IConfig = {
     prefix: "$",
     roles: [DEFAULT_ROLE],

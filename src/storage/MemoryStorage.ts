@@ -1,3 +1,6 @@
+/**
+ * @private
+ */
 class MemoryStorage implements IStorage<any> {
     private readonly data: Map<string, any>;
 
