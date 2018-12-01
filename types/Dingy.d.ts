@@ -1,8 +1,8 @@
 import { Client } from "discord.js";
-import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
 import { IConfig } from "./config/IConfig";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
+import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 /**
  * Main Dingy class.
  */
@@ -20,7 +20,7 @@ declare class Dingy {
      * @param commands Object containing commands for the bot to use.
      * @param config Config object.
      */
-    constructor(commands?: ITypedObject<any>, config?: ITypedObject<any>);
+    constructor(commands?: IAnyObject, config?: IAnyObject);
     /**
      * Connects the instance to the Discord API.
      *

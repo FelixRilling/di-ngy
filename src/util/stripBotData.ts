@@ -1,5 +1,4 @@
 import {
-    isArray,
     isBoolean,
     isFunction,
     isNil,
@@ -41,7 +40,7 @@ const isLegalEntry = (entry: [string, any]): boolean =>
 const strip = (val: any): any => {
     if (isString(val) || isNumber(val) || isBoolean(val)) {
         return val;
-    } else if (isArray(val)) {
+    } else if (Array.isArray(val)) {
         return val.filter(isLegalValue).map(strip);
     } else if (isObject(val)) {
         const result: { [key: string]: any } = {};

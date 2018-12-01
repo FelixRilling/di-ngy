@@ -1,6 +1,5 @@
 import { Client, Message } from "discord.js";
 import { objDefaultsDeep } from "lightdash";
-import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
 import { ILogger } from "logby";
 import * as path from "path";
 import { configDefault } from "./config/config.default";
@@ -10,6 +9,7 @@ import { createSlimMessage } from "./message/createSlimMessage";
 import { MessageController } from "./message/MessageController";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
+import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 
 /**
  * Main Dingy class.
@@ -32,8 +32,8 @@ class Dingy {
      * @param config Config object.
      */
     constructor(
-        commands: ITypedObject<any> = {},
-        config: ITypedObject<any> = {}
+        commands: IAnyObject = {},
+        config: IAnyObject = {}
     ) {
         Dingy.logger.info("Creating instance.");
 

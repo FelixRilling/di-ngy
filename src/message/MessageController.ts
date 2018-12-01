@@ -5,7 +5,6 @@ import { ResultType } from "cli-ngy/types/lookup/result/ILookupResult";
 import { ILookupSuccess } from "cli-ngy/types/lookup/result/ILookupSuccess";
 import { DMChannel, Message, MessageOptions } from "discord.js";
 import { isInstanceOf, isPromise, isString, objDefaultsDeep } from "lightdash";
-import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
 import { ILogger } from "logby";
 import { commandsDefault } from "../commands/commands.default";
 import { IDingyCommand } from "../commands/IDingyCommand";
@@ -15,6 +14,7 @@ import { hasEnoughPower } from "../role/hasEnoughPower";
 import { createSlimMessage } from "./createSlimMessage";
 import { ICommandResponse } from "./response/ICommandResponse";
 import { sendable } from "./response/sendable";
+import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 
 /**
  * Handles resolving messages and sending the response.
@@ -37,7 +37,7 @@ class MessageController {
      * @param dingy Dingy instance this controller belongs to.
      * @param commands Command object.
      */
-    constructor(dingy: Dingy, commands: ITypedObject<any> = {}) {
+    constructor(dingy: Dingy, commands: IAnyObject = {}) {
         this.clingy = new Clingy(
             dingy.config.enableDefaultCommands
                 ? objDefaultsDeep(commands, commandsDefault)

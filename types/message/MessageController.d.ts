@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import { ITypedObject } from "lightdash/types/obj/lib/ITypedObject";
 import { Dingy } from "../Dingy";
+import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 /**
  * Handles resolving messages and sending the response.
  *
@@ -17,7 +17,7 @@ declare class MessageController {
      * @param dingy Dingy instance this controller belongs to.
      * @param commands Command object.
      */
-    constructor(dingy: Dingy, commands?: ITypedObject<any>);
+    constructor(dingy: Dingy, commands?: IAnyObject);
     /**
      * Handle an incoming message.
      *
