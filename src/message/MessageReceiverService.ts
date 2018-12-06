@@ -102,7 +102,7 @@ class MessageReceiverService {
             this.messageSenderService.sendResult(
                 msg,
                 this.dingy.config.strings.error.notFound +
-                    lookupResultNotFound.missing
+                lookupResultNotFound.missing
             );
         }
     }
@@ -116,7 +116,7 @@ class MessageReceiverService {
             this.messageSenderService.sendResult(
                 msg,
                 this.dingy.config.strings.error.missingArgs +
-                    lookupResultMissingArg.missing.map(arg => arg.name)
+                lookupResultMissingArg.missing.map(arg => arg.name).join(", ")
             );
         }
     }
