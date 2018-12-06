@@ -298,10 +298,7 @@ class MessageReceiverService {
         this.clingy = new Clingy(dingy.config.enableDefaultCommands
             ? objDefaultsDeep(commands, commandsDefault)
             : commands);
-        MessageReceiverService.logger.debug("Created Clingy.");
         this.messageSenderService = new MessageSenderService(dingy);
-        MessageReceiverService.logger.debug("Created MessageSenderService.");
-        MessageReceiverService.logger.debug("Created MessageReceiverService.");
     }
     /**
      * Handle an incoming message.

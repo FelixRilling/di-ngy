@@ -302,10 +302,7 @@ class MessageReceiverService {
         this.clingy = new cliNgy.Clingy(dingy.config.enableDefaultCommands
             ? lightdash.objDefaultsDeep(commands, commandsDefault)
             : commands);
-        MessageReceiverService.logger.debug("Created Clingy.");
         this.messageSenderService = new MessageSenderService(dingy);
-        MessageReceiverService.logger.debug("Created MessageSenderService.");
-        MessageReceiverService.logger.debug("Created MessageReceiverService.");
     }
     /**
      * Handle an incoming message.

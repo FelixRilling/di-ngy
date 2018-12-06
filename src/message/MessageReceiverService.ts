@@ -42,10 +42,7 @@ class MessageReceiverService {
                 ? objDefaultsDeep(commands, commandsDefault)
                 : commands
         );
-        MessageReceiverService.logger.debug("Created Clingy.");
         this.messageSenderService = new MessageSenderService(dingy);
-        MessageReceiverService.logger.debug("Created MessageSenderService.");
-        MessageReceiverService.logger.debug("Created MessageReceiverService.");
     }
 
     /**
