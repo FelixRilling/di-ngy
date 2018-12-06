@@ -44,11 +44,11 @@ const createSlimCommand = (
 
     if (showDetails) {
         result.usableInDMs = command.data.usableInDMs;
-        if (command.alias.length > 0) {
-            result.alias = command.alias;
-        }
         if (command.args.length > 0) {
             result.args = command.args;
+        }
+        if (command.alias.length > 0) {
+            result.alias = command.alias;
         }
     }
 
@@ -80,7 +80,7 @@ const showDetailHelp = (
 
     return {
         val: [
-            `Help: "${lookupResult.pathUsed.join("->")}"`,
+            `Help: '${lookupResult.pathUsed.join("->")}'`,
             dingy.config.strings.separator,
             stringify(createSlimCommand(command, true))
         ].join("\n"),

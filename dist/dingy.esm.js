@@ -100,11 +100,11 @@ const createSlimCommand = (command, showDetails = false) => {
     };
     if (showDetails) {
         result.usableInDMs = command.data.usableInDMs;
-        if (command.alias.length > 0) {
-            result.alias = command.alias;
-        }
         if (command.args.length > 0) {
             result.args = command.args;
+        }
+        if (command.alias.length > 0) {
+            result.alias = command.alias;
         }
     }
     if (command.sub != null) {
@@ -127,7 +127,7 @@ const showDetailHelp = (dingy, clingy, argsAll) => {
     }
     return {
         val: [
-            `Help: "${lookupResult.pathUsed.join("->")}"`,
+            `Help: '${lookupResult.pathUsed.join("->")}'`,
             dingy.config.strings.separator,
             stringify(createSlimCommand(command, true))
         ].join("\n"),
@@ -343,7 +343,7 @@ class MessageReceiverService {
         if (this.dingy.config.answerToMissingArgs) {
             MessageReceiverService.logger.info("Answering to missing arg.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.missingArgs +
-                lookupResultMissingArg.missing.map(arg => arg.name));
+                lookupResultMissingArg.missing.map(arg => arg.name).join(", "));
         }
     }
     handleLookupSuccess(msg, lookupResultSuccess) {
