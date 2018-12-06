@@ -34,8 +34,10 @@ const configDefault: IConfig = {
         response: {
             empty: "Empty response.",
             tooLong: "The output was too long to send."
-        }
-    }
-};
+        },
+        separator: "-".repeat(9)
+}
+}
+;
 
 export { configDefault, DEFAULT_ROLE };

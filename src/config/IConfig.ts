@@ -21,6 +21,7 @@ interface IConfig {
             empty: string;
             tooLong: string;
         };
+        separator: string;
     };
 }
 

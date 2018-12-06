@@ -4,6 +4,7 @@ import { CommandMap } from "cli-ngy/types/command/CommandMap";
 import { stringify } from "yamljs";
 import { ICommandResponse } from "../../message/response/ICommandResponse";
 import { IDingyCommand } from "../IDingyCommand";
+import { Dingy } from "../../Dingy";
 
 interface ISlimCommand {
     desc: string;
@@ -13,8 +14,6 @@ interface ISlimCommand {
     args?: IArgument[];
     sub?: string[];
 }
-
-const LINE_SEPARATOR = "-".repeat(9);
 
 /**
  * @private
@@ -64,6 +63,7 @@ const createSlimCommand = (
  * @private
  */
 const showDetailHelp = (
+    dingy: Dingy,
     clingy: Clingy,
     argsAll: string[]
 ): ICommandResponse => {
@@ -81,7 +81,7 @@ const showDetailHelp = (
     return {
         val: [
             `Help: "${lookupResult.pathUsed.join("->")}"`,
-            LINE_SEPARATOR,
+            dingy.config.strings.separator,
             stringify(createSlimCommand(command, true))
         ].join("\n"),
         code: "yaml"
@@ -91,11 +91,11 @@ const showDetailHelp = (
 /**
  * @private
  */
-const showGeneralHelp = (clingy: Clingy): ICommandResponse => {
+const showGeneralHelp = (dingy: Dingy, clingy: Clingy): ICommandResponse => {
     return {
         val: [
             "Help",
-            LINE_SEPARATOR,
+            dingy.config.strings.separator,
             stringify(createSlimCommandTree(clingy.map))
         ].join("\n"),
         code: "yaml"
@@ -119,8 +119,8 @@ const help: IDingyCommand = {
     },
     fn: (args, argsAll, msg, dingy, clingy) =>
         argsAll.length > 0
-            ? showDetailHelp(clingy, argsAll)
-            : showGeneralHelp(clingy)
+            ? showDetailHelp(dingy, clingy, argsAll)
+            : showGeneralHelp(dingy, clingy)
 };
 
 export { help };
