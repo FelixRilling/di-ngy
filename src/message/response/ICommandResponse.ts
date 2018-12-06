@@ -1,9 +1,10 @@
-import { Attachment, BufferResolvable, FileOptions } from "discord.js";
+import { Attachment, BufferResolvable, FileOptions, Message } from "discord.js";
 
 interface ICommandResponse {
     val: string;
     code?: boolean | string;
     files?: Array<FileOptions | BufferResolvable | Attachment>;
+    onSend?: (msg: Message | Message[]) => void;
 }
 
 export { ICommandResponse };

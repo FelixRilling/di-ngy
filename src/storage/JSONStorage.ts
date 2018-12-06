@@ -30,7 +30,9 @@ class JSONStorage implements IStorage<any> {
             JSONStorage.logger.trace(`JSON '${this.path}' exists, loading it.`);
             this.data = await readJson(this.path);
         } else {
-            JSONStorage.logger.trace(`JSON '${this.path}' does not exist, loading it.`);
+            JSONStorage.logger.trace(
+                `JSON '${this.path}' does not exist, loading it.`
+            );
             await writeJson(this.path, this.data);
         }
 
@@ -54,7 +56,9 @@ class JSONStorage implements IStorage<any> {
         if (!this.dirty) {
             JSONStorage.logger.trace("JSON was not changed, not saving it.");
         } else {
-            JSONStorage.logger.trace("JSON was changed, attempting to save it.");
+            JSONStorage.logger.trace(
+                "JSON was changed, attempting to save it."
+            );
             this.dirty = false;
             // We don't need to wait for the saving to finish
             // this *could* lead to locking/access issues but hey, probably works.
@@ -63,7 +67,10 @@ class JSONStorage implements IStorage<any> {
                     JSONStorage.logger.trace(`Saved JSON '${this.path}'.`)
                 )
                 .catch(e =>
-                    JSONStorage.logger.error(`Could not save JSON '${this.path}'.`, e)
+                    JSONStorage.logger.error(
+                        `Could not save JSON '${this.path}'.`,
+                        e
+                    )
                 );
         }
     }

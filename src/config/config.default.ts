@@ -36,8 +36,7 @@ const configDefault: IConfig = {
             tooLong: "The output was too long to send."
         },
         separator: "-".repeat(9)
-}
-}
-;
+    }
+};
 
 export { configDefault, DEFAULT_ROLE };

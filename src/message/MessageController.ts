@@ -4,7 +4,14 @@ import { ILookupErrorNotFound } from "cli-ngy/types/lookup/result/ILookupErrorNo
 import { ResultType } from "cli-ngy/types/lookup/result/ILookupResult";
 import { ILookupSuccess } from "cli-ngy/types/lookup/result/ILookupSuccess";
 import { DMChannel, Message, MessageOptions } from "discord.js";
-import { isInstanceOf, isPromise, isString, objDefaultsDeep } from "lightdash";
+import {
+    isInstanceOf,
+    isNil,
+    isPromise,
+    isString,
+    objDefaultsDeep
+} from "lightdash";
+import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 import { ILogger } from "logby";
 import { commandsDefault } from "../commands/commands.default";
 import { IDingyCommand } from "../commands/IDingyCommand";
@@ -14,7 +21,6 @@ import { hasEnoughPower } from "../role/hasEnoughPower";
 import { createSlimMessage } from "./createSlimMessage";
 import { ICommandResponse } from "./response/ICommandResponse";
 import { sendable } from "./response/sendable";
-import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 
 /**
  * Handles resolving messages and sending the response.
@@ -213,12 +219,15 @@ class MessageController {
         });
         msg.channel
             .send(content, options)
-            .then(() =>
+            .then(sentMsg => {
+                if (!isPlainValue && !isNil((<ICommandResponse>value).onSend)) {
+                    (<ICommandResponse>value).onSend!(sentMsg);
+                }
                 MessageController.logger.debug("Sent message.", {
                     content,
                     options
-                })
-            )
+                });
+            })
             .catch(err =>
                 MessageController.logger.error("Could not send message.", err)
             );
