@@ -1,3 +1,5 @@
+import { IStorage } from "./IStorage";
+
 /**
  * @private
  */

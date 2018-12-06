@@ -5,3 +5,5 @@ interface IStorage<T> {
 
     has(key: string): boolean;
 }
+
+export {IStorage}

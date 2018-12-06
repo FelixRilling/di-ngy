@@ -2,6 +2,7 @@ import { pathExists, readJson, writeJson } from "fs-extra";
 import { isNil } from "lightdash";
 import { ILogger } from "logby";
 import { dingyLogby } from "../logger";
+import { IStorage } from "./IStorage";
 
 /**
  * @private
