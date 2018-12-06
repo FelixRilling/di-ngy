@@ -93,17 +93,19 @@ const createSlimCommandTree = (map) => {
 /**
  * @private
  */
-const createSlimCommand = (command) => {
+const createSlimCommand = (command, showDetails = false) => {
     const result = {
         desc: command.data.help,
-        powerRequired: command.data.powerRequired,
-        usableInDMs: command.data.usableInDMs
+        powerRequired: command.data.powerRequired
     };
-    if (command.alias.length > 0) {
-        result.alias = command.alias;
-    }
-    if (command.args.length > 0) {
-        result.args = command.args;
+    if (showDetails) {
+        result.usableInDMs = command.data.usableInDMs;
+        if (command.alias.length > 0) {
+            result.alias = command.alias;
+        }
+        if (command.args.length > 0) {
+            result.args = command.args;
+        }
     }
     if (command.sub != null) {
         result.sub = Array.from(command.sub.map.keys());
@@ -125,9 +127,9 @@ const showDetailHelp = (clingy, argsAll) => {
     }
     return {
         val: [
-            `Help for: '${lookupResult.pathUsed.join("->")}'`,
+            `Help: "${lookupResult.pathUsed.join("->")}"`,
             LINE_SEPARATOR,
-            stringify(createSlimCommand(command))
+            stringify(createSlimCommand(command, true))
         ].join("\n"),
         code: "yaml"
     };
@@ -342,34 +344,52 @@ class MessageController {
 MessageController.logger = dingyLogby.getLogger(MessageController);
 MessageController.MAX_LENGTH = 2000;
 
+const SAVE_INTERVAL_MS = 30000;
 /**
  * @private
  */
 class JSONStorage {
     constructor(path) {
+        this.dirty = false;
+        this.saveInterval = null;
         this.data = {};
         this.path = path;
     }
     async init() {
         const exists = await pathExists(this.path);
         if (exists) {
+            JSONStorage.logger.trace(`JSON '${this.path}' exists, loading it.`);
             this.data = await readJson(this.path);
         }
         else {
+            JSONStorage.logger.trace(`JSON '${this.path}' does not exist, loading it.`);
             await writeJson(this.path, this.data);
         }
+        this.saveInterval = setInterval(() => this.save(), SAVE_INTERVAL_MS);
     }
-    save(key, val) {
+    set(key, val) {
         this.data[key] = val;
-        // We don't need to wait for the saving to finish
-        // this *could* lead to locking/access issues but hey, probably works.
-        writeJson(this.path, this.data).catch(e => JSONStorage.logger.error("Could not save JSON", e));
+        this.dirty = true;
     }
-    load(key) {
+    get(key) {
         return this.data[key];
     }
     has(key) {
         return !isNil(this.data[key]);
+    }
+    save() {
+        if (!this.dirty) {
+            JSONStorage.logger.trace("JSON was not changed, not saving it.");
+        }
+        else {
+            JSONStorage.logger.trace("JSON was changed, attempting to save it.");
+            this.dirty = false;
+            // We don't need to wait for the saving to finish
+            // this *could* lead to locking/access issues but hey, probably works.
+            writeJson(this.path, this.data)
+                .then(() => JSONStorage.logger.trace(`Saved JSON '${this.path}'.`))
+                .catch(e => JSONStorage.logger.error(`Could not save JSON '${this.path}'.`, e));
+        }
     }
 }
 JSONStorage.logger = dingyLogby.getLogger(JSONStorage);
@@ -381,10 +401,10 @@ class MemoryStorage {
     constructor() {
         this.data = new Map();
     }
-    save(key, val) {
+    set(key, val) {
         this.data.set(key, val);
     }
-    load(key) {
+    get(key) {
         return this.data.get(key);
     }
     has(key) {

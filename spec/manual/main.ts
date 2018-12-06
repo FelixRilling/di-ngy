@@ -15,8 +15,8 @@ if (isNil(token)) {
     throw new Error("No token set.");
 }
 
-dingyLogby.setLevel(Levels.INFO);
-clingyLogby.setLevel(Levels.INFO);
+dingyLogby.setLevel(Levels.TRACE);
+clingyLogby.setLevel(Levels.TRACE);
 
 const commands = {
     foo: {

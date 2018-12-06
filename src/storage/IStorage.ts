@@ -1,7 +1,7 @@
 interface IStorage<T> {
-    save(key: string, val: T): void;
+    set(key: string, val: T): void;
 
-    load(key: string): T;
+    get(key: string): T;
 
     has(key: string): boolean;
 }

@@ -10,11 +10,11 @@ class MemoryStorage implements IStorage<any> {
         this.data = new Map<string, any>();
     }
 
-    public save(key: string, val: any): void {
+    public set(key: string, val: any): void {
         this.data.set(key, val);
     }
 
-    public load(key: string): any {
+    public get(key: string): any {
         return this.data.get(key);
     }
 
