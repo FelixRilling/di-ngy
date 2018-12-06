@@ -1,20 +1,20 @@
 import { Message } from "discord.js";
-import { Dingy } from "../Dingy";
 import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
+import { Dingy } from "../Dingy";
 /**
- * Handles resolving messages and sending the response.
+ * Handles resolving messages.
  *
  * @private
  */
-declare class MessageController {
+declare class MessageReceiverService {
     private static readonly logger;
-    private static readonly MAX_LENGTH;
     private readonly dingy;
     private readonly clingy;
+    private readonly messageSenderService;
     /**
-     * Creates a new MessageController
+     * Creates a new MessageReceiverService
      *
-     * @param dingy Dingy instance this controller belongs to.
+     * @param dingy Dingy instance this service belongs to.
      * @param commands Command object.
      */
     constructor(dingy: Dingy, commands?: IAnyObject);
@@ -27,7 +27,5 @@ declare class MessageController {
     private handleLookupNotFound;
     private handleLookupMissingArg;
     private handleLookupSuccess;
-    private sendResult;
-    private send;
 }
-export { MessageController };
+export { MessageReceiverService };

@@ -13,11 +13,11 @@ declare class Dingy {
     readonly client: Client;
     readonly memoryStorage: MemoryStorage;
     readonly jsonStorage: JSONStorage;
-    private readonly messageController;
+    private readonly messageReceiverService;
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing commands for the bot to use.
+     * @param commands Object containing command for the bot to use.
      * @param config Config object.
      */
     constructor(commands?: IAnyObject, config?: IAnyObject);

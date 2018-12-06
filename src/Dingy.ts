@@ -7,7 +7,7 @@ import { configDefault } from "./config/config.default";
 import { IConfig } from "./config/IConfig";
 import { dingyLogby } from "./logger";
 import { createSlimMessage } from "./message/createSlimMessage";
-import { MessageController } from "./message/MessageController";
+import { MessageReceiverService } from "./message/MessageReceiverService";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
 
@@ -18,17 +18,16 @@ class Dingy {
     private static readonly DATA_DIRECTORY = "data";
 
     private static readonly logger: ILogger = dingyLogby.getLogger(Dingy);
-
     public readonly config: IConfig;
     public readonly client: Client;
     public readonly memoryStorage: MemoryStorage;
     public readonly jsonStorage: JSONStorage;
-    private readonly messageController: MessageController;
+    private readonly messageReceiverService: MessageReceiverService;
 
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing commands for the bot to use.
+     * @param commands Object containing command for the bot to use.
      * @param config Config object.
      */
     constructor(commands: IAnyObject = {}, config: IAnyObject = {}) {
@@ -51,8 +50,11 @@ class Dingy {
         Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
         this.jsonStorage = new JSONStorage(storagePath);
 
-        Dingy.logger.debug("Creating MessageController.");
-        this.messageController = new MessageController(this, commands);
+        Dingy.logger.debug("Creating MessageReceiverService.");
+        this.messageReceiverService = new MessageReceiverService(
+            this,
+            commands
+        );
 
         this.bindEvents();
 
@@ -123,7 +125,7 @@ class Dingy {
                 "Message will be processed.",
                 createSlimMessage(msg)
             );
-            this.messageController.handleMessage(msg);
+            this.messageReceiverService.handleMessage(msg);
         }
     }
 }

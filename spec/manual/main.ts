@@ -20,7 +20,7 @@ clingyLogby.setLevel(Levels.TRACE);
 
 const commands = {
     foo: {
-        fn: () => "ok",
+        fn: () => "foo",
         args: [{
             required: false,
             name: "foo",

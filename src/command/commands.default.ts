@@ -1,6 +1,6 @@
-import { echo } from "./default/echo";
-import { help } from "./default/help";
-import { stop } from "./default/stop";
+import { echo } from "./core/echo";
+import { help } from "./core/help";
+import { stop } from "./core/stop";
 import { IDingyCommandObject } from "./IDingyCommandObject";
 
 const commandsDefault: IDingyCommandObject = {
