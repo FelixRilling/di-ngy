@@ -21,8 +21,12 @@ clingyLogby.setLevel(Levels.INFO);
 const commands = {
     foo: {
         fn: () => "ok",
-        args: [],
-        alias: [],
+        args: [{
+            required: false,
+            name: "foo",
+            defaultValue: "foooo"
+        }],
+        alias: ["fizz"],
         data: {
             hidden: false,
             usableInDMs: true,

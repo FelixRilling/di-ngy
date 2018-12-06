@@ -7,8 +7,8 @@ import { IDingyCommand } from "../IDingyCommand";
 
 interface ISlimCommand {
     desc: string;
-    powerRequired: number;
-    usableInDMs: boolean;
+    powerRequired?: number;
+    usableInDMs?: boolean;
     alias?: string[];
     args?: IArgument[];
     sub?: string[];
@@ -34,19 +34,25 @@ const createSlimCommandTree = (map: CommandMap): object => {
 /**
  * @private
  */
-const createSlimCommand = (command: IDingyCommand): object => {
+const createSlimCommand = (
+    command: IDingyCommand,
+    showDetails = false
+): object => {
     const result: ISlimCommand = {
         desc: command.data.help,
-        powerRequired: command.data.powerRequired,
-        usableInDMs: command.data.usableInDMs
+        powerRequired: command.data.powerRequired
     };
 
-    if (command.alias.length > 0) {
-        result.alias = command.alias;
+    if (showDetails) {
+        result.usableInDMs = command.data.usableInDMs;
+        if (command.alias.length > 0) {
+            result.alias = command.alias;
+        }
+        if (command.args.length > 0) {
+            result.args = command.args;
+        }
     }
-    if (command.args.length > 0) {
-        result.args = command.args;
-    }
+
     if (command.sub != null) {
         result.sub = Array.from((<Clingy>command.sub).map.keys());
     }
@@ -74,9 +80,9 @@ const showDetailHelp = (
 
     return {
         val: [
-            `Help for: '${lookupResult.pathUsed.join("->")}'`,
+            `Help: "${lookupResult.pathUsed.join("->")}"`,
             LINE_SEPARATOR,
-            stringify(createSlimCommand(command))
+            stringify(createSlimCommand(command, true))
         ].join("\n"),
         code: "yaml"
     };

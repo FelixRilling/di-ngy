@@ -31,10 +31,7 @@ class Dingy {
      * @param commands Object containing commands for the bot to use.
      * @param config Config object.
      */
-    constructor(
-        commands: IAnyObject = {},
-        config: IAnyObject = {}
-    ) {
+    constructor(commands: IAnyObject = {}, config: IAnyObject = {}) {
         Dingy.logger.info("Creating instance.");
 
         Dingy.logger.debug("Reading config.");
