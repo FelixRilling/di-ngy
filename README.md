@@ -1,48 +1,46 @@
 # di-ngy
 
-A small discord.js + cli-ngy boilerplate used by [lisa-bot](https://github.com/FelixRilling/lisa-bot)
+A small discord.js + cli-ngy boilerplate used by [lisa-bot](https://github.com/FelixRilling/lisa-bot).
 
 ## Usage
 
-Create a basic bot:
+Create a basic bot instance:
 
-```js
-const Dingy = require("di-ngy");
+```typescript
+import { Dingy } from "di-ngy";
 
-commandconst bot = new Dingy({
-    token: "#botToken#", // Bot-token, should be secret! (Using ENV-vars to store this is recommended)
-    prefix: "$", // Prefix to respond to: prefix:'foo' => responds to "foo help"
-        options: {
-        logLevel: "debug"
-    },
-    roles: [{
-        name: "Admin",
-        power: 10,
-        assignable: false,
-        check: (member) => ["#yourId#"].includes(member.user.id)
-    }, {
-        name: "User",
-        power: 1,
-        assignable: true,
-        check: () => true
-    }],
-}, {
-    foo: {
-        fn: () => "bar",
-        alias: [],
+const commands = {
+    ping: {
+        alias: ["pong"],
         args: [],
-        help: {
-            short: "First command",
-            long: "My first command"
-        }
+        data: {
+            powerRequired: 0,
+            hidden: false,
+            usableInDMs: true,
+            help: "Ping!"
+        },
+        fn: (args, argsAll, msg, dingy, clingy) => "pong!"
     }
-});
+};
+const config = {
+    prefix: "$",
+    enableDefaultCommands: true,
+    answerToMissingCommand: false,
+    answerToMissingArgs: true,
+    answerToMissingPerms: true
+};
+const bot = new Dingy(commands, config);
 
-bot.connect();
+bot.connect("yourDiscordApiToken")
+    .then(() => console.log("Connected!"))
+    .catch(e => console.error("An unexpected error occurred.", e));
 ```
 
 ## Optional Dependencies
-```
-bufferutil
-erlpack
-```
+
+Optional dependencies which can be installed:
+
+- bufferutil
+- erlpack
+
+See <https://discord.js.org/#/docs/main/stable/general/welcome> for a list.
