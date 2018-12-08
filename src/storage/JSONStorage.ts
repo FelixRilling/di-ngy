@@ -14,7 +14,6 @@ class JSONStorage implements IStorage<any> {
 
     private readonly path: string;
     private data: { [key: string]: any };
-
     private dirty: boolean = false;
     private saveInterval: NodeJS.Timeout | null = null;
 

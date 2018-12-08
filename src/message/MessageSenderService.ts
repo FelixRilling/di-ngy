@@ -6,8 +6,6 @@ import { dingyLogby } from "../logger";
 import { ICommandResponse } from "./response/ICommandResponse";
 import { sendable } from "./response/sendable";
 
-const MAX_LENGTH = 2000;
-
 /**
  * Handles sending messages.
  *
@@ -17,6 +15,7 @@ class MessageSenderService {
     private static readonly logger: ILogger = dingyLogby.getLogger(
         MessageSenderService
     );
+    private static readonly MAX_LENGTH = 2000;
 
     private readonly dingy: Dingy;
 
@@ -91,7 +90,7 @@ class MessageSenderService {
             ? <string>value
             : (<ICommandResponse>value).val;
 
-        if (content.length > MAX_LENGTH) {
+        if (content.length > MessageSenderService.MAX_LENGTH) {
             MessageSenderService.logger.warn(
                 "Message is too long to send:",
                 content

@@ -1,9 +1,9 @@
 /**
- * Strips sensitive data from bot output
+ * Decycles and recursively strips sensitive data.
  *
  * @private
- * @param {Object} obj
+ * @param {any} val
  * @returns {any}
  */
-declare const stripBotData: (obj: any) => any;
+declare const stripBotData: (val: any) => any;
 export { stripBotData };

@@ -15,13 +15,14 @@ import { MemoryStorage } from "./storage/MemoryStorage";
  * Main Dingy class.
  */
 class Dingy {
+    private static readonly logger: ILogger = dingyLogby.getLogger(Dingy);
     private static readonly DATA_DIRECTORY = "data";
 
-    private static readonly logger: ILogger = dingyLogby.getLogger(Dingy);
     public readonly config: IConfig;
     public readonly client: Client;
     public readonly memoryStorage: MemoryStorage;
     public readonly jsonStorage: JSONStorage;
+
     private readonly messageReceiverService: MessageReceiverService;
 
     /**

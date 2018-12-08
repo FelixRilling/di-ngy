@@ -7,8 +7,8 @@ import { MemoryStorage } from "./storage/MemoryStorage";
  * Main Dingy class.
  */
 declare class Dingy {
-    private static readonly DATA_DIRECTORY;
     private static readonly logger;
+    private static readonly DATA_DIRECTORY;
     readonly config: IConfig;
     readonly client: Client;
     readonly memoryStorage: MemoryStorage;

@@ -9,6 +9,7 @@ import { sendable } from "./response/sendable";
  */
 declare class MessageSenderService {
     private static readonly logger;
+    private static readonly MAX_LENGTH;
     private readonly dingy;
     constructor(dingy: Dingy);
     /**

@@ -1,6 +1,6 @@
 import { User } from "discord.js";
 /**
- * creates user+discriminator from user
+ * Creates a displayable string of an user.
  *
  * @private
  * @param {User} user

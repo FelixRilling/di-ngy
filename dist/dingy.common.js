@@ -11,7 +11,7 @@ var fsExtra = require('fs-extra');
 var lightdash = require('lightdash');
 
 /**
- * Default role for everyone.
+ * Default role for every user.
  */
 const DEFAULT_ROLE = {
     power: 0,
@@ -214,7 +214,6 @@ const hasEnoughPower = (msg, powerRequired, roles) => {
     return false;
 };
 
-const MAX_LENGTH = 2000;
 /**
  * Handles sending messages.
  *
@@ -272,7 +271,7 @@ class MessageSenderService {
         let content = isPlainValue
             ? value
             : value.val;
-        if (content.length > MAX_LENGTH) {
+        if (content.length > MessageSenderService.MAX_LENGTH) {
             MessageSenderService.logger.warn("Message is too long to send:", content);
             return this.dingy.config.strings.response.tooLong;
         }
@@ -284,6 +283,7 @@ class MessageSenderService {
     }
 }
 MessageSenderService.logger = dingyLogby.getLogger(MessageSenderService);
+MessageSenderService.MAX_LENGTH = 2000;
 
 /**
  * Handles resolving messages.
@@ -344,7 +344,9 @@ class MessageReceiverService {
         if (this.dingy.config.answerToMissingArgs) {
             MessageReceiverService.logger.info("Answering to missing arg.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.missingArgs +
-                lookupResultMissingArg.missing.map(arg => arg.name).join(", "));
+                lookupResultMissingArg.missing
+                    .map(arg => arg.name)
+                    .join(", "));
         }
     }
     handleLookupSuccess(msg, lookupResultSuccess) {
@@ -525,8 +527,8 @@ class Dingy {
         }
     }
 }
-Dingy.DATA_DIRECTORY = "data";
 Dingy.logger = dingyLogby.getLogger(Dingy);
+Dingy.DATA_DIRECTORY = "data";
 
 exports.Dingy = Dingy;
 exports.dingyLogby = dingyLogby;

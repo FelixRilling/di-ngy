@@ -2,9 +2,9 @@ import { Clingy, ILookupSuccess } from "cli-ngy";
 import { IArgument } from "cli-ngy/types/argument/IArgument";
 import { CommandMap } from "cli-ngy/types/command/CommandMap";
 import { stringify } from "yamljs";
+import { Dingy } from "../../Dingy";
 import { ICommandResponse } from "../../message/response/ICommandResponse";
 import { IDingyCommand } from "../IDingyCommand";
-import { Dingy } from "../../Dingy";
 
 interface ISlimCommand {
     desc: string;

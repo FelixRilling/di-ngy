@@ -1,7 +1,7 @@
 import { IConfig } from "./IConfig";
 
 /**
- * Default role for everyone.
+ * Default role for every user.
  */
 const DEFAULT_ROLE = {
     power: 0,

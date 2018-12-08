@@ -8,7 +8,7 @@ import {
     objDecycle
 } from "lightdash";
 
-const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage/;
+const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage|token/;
 
 /**
  * Checks if a value is to be kept in a filter iterator
@@ -31,7 +31,7 @@ const isLegalEntry = (entry: [string, any]): boolean =>
     !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
 
 /**
- * Cycles and strips all illegal values
+ * Recursively strips sensitive data.
  *
  * @private
  * @param {any} val
@@ -58,12 +58,12 @@ const strip = (val: any): any => {
 };
 
 /**
- * Strips sensitive data from bot output
+ * Decycles and recursively strips sensitive data.
  *
  * @private
- * @param {Object} obj
+ * @param {any} val
  * @returns {any}
  */
-const stripBotData = (obj: any): any => strip(objDecycle(obj));
+const stripBotData = (val: any): any => strip(objDecycle(val));
 
 export { stripBotData };
