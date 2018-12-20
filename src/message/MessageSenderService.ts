@@ -1,6 +1,8 @@
+import { InjectableType } from "chevronjs";
 import { Message, MessageOptions } from "discord.js";
 import { isNil, isPromise, isString } from "lightdash";
 import { ILogger } from "logby";
+import { dingyChevron, DingyDiKeys } from "../di";
 import { Dingy } from "../Dingy";
 import { dingyLogby } from "../logger";
 import { ICommandResponse } from "./response/ICommandResponse";
@@ -105,5 +107,10 @@ class MessageSenderService {
         return content;
     }
 }
+dingyChevron.set(
+    InjectableType.FACTORY,
+    [DingyDiKeys.CLASS],
+    MessageSenderService
+);
 
 export { MessageSenderService };

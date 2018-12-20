@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var discord_js = require('discord.js');
 var lightdash = require('lightdash');
 var path = require('path');
+var chevronjs = require('chevronjs');
 var logby = require('logby');
 var cliNgy = require('cli-ngy');
 var yamljs = require('yamljs');
@@ -43,6 +44,8 @@ const configDefault = {
         separator: "-".repeat(9)
     }
 };
+
+const dingyChevron = new chevronjs.Chevron();
 
 /**
  * Logby instance used by Di-ngy.
@@ -284,6 +287,7 @@ class MessageSenderService {
 }
 MessageSenderService.logger = dingyLogby.getLogger(MessageSenderService);
 MessageSenderService.MAX_LENGTH = 2000;
+dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */], MessageSenderService);
 
 /**
  * Handles resolving messages.
@@ -375,6 +379,7 @@ class MessageReceiverService {
     }
 }
 MessageReceiverService.logger = dingyLogby.getLogger(MessageReceiverService);
+dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */, "_DINGY_COMMANDS" /* COMMANDS */], MessageReceiverService);
 
 const SAVE_INTERVAL_MS = 30000;
 /**
@@ -456,17 +461,22 @@ class Dingy {
      */
     constructor(commands = {}, config = {}) {
         Dingy.logger.info("Creating instance.");
-        Dingy.logger.debug("Reading config.");
+        Dingy.logger.debug("Applying config.");
         this.config = lightdash.objDefaultsDeep(config, configDefault);
-        Dingy.logger.debug("Creating Client.");
-        this.client = new discord_js.Client();
+        Dingy.logger.info("Initializing Storage.");
+        const storagePath = path.join("./", Dingy.DATA_DIRECTORY, "storage.json");
         Dingy.logger.debug("Creating MemoryStorage.");
         this.memoryStorage = new MemoryStorage();
-        const storagePath = path.join("./", Dingy.DATA_DIRECTORY, "storage.json");
         Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
         this.jsonStorage = new JSONStorage(storagePath);
+        Dingy.logger.debug("Initializing DI.");
+        dingyChevron.set("plain" /* PLAIN */, [], this, "_DINGY" /* CLASS */);
+        dingyChevron.set("plain" /* PLAIN */, [], commands, "_DINGY_COMMANDS" /* COMMANDS */);
         Dingy.logger.debug("Creating MessageReceiverService.");
-        this.messageReceiverService = new MessageReceiverService(this, commands);
+        this.messageReceiverService = dingyChevron.get(MessageReceiverService);
+        Dingy.logger.info("Creating Client.");
+        this.client = new discord_js.Client();
+        Dingy.logger.debug("Binding events.");
         this.bindEvents();
         Dingy.logger.info("Created instance.");
     }
@@ -512,7 +522,6 @@ class Dingy {
         Dingy.logger.info("Disconnected.");
     }
     bindEvents() {
-        Dingy.logger.debug("Binding events.");
         this.client.on("error", err => Dingy.logger.error("An error occurred, trying to continue.", err));
         this.client.on("message", msg => this.messageHandler(msg));
     }

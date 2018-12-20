@@ -1,3 +1,4 @@
+import { InjectableType } from "chevronjs";
 import { Client, Message } from "discord.js";
 import { objDefaultsDeep } from "lightdash";
 import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
@@ -5,6 +6,7 @@ import { ILogger } from "logby";
 import * as path from "path";
 import { configDefault } from "./config/config.default";
 import { IConfig } from "./config/IConfig";
+import { dingyChevron, DingyDiKeys } from "./di";
 import { dingyLogby } from "./logger";
 import { createSlimMessage } from "./message/createSlimMessage";
 import { MessageReceiverService } from "./message/MessageReceiverService";
@@ -34,29 +36,29 @@ class Dingy {
     constructor(commands: IAnyObject = {}, config: IAnyObject = {}) {
         Dingy.logger.info("Creating instance.");
 
-        Dingy.logger.debug("Reading config.");
+        Dingy.logger.debug("Applying config.");
         this.config = <IConfig>objDefaultsDeep(config, configDefault);
 
-        Dingy.logger.debug("Creating Client.");
-        this.client = new Client();
-
-        Dingy.logger.debug("Creating MemoryStorage.");
-        this.memoryStorage = new MemoryStorage();
-
+        Dingy.logger.info("Initializing Storage.");
         const storagePath = path.join(
             "./",
             Dingy.DATA_DIRECTORY,
             "storage.json"
         );
+        Dingy.logger.debug("Creating MemoryStorage.");
+        this.memoryStorage = new MemoryStorage();
         Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
         this.jsonStorage = new JSONStorage(storagePath);
 
+        Dingy.logger.debug("Initializing DI.");
+        dingyChevron.set(InjectableType.PLAIN, [], this, DingyDiKeys.CLASS);
+        dingyChevron.set(InjectableType.PLAIN, [], commands, DingyDiKeys.COMMANDS);
         Dingy.logger.debug("Creating MessageReceiverService.");
-        this.messageReceiverService = new MessageReceiverService(
-            this,
-            commands
-        );
+        this.messageReceiverService = dingyChevron.get(MessageReceiverService);
 
+        Dingy.logger.info("Creating Client.");
+        this.client = new Client();
+        Dingy.logger.debug("Binding events.");
         this.bindEvents();
 
         Dingy.logger.info("Created instance.");
@@ -107,7 +109,6 @@ class Dingy {
     }
 
     private bindEvents() {
-        Dingy.logger.debug("Binding events.");
         this.client.on("error", err =>
             Dingy.logger.error("An error occurred, trying to continue.", err)
         );

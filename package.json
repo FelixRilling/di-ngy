@@ -57,7 +57,7 @@
         "@types/fs-extra": "^5.0.4",
         "@types/node": "^10.12.18",
         "@types/yamljs": "^0.2.30",
-        "chevronjs": "^10.0.3",
+        "chevronjs": "^11.0.0-2",
         "cli-ngy": "^10.1.0",
         "discord.js": "^11.4.2",
         "fs-extra": "^7.0.1",

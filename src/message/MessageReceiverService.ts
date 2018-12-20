@@ -1,3 +1,4 @@
+import { InjectableType } from "chevronjs";
 import { Clingy } from "cli-ngy";
 import { ILookupErrorMissingArgs } from "cli-ngy/types/lookup/result/ILookupErrorMissingArgs";
 import { ILookupErrorNotFound } from "cli-ngy/types/lookup/result/ILookupErrorNotFound";
@@ -9,6 +10,7 @@ import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 import { ILogger } from "logby";
 import { commandsDefault } from "../command/commands.default";
 import { IDingyCommand } from "../command/IDingyCommand";
+import { dingyChevron, DingyDiKeys } from "../di";
 import { Dingy } from "../Dingy";
 import { dingyLogby } from "../logger";
 import { hasEnoughPower } from "../role/hasEnoughPower";
@@ -171,5 +173,11 @@ class MessageReceiverService {
         this.messageSenderService.sendResult(msg, result);
     }
 }
+
+dingyChevron.set(
+    InjectableType.FACTORY,
+    [DingyDiKeys.CLASS, DingyDiKeys.COMMANDS],
+    MessageReceiverService
+);
 
 export { MessageReceiverService };
