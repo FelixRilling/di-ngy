@@ -15,9 +15,10 @@
             "fs-extra",
             "discord.js",
             "yamljs",
+            "lightdash",
             "logby",
-            "cli-ngy",
-            "lightdash"
+            "chevronjs",
+            "cli-ngy"
         ]
     },
     "scripts": {
@@ -54,26 +55,27 @@
     "homepage": "https://github.com/FelixRilling/di-ngy#readme",
     "dependencies": {
         "@types/fs-extra": "^5.0.4",
-        "@types/node": "^10.12.12",
+        "@types/node": "^10.12.18",
         "@types/yamljs": "^0.2.30",
+        "chevronjs": "^10.0.3",
         "cli-ngy": "^10.1.0",
         "discord.js": "^11.4.2",
         "fs-extra": "^7.0.1",
-        "lightdash": "^10.1.0",
+        "lightdash": "^10.2.0",
         "logby": "^2.0.2",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
-        "@types/jasmine": "^3.3.0",
+        "@types/jasmine": "^3.3.4",
         "docdash": "^1.0.1",
         "jasmine": "^3.3.1",
         "jsdoc": "^3.5.5",
         "npm-run-all": "^4.1.5",
         "prettier": "^1.15.3",
-        "rollup": "^0.67.4",
-        "rollup-plugin-node-resolve": "^3.4.0",
-        "rollup-plugin-typescript2": "^0.18.0",
-        "tslint": "^5.11.0",
+        "rollup": "^0.68.1",
+        "rollup-plugin-node-resolve": "^4.0.0",
+        "rollup-plugin-typescript2": "^0.18.1",
+        "tslint": "^5.12.0",
         "typescript": "^3.2.2"
     }
 }

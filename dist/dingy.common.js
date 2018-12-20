@@ -2,13 +2,13 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var discord_js = require('discord.js');
+var lightdash = require('lightdash');
 var path = require('path');
 var logby = require('logby');
 var cliNgy = require('cli-ngy');
-var discord_js = require('discord.js');
 var yamljs = require('yamljs');
 var fsExtra = require('fs-extra');
-var lightdash = require('lightdash');
 
 /**
  * Default role for every user.

@@ -1,10 +1,10 @@
+import { DMChannel, Client } from 'discord.js';
+import { isPromise, isString, isNil, objDefaultsDeep, isInstanceOf } from 'lightdash';
 import { join } from 'path';
 import { Logby } from 'logby';
 import { Clingy } from 'cli-ngy';
-import { DMChannel, Client } from 'discord.js';
 import { stringify } from 'yamljs';
 import { pathExists, readJson, writeJson } from 'fs-extra';
-import { isNil, isPromise, isString, isInstanceOf, objDefaultsDeep } from 'lightdash';
 
 /**
  * Default role for every user.
