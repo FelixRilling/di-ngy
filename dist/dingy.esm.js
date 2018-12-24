@@ -377,7 +377,7 @@ class MessageReceiverService {
 MessageReceiverService.logger = dingyLogby.getLogger(MessageReceiverService);
 dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */, "_DINGY_COMMANDS" /* COMMANDS */], MessageReceiverService);
 
-const SAVE_INTERVAL_MS = 30000;
+const SAVE_INTERVAL_MS = 60 * 1000; // 1min
 /**
  * @private
  */
@@ -461,10 +461,10 @@ class Dingy {
         this.config = objDefaultsDeep(config, configDefault);
         Dingy.logger.info("Initializing Storage.");
         const storagePath = join("./", Dingy.DATA_DIRECTORY, "storage.json");
-        Dingy.logger.debug("Creating MemoryStorage.");
+        Dingy.logger.debug("Creating memory storage.");
         this.memoryStorage = new MemoryStorage();
-        Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
-        this.jsonStorage = new JSONStorage(storagePath);
+        Dingy.logger.debug(`Creating persistent storage in '${storagePath}'.`);
+        this.persistentStorage = new JSONStorage(storagePath);
         Dingy.logger.debug("Initializing DI.");
         dingyChevron.set("plain" /* PLAIN */, [], this, "_DINGY" /* CLASS */);
         dingyChevron.set("plain" /* PLAIN */, [], commands, "_DINGY_COMMANDS" /* COMMANDS */);
@@ -482,13 +482,13 @@ class Dingy {
      * @param token API token.
      */
     async connect(token) {
-        Dingy.logger.debug("Loading storage.");
+        Dingy.logger.debug("Initializing persistent storage.");
         try {
-            await this.jsonStorage.init();
+            await this.persistentStorage.init();
         }
         catch (e) {
             const err = e;
-            Dingy.logger.error("Could not load storage: ", err);
+            Dingy.logger.error("Could not init persistent storage: ", err);
             throw err;
         }
         Dingy.logger.info("Connecting to the Discord API.");

@@ -2,14 +2,14 @@ import { pathExists, readJson, writeJson } from "fs-extra";
 import { isNil } from "lightdash";
 import { ILogger } from "logby";
 import { dingyLogby } from "../logger";
-import { IStorage } from "./IStorage";
+import { IInitializableStorage } from "./IInitializableStorage";
 
-const SAVE_INTERVAL_MS = 30000;
+const SAVE_INTERVAL_MS = 60 * 1000; // 1min
 
 /**
  * @private
  */
-class JSONStorage implements IStorage<any> {
+class JSONStorage implements IInitializableStorage<any> {
     private static readonly logger: ILogger = dingyLogby.getLogger(JSONStorage);
 
     private readonly path: string;

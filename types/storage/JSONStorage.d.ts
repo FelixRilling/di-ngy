@@ -1,8 +1,8 @@
-import { IStorage } from "./IStorage";
+import { IInitializableStorage } from "./IInitializableStorage";
 /**
  * @private
  */
-declare class JSONStorage implements IStorage<any> {
+declare class JSONStorage implements IInitializableStorage<any> {
     private static readonly logger;
     private readonly path;
     private data;

@@ -12,6 +12,8 @@ import { createSlimMessage } from "./message/createSlimMessage";
 import { MessageReceiverService } from "./message/MessageReceiverService";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
+import { IStorage } from "./storage/IStorage";
+import { IInitializableStorage } from "./storage/IInitializableStorage";
 
 /**
  * Main Dingy class.
@@ -22,8 +24,8 @@ class Dingy {
 
     public readonly config: IConfig;
     public readonly client: Client;
-    public readonly memoryStorage: MemoryStorage;
-    public readonly jsonStorage: JSONStorage;
+    public readonly memoryStorage: IStorage<any>;
+    public readonly persistentStorage: IInitializableStorage<any>;
 
     private readonly messageReceiverService: MessageReceiverService;
 
@@ -45,10 +47,10 @@ class Dingy {
             Dingy.DATA_DIRECTORY,
             "storage.json"
         );
-        Dingy.logger.debug("Creating MemoryStorage.");
+        Dingy.logger.debug("Creating memory storage.");
         this.memoryStorage = new MemoryStorage();
-        Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
-        this.jsonStorage = new JSONStorage(storagePath);
+        Dingy.logger.debug(`Creating persistent storage in '${storagePath}'.`);
+        this.persistentStorage = new JSONStorage(storagePath);
 
         Dingy.logger.debug("Initializing DI.");
         dingyChevron.set(InjectableType.PLAIN, [], this, DingyDiKeys.CLASS);
@@ -70,12 +72,12 @@ class Dingy {
      * @param token API token.
      */
     public async connect(token: string): Promise<void> {
-        Dingy.logger.debug("Loading storage.");
+        Dingy.logger.debug("Initializing persistent storage.");
         try {
-            await this.jsonStorage.init();
+            await this.persistentStorage.init();
         } catch (e) {
             const err: Error = e;
-            Dingy.logger.error("Could not load storage: ", err);
+            Dingy.logger.error("Could not init persistent storage: ", err);
             throw err;
         }
 

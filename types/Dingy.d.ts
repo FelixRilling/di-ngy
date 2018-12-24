@@ -1,8 +1,8 @@
 import { Client } from "discord.js";
 import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 import { IConfig } from "./config/IConfig";
-import { JSONStorage } from "./storage/JSONStorage";
-import { MemoryStorage } from "./storage/MemoryStorage";
+import { IStorage } from "./storage/IStorage";
+import { IInitializableStorage } from "./storage/IInitializableStorage";
 /**
  * Main Dingy class.
  */
@@ -11,8 +11,8 @@ declare class Dingy {
     private static readonly DATA_DIRECTORY;
     readonly config: IConfig;
     readonly client: Client;
-    readonly memoryStorage: MemoryStorage;
-    readonly jsonStorage: JSONStorage;
+    readonly memoryStorage: IStorage<any>;
+    readonly persistentStorage: IInitializableStorage<any>;
     private readonly messageReceiverService;
     /**
      * Creates a new Dingy instance.
