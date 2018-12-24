@@ -39,3 +39,6 @@ spec/out/
 
 # Safe files
 _key*
+
+# Runtime files
+data/*
