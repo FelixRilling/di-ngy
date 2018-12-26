@@ -1,4 +1,5 @@
 import { IRole } from "../role/IRole";
+import { IClingyOptions } from "cli-ngy/types/IClingyOptions";
 
 interface IConfig {
     prefix: string | RegExp;
@@ -23,6 +24,8 @@ interface IConfig {
         };
         separator: string;
     };
+
+    clingy: IClingyOptions;
 }
 
 export { IConfig };

@@ -38,6 +38,10 @@ const configDefault = {
             tooLong: "The output was too long to send."
         },
         separator: "-".repeat(9)
+    },
+    clingy: {
+        caseSensitive: true,
+        legalQuotes: ["\""]
     }
 };
 
@@ -301,7 +305,7 @@ class MessageReceiverService {
         this.dingy = dingy;
         this.clingy = new Clingy(dingy.config.enableDefaultCommands
             ? objDefaultsDeep(commands, commandsDefault)
-            : commands);
+            : commands, this.dingy.config.clingy);
         this.messageSenderService = new MessageSenderService(dingy);
     }
     static matchesPrefix(content, prefix) {

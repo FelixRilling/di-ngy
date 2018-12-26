@@ -36,6 +36,11 @@ const configDefault: IConfig = {
             tooLong: "The output was too long to send."
         },
         separator: "-".repeat(9)
+    },
+
+    clingy: {
+        caseSensitive: false,
+        legalQuotes: ['"']
     }
 };
 

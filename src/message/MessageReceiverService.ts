@@ -42,7 +42,8 @@ class MessageReceiverService {
         this.clingy = new Clingy(
             dingy.config.enableDefaultCommands
                 ? objDefaultsDeep(commands, commandsDefault)
-                : commands
+                : commands,
+            this.dingy.config.clingy
         );
         this.messageSenderService = new MessageSenderService(dingy);
     }
