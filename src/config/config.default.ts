@@ -40,6 +40,7 @@ const configDefault: IConfig = {
 
     clingy: {
         caseSensitive: false,
+        // tslint:disable-next-line:quotemark
         legalQuotes: ['"']
     }
 };

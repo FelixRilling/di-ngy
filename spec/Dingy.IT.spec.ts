@@ -10,7 +10,7 @@ describe("Dingy", () => {
     });
 
     it("constructs", () => {
-        const dingy = new Dingy();
+        const dingy = new Dingy({});
         expect(dingy).toBeDefined();
     });
 });
