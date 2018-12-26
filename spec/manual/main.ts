@@ -60,7 +60,7 @@ const commands = {
     }
 };
 const options = {
-    prefix: "$$$",
+    prefix: /^b/i,
 
     roles: [
         DEFAULT_ROLE,
@@ -72,7 +72,7 @@ const options = {
 
     answerToMissingCommand: true,
     answerToMissingArgs: true,
-    answerToMissingPerms: true
+    answerToMissingPerms: true,
 };
 const dingy = new Dingy(commands, options);
 

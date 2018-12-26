@@ -1,6 +1,6 @@
 import { IRole } from "../role/IRole";
 interface IConfig {
-    prefix: string;
+    prefix: string | RegExp;
     roles: IRole[];
     enableDefaultCommands: boolean;
     answerToMissingCommand: boolean;

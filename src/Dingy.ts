@@ -10,10 +10,10 @@ import { dingyChevron, DingyDiKeys } from "./di";
 import { dingyLogby } from "./logger";
 import { createSlimMessage } from "./message/createSlimMessage";
 import { MessageReceiverService } from "./message/MessageReceiverService";
+import { IInitializableStorage } from "./storage/IInitializableStorage";
+import { IStorage } from "./storage/IStorage";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
-import { IStorage } from "./storage/IStorage";
-import { IInitializableStorage } from "./storage/IInitializableStorage";
 
 /**
  * Main Dingy class.
@@ -56,8 +56,8 @@ class Dingy {
         Dingy.logger.debug("Creating persistent storage.");
         this.persistentStorage = isNil(persistentStorage)
             ? new JSONStorage(
-                path.join("./", Dingy.DATA_DIRECTORY, "storage.json")
-            )
+                  path.join("./", Dingy.DATA_DIRECTORY, "storage.json")
+              )
             : persistentStorage;
 
         Dingy.logger.debug("Initializing DI.");
@@ -132,18 +132,7 @@ class Dingy {
 
     private messageHandler(msg: Message) {
         Dingy.logger.trace("A message was sent.", createSlimMessage(msg));
-        if (
-            !msg.system &&
-            !msg.author.bot &&
-            msg.content.startsWith(this.config.prefix) &&
-            msg.content !== this.config.prefix
-        ) {
-            Dingy.logger.info(
-                "Message will be processed.",
-                createSlimMessage(msg)
-            );
-            this.messageReceiverService.handleMessage(msg);
-        }
+        this.messageReceiverService.handleMessage(msg);
     }
 }
 

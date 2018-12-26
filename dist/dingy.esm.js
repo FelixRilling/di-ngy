@@ -1,5 +1,5 @@
 import { DMChannel, Client } from 'discord.js';
-import { isPromise, isString, isNil, objDefaultsDeep, isInstanceOf } from 'lightdash';
+import { isPromise, isString, isNil, objDefaultsDeep, isRegExp, isInstanceOf } from 'lightdash';
 import { join } from 'path';
 import { Chevron } from 'chevronjs';
 import { Logby } from 'logby';
@@ -297,12 +297,22 @@ class MessageReceiverService {
      * @param dingy Dingy instance this service belongs to.
      * @param commands Command object.
      */
-    constructor(dingy, commands = {}) {
+    constructor(dingy, commands) {
         this.dingy = dingy;
         this.clingy = new Clingy(dingy.config.enableDefaultCommands
             ? objDefaultsDeep(commands, commandsDefault)
             : commands);
         this.messageSenderService = new MessageSenderService(dingy);
+    }
+    static matchesPrefix(content, prefix) {
+        return isRegExp(prefix)
+            ? prefix.test(content)
+            : content.startsWith(prefix) && content !== prefix;
+    }
+    static getContentWithoutPrefix(content, prefix) {
+        return isRegExp(prefix)
+            ? content.replace(prefix, "")
+            : content.substr(prefix.length);
     }
     /**
      * Handle an incoming message.
@@ -310,8 +320,16 @@ class MessageReceiverService {
      * @param msg Discord message to process.
      */
     handleMessage(msg) {
+        if (msg.system && msg.author.bot) {
+            MessageReceiverService.logger.trace("Message is from the system or a bot, will be skipped.", createSlimMessage(msg));
+            return;
+        }
+        if (!MessageReceiverService.matchesPrefix(msg.content, this.dingy.config.prefix)) {
+            MessageReceiverService.logger.trace("Message does not match prefix, will be skipped.", createSlimMessage(msg));
+            return;
+        }
+        const msgContent = MessageReceiverService.getContentWithoutPrefix(msg.content, this.dingy.config.prefix);
         MessageReceiverService.logger.debug("Parsing content.", createSlimMessage(msg));
-        const msgContent = msg.content.substr(this.dingy.config.prefix.length);
         const lookupResult = this.clingy.parse(msgContent);
         MessageReceiverService.logger.trace("Parsed content.", lookupResult);
         if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
@@ -528,13 +546,7 @@ class Dingy {
     }
     messageHandler(msg) {
         Dingy.logger.trace("A message was sent.", createSlimMessage(msg));
-        if (!msg.system &&
-            !msg.author.bot &&
-            msg.content.startsWith(this.config.prefix) &&
-            msg.content !== this.config.prefix) {
-            Dingy.logger.info("Message will be processed.", createSlimMessage(msg));
-            this.messageReceiverService.handleMessage(msg);
-        }
+        this.messageReceiverService.handleMessage(msg);
     }
 }
 Dingy.logger = dingyLogby.getLogger(Dingy);

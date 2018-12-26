@@ -17,7 +17,9 @@ declare class MessageReceiverService {
      * @param dingy Dingy instance this service belongs to.
      * @param commands Command object.
      */
-    constructor(dingy: Dingy, commands?: IAnyObject);
+    constructor(dingy: Dingy, commands: IAnyObject);
+    private static matchesPrefix;
+    private static getContentWithoutPrefix;
     /**
      * Handle an incoming message.
      *

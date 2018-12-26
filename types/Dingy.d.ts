@@ -1,8 +1,8 @@
 import { Client } from "discord.js";
 import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 import { IConfig } from "./config/IConfig";
-import { IStorage } from "./storage/IStorage";
 import { IInitializableStorage } from "./storage/IInitializableStorage";
+import { IStorage } from "./storage/IStorage";
 /**
  * Main Dingy class.
  */

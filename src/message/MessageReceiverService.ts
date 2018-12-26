@@ -5,7 +5,7 @@ import { ILookupErrorNotFound } from "cli-ngy/types/lookup/result/ILookupErrorNo
 import { ResultType } from "cli-ngy/types/lookup/result/ILookupResult";
 import { ILookupSuccess } from "cli-ngy/types/lookup/result/ILookupSuccess";
 import { DMChannel, Message } from "discord.js";
-import { isInstanceOf, objDefaultsDeep } from "lightdash";
+import { isInstanceOf, isRegExp, objDefaultsDeep } from "lightdash";
 import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 import { ILogger } from "logby";
 import { commandsDefault } from "../command/commands.default";
@@ -37,7 +37,7 @@ class MessageReceiverService {
      * @param dingy Dingy instance this service belongs to.
      * @param commands Command object.
      */
-    constructor(dingy: Dingy, commands: IAnyObject = {}) {
+    constructor(dingy: Dingy, commands: IAnyObject) {
         this.dingy = dingy;
         this.clingy = new Clingy(
             dingy.config.enableDefaultCommands
@@ -47,17 +47,61 @@ class MessageReceiverService {
         this.messageSenderService = new MessageSenderService(dingy);
     }
 
+    private static matchesPrefix(
+        content: string,
+        prefix: string | RegExp
+    ): boolean {
+        return isRegExp(prefix)
+            ? prefix.test(content)
+            : content.startsWith(prefix) && content !== prefix;
+    }
+
+    private static getContentWithoutPrefix(
+        content: string,
+        prefix: string | RegExp
+    ): string {
+        return isRegExp(prefix)
+            ? content.replace(prefix, "")
+            : content.substr(prefix.length);
+    }
+
     /**
      * Handle an incoming message.
      *
      * @param msg Discord message to process.
      */
     public handleMessage(msg: Message): void {
+        if (msg.system && msg.author.bot) {
+            MessageReceiverService.logger.trace(
+                "Message is from the system or a bot, will be skipped.",
+                createSlimMessage(msg)
+            );
+
+            return;
+        }
+
+        if (
+            !MessageReceiverService.matchesPrefix(
+                msg.content,
+                this.dingy.config.prefix
+            )
+        ) {
+            MessageReceiverService.logger.trace(
+                "Message does not match prefix, will be skipped.",
+                createSlimMessage(msg)
+            );
+
+            return;
+        }
+
+        const msgContent = MessageReceiverService.getContentWithoutPrefix(
+            msg.content,
+            this.dingy.config.prefix
+        );
         MessageReceiverService.logger.debug(
             "Parsing content.",
             createSlimMessage(msg)
         );
-        const msgContent = msg.content.substr(this.dingy.config.prefix.length);
         const lookupResult = this.clingy.parse(msgContent);
         MessageReceiverService.logger.trace("Parsed content.", lookupResult);
 
