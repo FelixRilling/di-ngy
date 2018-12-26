@@ -452,19 +452,24 @@ class Dingy {
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing command for the bot to use.
+     * @param commands Object containing commands for the bot to use.
      * @param config Config object.
+     * @param memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
+     * @param persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
-    constructor(commands = {}, config = {}) {
+    constructor(commands, config = {}, memoryStorage, persistentStorage) {
         Dingy.logger.info("Creating instance.");
         Dingy.logger.debug("Applying config.");
         this.config = objDefaultsDeep(config, configDefault);
         Dingy.logger.info("Initializing Storage.");
-        const storagePath = join("./", Dingy.DATA_DIRECTORY, "storage.json");
         Dingy.logger.debug("Creating memory storage.");
-        this.memoryStorage = new MemoryStorage();
-        Dingy.logger.debug(`Creating persistent storage in '${storagePath}'.`);
-        this.persistentStorage = new JSONStorage(storagePath);
+        this.memoryStorage = isNil(memoryStorage)
+            ? new MemoryStorage()
+            : memoryStorage;
+        Dingy.logger.debug("Creating persistent storage.");
+        this.persistentStorage = isNil(persistentStorage)
+            ? new JSONStorage(join("./", Dingy.DATA_DIRECTORY, "storage.json"))
+            : persistentStorage;
         Dingy.logger.debug("Initializing DI.");
         dingyChevron.set("plain" /* PLAIN */, [], this, "_DINGY" /* CLASS */);
         dingyChevron.set("plain" /* PLAIN */, [], commands, "_DINGY_COMMANDS" /* COMMANDS */);
@@ -503,7 +508,7 @@ class Dingy {
         Dingy.logger.info("Connected.");
     }
     /**
-     * Disconnects the instance from the discord API.
+     * Disconnects the instance from the Discord API.
      */
     async disconnect() {
         Dingy.logger.info("Disconnecting from the Discord API.");

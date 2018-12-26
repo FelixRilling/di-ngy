@@ -1,6 +1,6 @@
 import { InjectableType } from "chevronjs";
 import { Client, Message } from "discord.js";
-import { objDefaultsDeep } from "lightdash";
+import { isNil, objDefaultsDeep } from "lightdash";
 import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 import { ILogger } from "logby";
 import * as path from "path";
@@ -32,29 +32,42 @@ class Dingy {
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing command for the bot to use.
+     * @param commands Object containing commands for the bot to use.
      * @param config Config object.
+     * @param memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
+     * @param persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
-    constructor(commands: IAnyObject = {}, config: IAnyObject = {}) {
+    constructor(
+        commands: IAnyObject,
+        config: IAnyObject = {},
+        memoryStorage?: IStorage<any>,
+        persistentStorage?: IInitializableStorage<any>
+    ) {
         Dingy.logger.info("Creating instance.");
 
         Dingy.logger.debug("Applying config.");
         this.config = <IConfig>objDefaultsDeep(config, configDefault);
 
         Dingy.logger.info("Initializing Storage.");
-        const storagePath = path.join(
-            "./",
-            Dingy.DATA_DIRECTORY,
-            "storage.json"
-        );
         Dingy.logger.debug("Creating memory storage.");
-        this.memoryStorage = new MemoryStorage();
-        Dingy.logger.debug(`Creating persistent storage in '${storagePath}'.`);
-        this.persistentStorage = new JSONStorage(storagePath);
+        this.memoryStorage = isNil(memoryStorage)
+            ? new MemoryStorage()
+            : memoryStorage;
+        Dingy.logger.debug("Creating persistent storage.");
+        this.persistentStorage = isNil(persistentStorage)
+            ? new JSONStorage(
+                path.join("./", Dingy.DATA_DIRECTORY, "storage.json")
+            )
+            : persistentStorage;
 
         Dingy.logger.debug("Initializing DI.");
         dingyChevron.set(InjectableType.PLAIN, [], this, DingyDiKeys.CLASS);
-        dingyChevron.set(InjectableType.PLAIN, [], commands, DingyDiKeys.COMMANDS);
+        dingyChevron.set(
+            InjectableType.PLAIN,
+            [],
+            commands,
+            DingyDiKeys.COMMANDS
+        );
         Dingy.logger.debug("Creating MessageReceiverService.");
         this.messageReceiverService = dingyChevron.get(MessageReceiverService);
 
@@ -93,7 +106,7 @@ class Dingy {
     }
 
     /**
-     * Disconnects the instance from the discord API.
+     * Disconnects the instance from the Discord API.
      */
     public async disconnect(): Promise<void> {
         Dingy.logger.info("Disconnecting from the Discord API.");

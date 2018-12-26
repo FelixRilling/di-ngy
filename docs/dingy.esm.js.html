@@ -41,13 +41,14 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { join } from 'path';
+            <pre class="prettyprint source linenums"><code>import { DMChannel, Client } from 'discord.js';
+import { isPromise, isString, isNil, objDefaultsDeep, isInstanceOf } from 'lightdash';
+import { join } from 'path';
+import { Chevron } from 'chevronjs';
 import { Logby } from 'logby';
 import { Clingy } from 'cli-ngy';
-import { DMChannel, Client } from 'discord.js';
 import { stringify } from 'yamljs';
 import { pathExists, readJson, writeJson } from 'fs-extra';
-import { isNil, isPromise, isString, isInstanceOf, objDefaultsDeep } from 'lightdash';
 
 /**
  * Default role for every user.
@@ -82,6 +83,8 @@ const configDefault = {
         separator: "-".repeat(9)
     }
 };
+
+const dingyChevron = new Chevron();
 
 /**
  * Logby instance used by Di-ngy.
@@ -138,10 +141,10 @@ const createSlimCommandTree = (map) => {
  */
 const createSlimCommand = (command, showDetails = false) => {
     const result = {
-        desc: command.data.help,
-        powerRequired: command.data.powerRequired
+        desc: command.data.help
     };
     if (showDetails) {
+        result.powerRequired = command.data.powerRequired;
         result.usableInDMs = command.data.usableInDMs;
         if (command.args.length > 0) {
             result.args = command.args;
@@ -165,7 +168,7 @@ const showDetailHelp = (dingy, clingy, argsAll) => {
     if (!lookupResult.successful || command.data.hidden) {
         return {
             val: `Command '${argsAll.join("->")}' does not exist.`,
-            code: "yaml"
+            code: true
         };
     }
     return {
@@ -323,6 +326,7 @@ class MessageSenderService {
 }
 MessageSenderService.logger = dingyLogby.getLogger(MessageSenderService);
 MessageSenderService.MAX_LENGTH = 2000;
+dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */], MessageSenderService);
 
 /**
  * Handles resolving messages.
@@ -414,8 +418,9 @@ class MessageReceiverService {
     }
 }
 MessageReceiverService.logger = dingyLogby.getLogger(MessageReceiverService);
+dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */, "_DINGY_COMMANDS" /* COMMANDS */], MessageReceiverService);
 
-const SAVE_INTERVAL_MS = 30000;
+const SAVE_INTERVAL_MS = 60 * 1000; // 1min
 /**
  * @private
  */
@@ -490,22 +495,32 @@ class Dingy {
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing command for the bot to use.
+     * @param commands Object containing commands for the bot to use.
      * @param config Config object.
+     * @param memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
+     * @param persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
-    constructor(commands = {}, config = {}) {
+    constructor(commands, config = {}, memoryStorage, persistentStorage) {
         Dingy.logger.info("Creating instance.");
-        Dingy.logger.debug("Reading config.");
+        Dingy.logger.debug("Applying config.");
         this.config = objDefaultsDeep(config, configDefault);
-        Dingy.logger.debug("Creating Client.");
-        this.client = new Client();
-        Dingy.logger.debug("Creating MemoryStorage.");
-        this.memoryStorage = new MemoryStorage();
-        const storagePath = join("./", Dingy.DATA_DIRECTORY, "storage.json");
-        Dingy.logger.debug(`Creating JSONStorage in '${storagePath}'.`);
-        this.jsonStorage = new JSONStorage(storagePath);
+        Dingy.logger.info("Initializing Storage.");
+        Dingy.logger.debug("Creating memory storage.");
+        this.memoryStorage = isNil(memoryStorage)
+            ? new MemoryStorage()
+            : memoryStorage;
+        Dingy.logger.debug("Creating persistent storage.");
+        this.persistentStorage = isNil(persistentStorage)
+            ? new JSONStorage(join("./", Dingy.DATA_DIRECTORY, "storage.json"))
+            : persistentStorage;
+        Dingy.logger.debug("Initializing DI.");
+        dingyChevron.set("plain" /* PLAIN */, [], this, "_DINGY" /* CLASS */);
+        dingyChevron.set("plain" /* PLAIN */, [], commands, "_DINGY_COMMANDS" /* COMMANDS */);
         Dingy.logger.debug("Creating MessageReceiverService.");
-        this.messageReceiverService = new MessageReceiverService(this, commands);
+        this.messageReceiverService = dingyChevron.get(MessageReceiverService);
+        Dingy.logger.info("Creating Client.");
+        this.client = new Client();
+        Dingy.logger.debug("Binding events.");
         this.bindEvents();
         Dingy.logger.info("Created instance.");
     }
@@ -515,13 +530,13 @@ class Dingy {
      * @param token API token.
      */
     async connect(token) {
-        Dingy.logger.debug("Loading storage.");
+        Dingy.logger.debug("Initializing persistent storage.");
         try {
-            await this.jsonStorage.init();
+            await this.persistentStorage.init();
         }
         catch (e) {
             const err = e;
-            Dingy.logger.error("Could not load storage: ", err);
+            Dingy.logger.error("Could not init persistent storage: ", err);
             throw err;
         }
         Dingy.logger.info("Connecting to the Discord API.");
@@ -536,7 +551,7 @@ class Dingy {
         Dingy.logger.info("Connected.");
     }
     /**
-     * Disconnects the instance from the discord API.
+     * Disconnects the instance from the Discord API.
      */
     async disconnect() {
         Dingy.logger.info("Disconnecting from the Discord API.");
@@ -551,7 +566,6 @@ class Dingy {
         Dingy.logger.info("Disconnected.");
     }
     bindEvents() {
-        Dingy.logger.debug("Binding events.");
         this.client.on("error", err => Dingy.logger.error("An error occurred, trying to continue.", err));
         this.client.on("message", msg => this.messageHandler(msg));
     }
@@ -584,7 +598,7 @@ export { Dingy, dingyLogby, DEFAULT_ROLE };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Dec 08 2018 19:31:07 GMT+0100 (Central European Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Dec 26 2018 11:06:58 GMT+0100 (Central European Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
