@@ -38,11 +38,11 @@ const createSlimCommand = (
     showDetails = false
 ): object => {
     const result: ISlimCommand = {
-        desc: command.data.help,
-        powerRequired: command.data.powerRequired
+        desc: command.data.help
     };
 
     if (showDetails) {
+        result.powerRequired = command.data.powerRequired;
         result.usableInDMs = command.data.usableInDMs;
         if (command.args.length > 0) {
             result.args = command.args;
@@ -74,7 +74,7 @@ const showDetailHelp = (
     if (!lookupResult.successful || command.data.hidden) {
         return {
             val: `Command '${argsAll.join("->")}' does not exist.`,
-            code: "yaml"
+            code: true
         };
     }
 
