@@ -40,8 +40,9 @@ const configDefault = {
         separator: "-".repeat(9)
     },
     clingy: {
-        caseSensitive: true,
-        legalQuotes: ["\""]
+        caseSensitive: false,
+        // tslint:disable-next-line:quotemark
+        legalQuotes: ['"']
     }
 };
 
@@ -357,14 +358,14 @@ class MessageReceiverService {
     }
     handleLookupNotFound(msg, lookupResultNotFound) {
         if (this.dingy.config.answerToMissingCommand) {
-            MessageReceiverService.logger.info("Answering to command not found.");
+            MessageReceiverService.logger.debug("Answering to command not found.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.notFound +
                 lookupResultNotFound.missing);
         }
     }
     handleLookupMissingArg(msg, lookupResultMissingArg) {
         if (this.dingy.config.answerToMissingArgs) {
-            MessageReceiverService.logger.info("Answering to missing arg.");
+            MessageReceiverService.logger.debug("Answering to missing arg.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.missingArgs +
                 lookupResultMissingArg.missing
                     .map(arg => arg.name)
@@ -374,12 +375,12 @@ class MessageReceiverService {
     handleLookupSuccess(msg, lookupResultSuccess) {
         const command = lookupResultSuccess.command;
         if (isInstanceOf(msg.channel, DMChannel) && !command.data.usableInDMs) {
-            MessageReceiverService.logger.info("Not usable in DMs.");
+            MessageReceiverService.logger.debug("Not usable in DMs.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.invalidDMCall);
             return;
         }
         if (!hasEnoughPower(msg, command.data.powerRequired, this.dingy.config.roles)) {
-            MessageReceiverService.logger.info("No permissions.");
+            MessageReceiverService.logger.debug("No permissions.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.noPermission);
             return;
         }
@@ -390,7 +391,7 @@ class MessageReceiverService {
             MessageReceiverService.logger.trace("Skipping response.");
             return;
         }
-        MessageReceiverService.logger.info("Answering to successful command.", {
+        MessageReceiverService.logger.debug("Answering to successful command.", {
             result
         });
         this.messageSenderService.sendResult(msg, result);

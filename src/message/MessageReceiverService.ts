@@ -140,7 +140,7 @@ class MessageReceiverService {
         lookupResultNotFound: ILookupErrorNotFound
     ): void {
         if (this.dingy.config.answerToMissingCommand) {
-            MessageReceiverService.logger.info(
+            MessageReceiverService.logger.debug(
                 "Answering to command not found."
             );
             this.messageSenderService.sendResult(
@@ -156,7 +156,7 @@ class MessageReceiverService {
         lookupResultMissingArg: ILookupErrorMissingArgs
     ): void {
         if (this.dingy.config.answerToMissingArgs) {
-            MessageReceiverService.logger.info("Answering to missing arg.");
+            MessageReceiverService.logger.debug("Answering to missing arg.");
             this.messageSenderService.sendResult(
                 msg,
                 this.dingy.config.strings.error.missingArgs +
@@ -174,7 +174,7 @@ class MessageReceiverService {
         const command = <IDingyCommand>lookupResultSuccess.command;
 
         if (isInstanceOf(msg.channel, DMChannel) && !command.data.usableInDMs) {
-            MessageReceiverService.logger.info("Not usable in DMs.");
+            MessageReceiverService.logger.debug("Not usable in DMs.");
             this.messageSenderService.sendResult(
                 msg,
                 this.dingy.config.strings.error.invalidDMCall
@@ -189,7 +189,7 @@ class MessageReceiverService {
                 this.dingy.config.roles
             )
         ) {
-            MessageReceiverService.logger.info("No permissions.");
+            MessageReceiverService.logger.debug("No permissions.");
             this.messageSenderService.sendResult(
                 msg,
                 this.dingy.config.strings.error.noPermission
@@ -212,7 +212,7 @@ class MessageReceiverService {
             return;
         }
 
-        MessageReceiverService.logger.info("Answering to successful command.", {
+        MessageReceiverService.logger.debug("Answering to successful command.", {
             result
         });
         this.messageSenderService.sendResult(msg, result);
