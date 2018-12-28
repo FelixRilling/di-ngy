@@ -19,21 +19,6 @@ dingyLogby.setLevel(Levels.TRACE);
 clingyLogby.setLevel(Levels.TRACE);
 
 const commands = {
-    foo: {
-        fn: () => "foo",
-        args: [{
-            required: false,
-            name: "foo",
-            defaultValue: "foooo"
-        }],
-        alias: ["fizz"],
-        data: {
-            hidden: false,
-            usableInDMs: true,
-            powerRequired: 0,
-            help: "ok"
-        }
-    },
     nest: {
         fn: () => "nest",
         args: [],
@@ -47,7 +32,10 @@ const commands = {
         sub: {
             ed: {
                 fn: () => "nested",
-                args: [],
+                args: [{
+                    name: "foo",
+                    required: false
+                }],
                 alias: [],
                 data: {
                     hidden: false,
@@ -60,7 +48,7 @@ const commands = {
     }
 };
 const options = {
-    prefix: /^b/i,
+    prefix:"$$$",
 
     roles: [
         DEFAULT_ROLE,
@@ -72,7 +60,7 @@ const options = {
 
     answerToMissingCommand: true,
     answerToMissingArgs: true,
-    answerToMissingPerms: true,
+    answerToMissingPerms: true
 };
 const dingy = new Dingy(commands, options);
 
