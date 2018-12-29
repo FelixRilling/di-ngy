@@ -2,6 +2,8 @@ import { Message } from "discord.js";
 import { IRole } from "./IRole";
 
 /**
+ * Helper function checking role access.
+ *
  * @private
  */
 const hasEnoughPower = (

@@ -26,7 +26,7 @@
 
 <nav>
     
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Dingy.html">Dingy</a><ul class='methods'><li data-type='method'><a href="Dingy.html#connect">connect</a></li><li data-type='method'><a href="Dingy.html#disconnect">disconnect</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#DEFAULT_ROLE">DEFAULT_ROLE</a></li><li><a href="global.html#dingyLogby">dingyLogby</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Dingy.html">Dingy</a><ul class='methods'><li data-type='method'><a href="Dingy.html#connect">connect</a></li><li data-type='method'><a href="Dingy.html#disconnect">disconnect</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#DEFAULT_ROLE">DEFAULT_ROLE</a></li><li><a href="global.html#dingyChevron">dingyChevron</a></li><li><a href="global.html#dingyLogby">dingyLogby</a></li></ul>
 </nav>
 
 <div id="main">
@@ -42,7 +42,7 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import { DMChannel, Client } from 'discord.js';
-import { isPromise, isString, isNil, objDefaultsDeep, isInstanceOf } from 'lightdash';
+import { isPromise, isString, isNil, objDefaultsDeep, isRegExp, isInstanceOf } from 'lightdash';
 import { join } from 'path';
 import { Chevron } from 'chevronjs';
 import { Logby } from 'logby';
@@ -52,6 +52,8 @@ import { pathExists, readJson, writeJson } from 'fs-extra';
 
 /**
  * Default role for every user.
+ *
+ * @public
  */
 const DEFAULT_ROLE = {
     power: 0,
@@ -62,7 +64,7 @@ const DEFAULT_ROLE = {
  *
  * @private
  */
-const configDefault = {
+const DEFAULT_CONFIG = {
     prefix: "$",
     roles: [DEFAULT_ROLE],
     enableDefaultCommands: true,
@@ -81,17 +83,31 @@ const configDefault = {
             tooLong: "The output was too long to send."
         },
         separator: "-".repeat(9)
+    },
+    clingy: {
+        caseSensitive: false,
+        // tslint:disable-next-line:quotemark
+        legalQuotes: ['"']
     }
 };
 
+/**
+ * Dingy chevron instance.
+ *
+ * @public
+ */
 const dingyChevron = new Chevron();
 
 /**
  * Logby instance used by Di-ngy.
+ *
+ * @public
  */
 const dingyLogby = new Logby();
 
 /**
+ * Helper function which creates a slim, printable version of a message.
+ *
  * @private
  */
 const createSlimMessage = (msg) => {
@@ -238,13 +254,20 @@ const stop = {
     }
 };
 
-const commandsDefault = {
+/**
+ * Default commands.
+ *
+ * @private
+ */
+const DEFAULT_COMMANDS = {
     echo,
     stop,
     help
 };
 
 /**
+ * Helper function checking role access.
+ *
  * @private
  */
 const hasEnoughPower = (msg, powerRequired, roles) => {
@@ -340,12 +363,22 @@ class MessageReceiverService {
      * @param dingy Dingy instance this service belongs to.
      * @param commands Command object.
      */
-    constructor(dingy, commands = {}) {
+    constructor(dingy, commands) {
         this.dingy = dingy;
         this.clingy = new Clingy(dingy.config.enableDefaultCommands
-            ? objDefaultsDeep(commands, commandsDefault)
-            : commands);
+            ? objDefaultsDeep(commands, DEFAULT_COMMANDS)
+            : commands, this.dingy.config.clingy);
         this.messageSenderService = new MessageSenderService(dingy);
+    }
+    static matchesPrefix(content, prefix) {
+        return isRegExp(prefix)
+            ? prefix.test(content)
+            : content.startsWith(prefix) &amp;&amp; content !== prefix;
+    }
+    static getContentWithoutPrefix(content, prefix) {
+        return isRegExp(prefix)
+            ? content.replace(prefix, "")
+            : content.substr(prefix.length);
     }
     /**
      * Handle an incoming message.
@@ -353,8 +386,16 @@ class MessageReceiverService {
      * @param msg Discord message to process.
      */
     handleMessage(msg) {
+        if (msg.system &amp;&amp; msg.author.bot) {
+            MessageReceiverService.logger.trace("Message is from the system or a bot, will be skipped.", createSlimMessage(msg));
+            return;
+        }
+        if (!MessageReceiverService.matchesPrefix(msg.content, this.dingy.config.prefix)) {
+            MessageReceiverService.logger.trace("Message does not match prefix, will be skipped.", createSlimMessage(msg));
+            return;
+        }
+        const msgContent = MessageReceiverService.getContentWithoutPrefix(msg.content, this.dingy.config.prefix);
         MessageReceiverService.logger.debug("Parsing content.", createSlimMessage(msg));
-        const msgContent = msg.content.substr(this.dingy.config.prefix.length);
         const lookupResult = this.clingy.parse(msgContent);
         MessageReceiverService.logger.trace("Parsed content.", lookupResult);
         if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
@@ -378,14 +419,14 @@ class MessageReceiverService {
     }
     handleLookupNotFound(msg, lookupResultNotFound) {
         if (this.dingy.config.answerToMissingCommand) {
-            MessageReceiverService.logger.info("Answering to command not found.");
+            MessageReceiverService.logger.debug("Answering to command not found.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.notFound +
                 lookupResultNotFound.missing);
         }
     }
     handleLookupMissingArg(msg, lookupResultMissingArg) {
         if (this.dingy.config.answerToMissingArgs) {
-            MessageReceiverService.logger.info("Answering to missing arg.");
+            MessageReceiverService.logger.debug("Answering to missing arg.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.missingArgs +
                 lookupResultMissingArg.missing
                     .map(arg => arg.name)
@@ -395,12 +436,12 @@ class MessageReceiverService {
     handleLookupSuccess(msg, lookupResultSuccess) {
         const command = lookupResultSuccess.command;
         if (isInstanceOf(msg.channel, DMChannel) &amp;&amp; !command.data.usableInDMs) {
-            MessageReceiverService.logger.info("Not usable in DMs.");
+            MessageReceiverService.logger.debug("Not usable in DMs.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.invalidDMCall);
             return;
         }
         if (!hasEnoughPower(msg, command.data.powerRequired, this.dingy.config.roles)) {
-            MessageReceiverService.logger.info("No permissions.");
+            MessageReceiverService.logger.debug("No permissions.");
             this.messageSenderService.sendResult(msg, this.dingy.config.strings.error.noPermission);
             return;
         }
@@ -411,7 +452,7 @@ class MessageReceiverService {
             MessageReceiverService.logger.trace("Skipping response.");
             return;
         }
-        MessageReceiverService.logger.info("Answering to successful command.", {
+        MessageReceiverService.logger.debug("Answering to successful command.", {
             result
         });
         this.messageSenderService.sendResult(msg, result);
@@ -422,6 +463,8 @@ dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */, "_DINGY_COMMAND
 
 const SAVE_INTERVAL_MS = 60 * 1000; // 1min
 /**
+ * IInitializableStorage implementation using JSON files to store data.
+ *
  * @private
  */
 class JSONStorage {
@@ -471,6 +514,8 @@ class JSONStorage {
 JSONStorage.logger = dingyLogby.getLogger(JSONStorage);
 
 /**
+ * IStorage implementation using a simple map to store data.
+ *
  * @private
  */
 class MemoryStorage {
@@ -490,20 +535,22 @@ class MemoryStorage {
 
 /**
  * Main Dingy class.
+ *
+ * @public
  */
 class Dingy {
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing commands for the bot to use.
-     * @param config Config object.
-     * @param memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
-     * @param persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
+     * @param {object} commands Object containing commands for the bot to use.
+     * @param {object?} config Config object.
+     * @param {object?} memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
+     * @param {object?} persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
     constructor(commands, config = {}, memoryStorage, persistentStorage) {
         Dingy.logger.info("Creating instance.");
         Dingy.logger.debug("Applying config.");
-        this.config = objDefaultsDeep(config, configDefault);
+        this.config = objDefaultsDeep(config, DEFAULT_CONFIG);
         Dingy.logger.info("Initializing Storage.");
         Dingy.logger.debug("Creating memory storage.");
         this.memoryStorage = isNil(memoryStorage)
@@ -527,7 +574,7 @@ class Dingy {
     /**
      * Connects the instance to the Discord API.
      *
-     * @param token API token.
+     * @param {string} token API token.
      */
     async connect(token) {
         Dingy.logger.debug("Initializing persistent storage.");
@@ -571,13 +618,7 @@ class Dingy {
     }
     messageHandler(msg) {
         Dingy.logger.trace("A message was sent.", createSlimMessage(msg));
-        if (!msg.system &amp;&amp;
-            !msg.author.bot &amp;&amp;
-            msg.content.startsWith(this.config.prefix) &amp;&amp;
-            msg.content !== this.config.prefix) {
-            Dingy.logger.info("Message will be processed.", createSlimMessage(msg));
-            this.messageReceiverService.handleMessage(msg);
-        }
+        this.messageReceiverService.handleMessage(msg);
     }
 }
 Dingy.logger = dingyLogby.getLogger(Dingy);
@@ -598,7 +639,7 @@ export { Dingy, dingyLogby, DEFAULT_ROLE };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Dec 26 2018 11:06:58 GMT+0100 (Central European Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Dec 29 2018 13:23:49 GMT+0100 (Central European Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

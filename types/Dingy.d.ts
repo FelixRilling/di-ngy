@@ -5,6 +5,8 @@ import { IInitializableStorage } from "./storage/IInitializableStorage";
 import { IStorage } from "./storage/IStorage";
 /**
  * Main Dingy class.
+ *
+ * @public
  */
 declare class Dingy {
     private static readonly logger;
@@ -17,16 +19,16 @@ declare class Dingy {
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing commands for the bot to use.
-     * @param config Config object.
-     * @param memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
-     * @param persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
+     * @param {object} commands Object containing commands for the bot to use.
+     * @param {object?} config Config object.
+     * @param {object?} memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
+     * @param {object?} persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
     constructor(commands: IAnyObject, config?: IAnyObject, memoryStorage?: IStorage<any>, persistentStorage?: IInitializableStorage<any>);
     /**
      * Connects the instance to the Discord API.
      *
-     * @param token API token.
+     * @param {string} token API token.
      */
     connect(token: string): Promise<void>;
     /**

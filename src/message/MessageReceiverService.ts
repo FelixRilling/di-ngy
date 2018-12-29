@@ -8,7 +8,7 @@ import { DMChannel, Message } from "discord.js";
 import { isInstanceOf, isRegExp, objDefaultsDeep } from "lightdash";
 import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 import { ILogger } from "logby";
-import { commandsDefault } from "../command/commands.default";
+import { DEFAULT_COMMANDS } from "../command/commands.default";
 import { IDingyCommand } from "../command/IDingyCommand";
 import { dingyChevron, DingyDiKeys } from "../di";
 import { Dingy } from "../Dingy";
@@ -41,7 +41,7 @@ class MessageReceiverService {
         this.dingy = dingy;
         this.clingy = new Clingy(
             dingy.config.enableDefaultCommands
-                ? objDefaultsDeep(commands, commandsDefault)
+                ? objDefaultsDeep(commands, DEFAULT_COMMANDS)
                 : commands,
             this.dingy.config.clingy
         );
@@ -212,9 +212,12 @@ class MessageReceiverService {
             return;
         }
 
-        MessageReceiverService.logger.debug("Answering to successful command.", {
-            result
-        });
+        MessageReceiverService.logger.debug(
+            "Answering to successful command.",
+            {
+                result
+            }
+        );
         this.messageSenderService.sendResult(msg, result);
     }
 }

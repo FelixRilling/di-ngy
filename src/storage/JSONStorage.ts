@@ -7,6 +7,8 @@ import { IInitializableStorage } from "./IInitializableStorage";
 const SAVE_INTERVAL_MS = 60 * 1000; // 1min
 
 /**
+ * IInitializableStorage implementation using JSON files to store data.
+ *
  * @private
  */
 class JSONStorage implements IInitializableStorage<any> {

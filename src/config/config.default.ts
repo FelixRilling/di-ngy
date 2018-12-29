@@ -2,6 +2,8 @@ import { IConfig } from "./IConfig";
 
 /**
  * Default role for every user.
+ *
+ * @public
  */
 const DEFAULT_ROLE = {
     power: 0,
@@ -13,7 +15,7 @@ const DEFAULT_ROLE = {
  *
  * @private
  */
-const configDefault: IConfig = {
+const DEFAULT_CONFIG: IConfig = {
     prefix: "$",
     roles: [DEFAULT_ROLE],
 
@@ -45,4 +47,4 @@ const configDefault: IConfig = {
     }
 };
 
-export { configDefault, DEFAULT_ROLE };
+export { DEFAULT_CONFIG, DEFAULT_ROLE };

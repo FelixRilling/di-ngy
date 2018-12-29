@@ -1,5 +1,7 @@
 import { IStorage } from "./IStorage";
 /**
+ * IStorage implementation using a simple map to store data.
+ *
  * @private
  */
 declare class MemoryStorage implements IStorage<any> {

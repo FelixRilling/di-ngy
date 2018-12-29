@@ -1,3 +1,8 @@
 import { IDingyCommandObject } from "./IDingyCommandObject";
-declare const commandsDefault: IDingyCommandObject;
-export { commandsDefault };
+/**
+ * Default commands.
+ *
+ * @private
+ */
+declare const DEFAULT_COMMANDS: IDingyCommandObject;
+export { DEFAULT_COMMANDS };

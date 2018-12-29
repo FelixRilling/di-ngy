@@ -1,5 +1,7 @@
 import { IInitializableStorage } from "./IInitializableStorage";
 /**
+ * IInitializableStorage implementation using JSON files to store data.
+ *
  * @private
  */
 declare class JSONStorage implements IInitializableStorage<any> {

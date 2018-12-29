@@ -1,5 +1,5 @@
-import { IRole } from "../role/IRole";
 import { IClingyOptions } from "cli-ngy/types/IClingyOptions";
+import { IRole } from "../role/IRole";
 interface IConfig {
     prefix: string | RegExp;
     roles: IRole[];

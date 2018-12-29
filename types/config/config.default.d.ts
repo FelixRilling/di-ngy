@@ -1,6 +1,8 @@
 import { IConfig } from "./IConfig";
 /**
  * Default role for every user.
+ *
+ * @public
  */
 declare const DEFAULT_ROLE: {
     power: number;
@@ -11,5 +13,5 @@ declare const DEFAULT_ROLE: {
  *
  * @private
  */
-declare const configDefault: IConfig;
-export { configDefault, DEFAULT_ROLE };
+declare const DEFAULT_CONFIG: IConfig;
+export { DEFAULT_CONFIG, DEFAULT_ROLE };

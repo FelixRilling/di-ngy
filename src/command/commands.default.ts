@@ -3,10 +3,15 @@ import { help } from "./core/help";
 import { stop } from "./core/stop";
 import { IDingyCommandObject } from "./IDingyCommandObject";
 
-const commandsDefault: IDingyCommandObject = {
+/**
+ * Default commands.
+ *
+ * @private
+ */
+const DEFAULT_COMMANDS: IDingyCommandObject = {
     echo,
     stop,
     help
 };
 
-export { commandsDefault };
+export { DEFAULT_COMMANDS };

@@ -13,6 +13,8 @@ var fsExtra = require('fs-extra');
 
 /**
  * Default role for every user.
+ *
+ * @public
  */
 const DEFAULT_ROLE = {
     power: 0,
@@ -23,7 +25,7 @@ const DEFAULT_ROLE = {
  *
  * @private
  */
-const configDefault = {
+const DEFAULT_CONFIG = {
     prefix: "$",
     roles: [DEFAULT_ROLE],
     enableDefaultCommands: true,
@@ -50,14 +52,23 @@ const configDefault = {
     }
 };
 
+/**
+ * Dingy chevron instance.
+ *
+ * @public
+ */
 const dingyChevron = new chevronjs.Chevron();
 
 /**
  * Logby instance used by Di-ngy.
+ *
+ * @public
  */
 const dingyLogby = new logby.Logby();
 
 /**
+ * Helper function which creates a slim, printable version of a message.
+ *
  * @private
  */
 const createSlimMessage = (msg) => {
@@ -204,13 +215,20 @@ const stop = {
     }
 };
 
-const commandsDefault = {
+/**
+ * Default commands.
+ *
+ * @private
+ */
+const DEFAULT_COMMANDS = {
     echo,
     stop,
     help
 };
 
 /**
+ * Helper function checking role access.
+ *
  * @private
  */
 const hasEnoughPower = (msg, powerRequired, roles) => {
@@ -309,7 +327,7 @@ class MessageReceiverService {
     constructor(dingy, commands) {
         this.dingy = dingy;
         this.clingy = new cliNgy.Clingy(dingy.config.enableDefaultCommands
-            ? lightdash.objDefaultsDeep(commands, commandsDefault)
+            ? lightdash.objDefaultsDeep(commands, DEFAULT_COMMANDS)
             : commands, this.dingy.config.clingy);
         this.messageSenderService = new MessageSenderService(dingy);
     }
@@ -406,6 +424,8 @@ dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */, "_DINGY_COMMAND
 
 const SAVE_INTERVAL_MS = 60 * 1000; // 1min
 /**
+ * IInitializableStorage implementation using JSON files to store data.
+ *
  * @private
  */
 class JSONStorage {
@@ -455,6 +475,8 @@ class JSONStorage {
 JSONStorage.logger = dingyLogby.getLogger(JSONStorage);
 
 /**
+ * IStorage implementation using a simple map to store data.
+ *
  * @private
  */
 class MemoryStorage {
@@ -474,20 +496,22 @@ class MemoryStorage {
 
 /**
  * Main Dingy class.
+ *
+ * @public
  */
 class Dingy {
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing commands for the bot to use.
-     * @param config Config object.
-     * @param memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
-     * @param persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
+     * @param {object} commands Object containing commands for the bot to use.
+     * @param {object?} config Config object.
+     * @param {object?} memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
+     * @param {object?} persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
     constructor(commands, config = {}, memoryStorage, persistentStorage) {
         Dingy.logger.info("Creating instance.");
         Dingy.logger.debug("Applying config.");
-        this.config = lightdash.objDefaultsDeep(config, configDefault);
+        this.config = lightdash.objDefaultsDeep(config, DEFAULT_CONFIG);
         Dingy.logger.info("Initializing Storage.");
         Dingy.logger.debug("Creating memory storage.");
         this.memoryStorage = lightdash.isNil(memoryStorage)
@@ -511,7 +535,7 @@ class Dingy {
     /**
      * Connects the instance to the Discord API.
      *
-     * @param token API token.
+     * @param {string} token API token.
      */
     async connect(token) {
         Dingy.logger.debug("Initializing persistent storage.");

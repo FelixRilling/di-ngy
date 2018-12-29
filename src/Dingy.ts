@@ -4,7 +4,7 @@ import { isNil, objDefaultsDeep } from "lightdash";
 import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
 import { ILogger } from "logby";
 import * as path from "path";
-import { configDefault } from "./config/config.default";
+import { DEFAULT_CONFIG } from "./config/config.default";
 import { IConfig } from "./config/IConfig";
 import { dingyChevron, DingyDiKeys } from "./di";
 import { dingyLogby } from "./logger";
@@ -17,6 +17,8 @@ import { MemoryStorage } from "./storage/MemoryStorage";
 
 /**
  * Main Dingy class.
+ *
+ * @public
  */
 class Dingy {
     private static readonly logger: ILogger = dingyLogby.getLogger(Dingy);
@@ -32,10 +34,10 @@ class Dingy {
     /**
      * Creates a new Dingy instance.
      *
-     * @param commands Object containing commands for the bot to use.
-     * @param config Config object.
-     * @param memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
-     * @param persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
+     * @param {object} commands Object containing commands for the bot to use.
+     * @param {object?} config Config object.
+     * @param {object?} memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
+     * @param {object?} persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
     constructor(
         commands: IAnyObject,
@@ -46,7 +48,7 @@ class Dingy {
         Dingy.logger.info("Creating instance.");
 
         Dingy.logger.debug("Applying config.");
-        this.config = <IConfig>objDefaultsDeep(config, configDefault);
+        this.config = <IConfig>objDefaultsDeep(config, DEFAULT_CONFIG);
 
         Dingy.logger.info("Initializing Storage.");
         Dingy.logger.debug("Creating memory storage.");
@@ -82,7 +84,7 @@ class Dingy {
     /**
      * Connects the instance to the Discord API.
      *
-     * @param token API token.
+     * @param {string} token API token.
      */
     public async connect(token: string): Promise<void> {
         Dingy.logger.debug("Initializing persistent storage.");

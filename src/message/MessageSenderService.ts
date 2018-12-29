@@ -107,6 +107,7 @@ class MessageSenderService {
         return content;
     }
 }
+
 dingyChevron.set(
     InjectableType.FACTORY,
     [DingyDiKeys.CLASS],
