@@ -1,24 +1,26 @@
+/*
+ * Used to directly run and test the bot.
+ */
+
 import { clingyLogby } from "cli-ngy";
 import { Message } from "discord.js";
 import { isNil } from "lightdash";
 import { Levels } from "logby";
 import { Dingy } from "src/Dingy";
+import { IDingyCommandObject } from "../../src/command/IDingyCommandObject";
 import { DEFAULT_ROLE } from "../../src/config/config.default";
 import { dingyLogby } from "../../src/logger";
 
-/*
- * Used to directly run and test the bot.
- */
-const token = process.env.DISCORD_TOKEN_TEST;
+const DISCORD_TOKEN = process.env.DISCORD_TOKEN_TEST;
 
-if (isNil(token)) {
+if (isNil(DISCORD_TOKEN)) {
     throw new Error("No token set.");
 }
 
 dingyLogby.setLevel(Levels.TRACE);
 clingyLogby.setLevel(Levels.TRACE);
 
-const commands = {
+const commands: IDingyCommandObject = {
     nest: {
         fn: () => "nest",
         args: [],
@@ -32,10 +34,12 @@ const commands = {
         sub: {
             ed: {
                 fn: () => "nested",
-                args: [{
-                    name: "foo",
-                    required: false
-                }],
+                args: [
+                    {
+                        name: "foo",
+                        required: false
+                    }
+                ],
                 alias: [],
                 data: {
                     hidden: false,
@@ -48,7 +52,7 @@ const commands = {
     }
 };
 const options = {
-    prefix:"$$$",
+    prefix: "$$$",
 
     roles: [
         DEFAULT_ROLE,
@@ -64,4 +68,4 @@ const options = {
 };
 const dingy = new Dingy(commands, options);
 
-dingy.connect(token);
+dingy.connect(DISCORD_TOKEN).catch(console.error);
