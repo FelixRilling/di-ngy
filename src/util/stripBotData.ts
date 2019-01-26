@@ -57,6 +57,7 @@ const strip = (val: any): any => {
     return null;
 };
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Decycles and recursively strips sensitive data.
  *
@@ -66,4 +67,5 @@ const strip = (val: any): any => {
  */
 const stripBotData = (val: any): any => strip(objDecycle(val));
 
+// noinspection JSUnusedGlobalSymbols
 export { stripBotData };
