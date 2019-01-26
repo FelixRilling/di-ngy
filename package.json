@@ -57,25 +57,25 @@
         "@types/fs-extra": "^5.0.4",
         "@types/node": "^10.12.18",
         "@types/yamljs": "^0.2.30",
-        "chevronjs": "^11.0.0",
-        "cli-ngy": "^10.2.0",
+        "chevronjs": "^11.0.1",
+        "cli-ngy": "^10.2.1",
         "discord.js": "^11.4.2",
         "fs-extra": "^7.0.1",
-        "lightdash": "^10.2.0",
-        "logby": "^2.0.2",
+        "lightdash": "^10.2.1",
+        "logby": "^2.0.4",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
-        "@types/jasmine": "^3.3.4",
-        "docdash": "^1.0.1",
+        "@types/jasmine": "^3.3.8",
+        "docdash": "^1.0.2",
         "jasmine": "^3.3.1",
         "jsdoc": "^3.5.5",
         "npm-run-all": "^4.1.5",
-        "prettier": "^1.15.3",
-        "rollup": "^0.68.1",
+        "prettier": "^1.16.1",
+        "rollup": "^1.1.2",
         "rollup-plugin-node-resolve": "^4.0.0",
-        "rollup-plugin-typescript2": "^0.18.1",
-        "tslint": "^5.12.0",
-        "typescript": "^3.2.2"
+        "rollup-plugin-typescript2": "^0.19.2",
+        "tslint": "^5.12.1",
+        "typescript": "^3.2.4"
     }
 }
