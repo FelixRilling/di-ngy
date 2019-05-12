@@ -581,4 +581,4 @@ class Dingy {
 Dingy.logger = dingyLogby.getLogger(Dingy);
 Dingy.DATA_DIRECTORY = "data";
 
-export { Dingy, dingyLogby, DEFAULT_ROLE };
+export { DEFAULT_ROLE, Dingy, dingyLogby };

@@ -429,11 +429,11 @@ const SAVE_INTERVAL_MS = 60 * 1000; // 1min
  * @private
  */
 class JSONStorage {
-    constructor(path$$1) {
+    constructor(path) {
         this.dirty = false;
         this.saveInterval = null;
         this.data = {};
-        this.path = path$$1;
+        this.path = path;
     }
     async init() {
         const exists = await fsExtra.pathExists(this.path);
@@ -585,6 +585,6 @@ class Dingy {
 Dingy.logger = dingyLogby.getLogger(Dingy);
 Dingy.DATA_DIRECTORY = "data";
 
+exports.DEFAULT_ROLE = DEFAULT_ROLE;
 exports.Dingy = Dingy;
 exports.dingyLogby = dingyLogby;
-exports.DEFAULT_ROLE = DEFAULT_ROLE;
