@@ -2,7 +2,6 @@
  * Used to directly run and test the bot.
  */
 
-import { clingyLogby } from "cli-ngy";
 import { Message } from "discord.js";
 import { isNil } from "lightdash";
 import { Levels } from "logby";
@@ -17,8 +16,7 @@ if (isNil(DISCORD_TOKEN)) {
     throw new Error("No token set.");
 }
 
-dingyLogby.setLevel(Levels.TRACE);
-clingyLogby.setLevel(Levels.TRACE);
+dingyLogby.level = Levels.TRACE;
 
 const commands: IDingyCommandObject = {
     nest: {

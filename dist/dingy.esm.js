@@ -1,11 +1,11 @@
 import { DMChannel, Client } from 'discord.js';
-import { isPromise, isString, isNil, objDefaultsDeep, isRegExp, isInstanceOf } from 'lightdash';
+import { isObject, isPromise, isString, isNil, objDefaultsDeep, isRegExp, isInstanceOf } from 'lightdash';
 import { join } from 'path';
 import { Chevron } from 'chevronjs';
-import { Logby } from 'logby';
-import { Clingy } from 'cli-ngy';
+import { clingyLogby, Clingy } from 'cli-ngy';
+import { Logby, createDelegatingAppender, defaultLoggingAppender } from 'logby';
+import { ensureFile, createWriteStream, pathExists, readJson, writeJson } from 'fs-extra';
 import { stringify } from 'yamljs';
-import { pathExists, readJson, writeJson } from 'fs-extra';
 
 /**
  * Default role for every user.
@@ -56,11 +56,61 @@ const DEFAULT_CONFIG = {
 const dingyChevron = new Chevron();
 
 /**
+ * Default level-list.
+ *
+ * @public
+ */
+
+/**
+ * Helper method for creating log entry prefix.
+ *
+ * @private
+ * @param name Name of the logger instance.
+ * @param level Level of the entry to log.
+ * @returns Log entry prefix.
+ */
+const createDefaultLogPrefix = (name, level) => `${new Date().toISOString()} ${level.name} ${name}`;
+
+/**
+ * helper method converting an array of arbitrary values to a string which can be logged.
+ *
+ * @private
+ * @param args Arguments to stringify.
+ * @returns String containing stringified arguments.
+ */
+const stringifyArgs = (args) => args.map(val => {
+    if (isObject(val)) {
+        return JSON.stringify(val);
+    }
+    return val;
+}).join(" ");
+/**
+ * Logby appender streaming the output to a file on the disk.
+ *
+ * @public
+ * @param path Path to use for the file, will be created if it does not exist.
+ * @returns File stream appender.
+ */
+const createFileStreamAppender = async (path) => {
+    await ensureFile(path);
+    const writeStream = createWriteStream(path); //TODO find a way to properly close the stream on shutdown
+    return (name, level, args) => {
+        writeStream.write(`${createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`);
+    };
+};
+
+const logFilePath = `./log/bot_${Date.now()}.log`;
+/**
  * Logby instance used by Di-ngy.
  *
  * @public
  */
 const dingyLogby = new Logby();
+createFileStreamAppender(logFilePath)
+    .then(fileStreamAppender => dingyLogby.appenders.add(fileStreamAppender))
+    .catch(console.error);
+clingyLogby.appenders.add(createDelegatingAppender(dingyLogby));
+clingyLogby.appenders.delete(defaultLoggingAppender);
 
 /**
  * Helper function which creates a slim, printable version of a message.

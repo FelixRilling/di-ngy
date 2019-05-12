@@ -62,7 +62,7 @@
         "discord.js": "^11.5.0",
         "fs-extra": "^8.0.0",
         "lightdash": "^10.2.2",
-        "logby": "^3.0.0-0",
+        "logby": "^3.0.0-1",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
