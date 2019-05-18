@@ -60,7 +60,7 @@ const DEFAULT_CONFIG = {
 const dingyChevron = new chevronjs.Chevron();
 
 /**
- * Default level-list.
+ * Default level-list. Can be used to set the level of a {@link Logby} instance.
  *
  * @public
  */
@@ -91,7 +91,7 @@ const stringifyArgs = (args) => args.map(val => {
 /**
  * Logby appender streaming the output to a file on the disk.
  *
- * @public
+ * @private
  * @param path Path to use for the file, will be created if it does not exist.
  * @returns File stream appender.
  */
