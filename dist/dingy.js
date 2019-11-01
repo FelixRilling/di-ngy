@@ -623,9 +623,71 @@ var dingy = (function (exports, chevronjs, discord_js, lightdash, path, cliNgy, 
     Dingy.logger = dingyLogby.getLogger(Dingy);
     Dingy.DATA_DIRECTORY = "data";
 
+    /**
+     * Creates a displayable string of an user.
+     *
+     * @private
+     * @param {User} user
+     * @returns {string}
+     */
+    const toFullName = (user) => `${user.username}#${user.discriminator}`;
+
+    const BLOCKED_KEYS = /_\w+|\$\w+|client|guild|lastMessage|token/;
+    /**
+     * Checks if a value is to be kept in a filter iterator
+     *
+     * @private
+     * @param {any} value
+     * @returns {boolean}
+     */
+    const isLegalValue = (value) => !lightdash.isNil(value) && !lightdash.isFunction(value);
+    /**
+     * Checks if a entry is to be kept in a filter iterator
+     *
+     * @private
+     * @param {Array<any>} entry
+     * @returns {boolean}
+     */
+    const isLegalEntry = (entry) => !BLOCKED_KEYS.test(entry[0]) && isLegalValue(entry[1]);
+    /**
+     * Recursively strips sensitive data.
+     *
+     * @private
+     * @param {any} val
+     * @returns {any}
+     */
+    const strip = (val) => {
+        if (lightdash.isString(val) || lightdash.isNumber(val) || lightdash.isBoolean(val)) {
+            return val;
+        }
+        else if (Array.isArray(val)) {
+            return val.filter(isLegalValue).map(strip);
+        }
+        else if (lightdash.isObject(val)) {
+            const result = {};
+            Object.entries(val)
+                .filter(isLegalEntry)
+                .forEach(entry => {
+                result[entry[0]] = strip(entry[1]);
+            });
+            return result;
+        }
+        return null;
+    };
+    /**
+     * Decycles and recursively strips sensitive data.
+     *
+     * @private
+     * @param {any} val
+     * @returns {any}
+     */
+    const stripBotData = (val) => strip(lightdash.objDecycle(val));
+
     exports.DEFAULT_ROLE = DEFAULT_ROLE;
     exports.Dingy = Dingy;
     exports.dingyLogby = dingyLogby;
+    exports.stripBotData = stripBotData;
+    exports.toFullName = toFullName;
 
     return exports;
 
