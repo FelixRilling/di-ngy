@@ -2,18 +2,6 @@ import { stringify } from "yamljs";
 /**
  * @private
  */
-const createSlimCommandTree = (map) => {
-    const result = {};
-    map.forEach((command, key) => {
-        if (!command.data.hidden) {
-            result[key] = createSlimCommand(command);
-        }
-    });
-    return result;
-};
-/**
- * @private
- */
 const createSlimCommand = (command, showDetails = false) => {
     const result = {
         desc: command.data.help
@@ -36,9 +24,21 @@ const createSlimCommand = (command, showDetails = false) => {
 /**
  * @private
  */
+const createSlimCommandTree = (map) => {
+    const result = {};
+    map.forEach((command, key) => {
+        if (!command.data.hidden) {
+            result[key] = createSlimCommand(command);
+        }
+    });
+    return result;
+};
+/**
+ * @private
+ */
 const showDetailHelp = (dingy, clingy, argsAll) => {
     const lookupResult = clingy.getPath(argsAll);
-    // prematurely assume success to combine hidden + success check.
+    // Prematurely assume success to combine hidden + success check.
     const command = lookupResult.command;
     if (!lookupResult.successful || command.data.hidden) {
         return {

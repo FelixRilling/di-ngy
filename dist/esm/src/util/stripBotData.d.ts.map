@@ -1,1 +1,1 @@
-{"version":3,"file":"stripBotData.d.ts","sourceRoot":"","sources":["../../../../src/util/stripBotData.ts"],"names":[],"mappings":"AA4DA;;;;;;GAMG;AACH,QAAA,MAAM,YAAY,mBAA4C,CAAC;AAG/D,OAAO,EAAE,YAAY,EAAE,CAAC"}
+{"version":3,"file":"stripBotData.d.ts","sourceRoot":"","sources":["../../../../src/util/stripBotData.ts"],"names":[],"mappings":"AA2DA;;;;;;GAMG;AACH,QAAA,MAAM,YAAY,mBAA4C,CAAC;AAE/D,OAAO,EAAE,YAAY,EAAE,CAAC"}

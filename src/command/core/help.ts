@@ -2,12 +2,12 @@ import { Clingy, LookupSuccess } from "cli-ngy";
 
 import { stringify } from "yamljs";
 import { Dingy } from "../../Dingy";
-import { ICommandResponse } from "../../message/response/ICommandResponse";
-import { IDingyCommand } from "../IDingyCommand";
+import { CommandResponse } from "../../message/response/CommandResponse";
+import { DingyCommand } from "../DingyCommand";
 import { Argument } from "cli-ngy/dist/esm/src/argument/Argument";
 import { CommandMap } from "cli-ngy/dist/esm/src/command/CommandMap";
 
-interface ISlimCommand {
+interface SlimCommand {
     desc: string;
     powerRequired?: number;
     usableInDMs?: boolean;
@@ -19,26 +19,11 @@ interface ISlimCommand {
 /**
  * @private
  */
-const createSlimCommandTree = (map: CommandMap): object => {
-    const result: { [key: string]: any } = {};
-
-    map.forEach((command, key) => {
-        if (!(<IDingyCommand>command).data.hidden) {
-            result[key] = createSlimCommand(<IDingyCommand>command);
-        }
-    });
-
-    return result;
-};
-
-/**
- * @private
- */
 const createSlimCommand = (
-    command: IDingyCommand,
+    command: DingyCommand,
     showDetails = false
 ): object => {
-    const result: ISlimCommand = {
+    const result: SlimCommand = {
         desc: command.data.help
     };
 
@@ -63,15 +48,30 @@ const createSlimCommand = (
 /**
  * @private
  */
+const createSlimCommandTree = (map: CommandMap): object => {
+    const result: { [key: string]: any } = {};
+
+    map.forEach((command, key) => {
+        if (!(<DingyCommand>command).data.hidden) {
+            result[key] = createSlimCommand(<DingyCommand>command);
+        }
+    });
+
+    return result;
+};
+
+/**
+ * @private
+ */
 const showDetailHelp = (
     dingy: Dingy,
     clingy: Clingy,
     argsAll: string[]
-): ICommandResponse => {
+): CommandResponse => {
     const lookupResult = clingy.getPath(argsAll);
 
-    // prematurely assume success to combine hidden + success check.
-    const command = <IDingyCommand>(<LookupSuccess>lookupResult).command;
+    // Prematurely assume success to combine hidden + success check.
+    const command = <DingyCommand>(<LookupSuccess>lookupResult).command;
     if (!lookupResult.successful || command.data.hidden) {
         return {
             val: `Command '${argsAll.join("->")}' does not exist.`,
@@ -92,7 +92,7 @@ const showDetailHelp = (
 /**
  * @private
  */
-const showGeneralHelp = (dingy: Dingy, clingy: Clingy): ICommandResponse => {
+const showGeneralHelp = (dingy: Dingy, clingy: Clingy): CommandResponse => {
     return {
         val: [
             "Help",
@@ -108,7 +108,7 @@ const showGeneralHelp = (dingy: Dingy, clingy: Clingy): ICommandResponse => {
  *
  * @private
  */
-const help: IDingyCommand = {
+const help: DingyCommand = {
     alias: ["manual", "?"],
     args: [],
     sub: null,

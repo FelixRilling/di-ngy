@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { IRole } from "./IRole";
+import { Role } from "./Role";
 
 /**
  * Helper function checking role access.
@@ -9,7 +9,7 @@ import { IRole } from "./IRole";
 const hasEnoughPower = (
     msg: Message,
     powerRequired: number,
-    roles: IRole[]
+    roles: Role[]
 ): boolean => {
     for (const role of roles) {
         if (role.power >= powerRequired && role.check(msg)) {

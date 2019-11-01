@@ -1,10 +1,10 @@
-import { IInitializableStorage } from "./IInitializableStorage";
+import { InitializableStorage } from "./InitializableStorage";
 /**
  * IInitializableStorage implementation using JSON files to store data.
  *
  * @private
  */
-declare class JSONStorage implements IInitializableStorage<any> {
+declare class JSONStorage implements InitializableStorage<any> {
     private static readonly logger;
     private readonly path;
     private data;

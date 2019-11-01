@@ -22,7 +22,8 @@
             "lightdash": "l_",
             "logby": "logby",
             "chevronjs": "Chevron",
-            "cli-ngy": "clingy"
+            "cli-ngy": "clingy",
+            "yamljs": "YAML"
         }
     },
     "scripts": {
@@ -55,14 +56,16 @@
     "homepage": "https://github.com/FelixRilling/di-ngy#readme",
     "dependencies": {
         "@types/fs-extra": "^8.0.1",
+        "@types/lodash": "^4.14.144",
         "@types/node": "^12.12.3",
         "@types/yamljs": "^0.2.30",
-        "chevronjs": "^11.0.1",
-        "cli-ngy": "^10.2.4",
+        "chevronjs": "^11.1.0",
+        "cli-ngy": "^10.3.0",
         "discord.js": "^11.5.0",
         "fs-extra": "^8.0.1",
         "lightdash": "^10.3.0",
-        "logby": "^3.1.0",
+        "lodash": "^4.17.15",
+        "logby": "^3.1.1",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {

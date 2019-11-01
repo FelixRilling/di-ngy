@@ -1,23 +1,25 @@
 import { createWriteStream, ensureFile } from "fs-extra";
 import { isObject } from "lightdash";
-import { createDefaultLogPrefix } from "logby/src/appender/defaultLoggingAppender";
+import { createDefaultLogPrefix } from "logby";
 import { AppenderFn } from "logby/dist/esm/src/appender/AppenderFn";
 
 /**
- * helper method converting an array of arbitrary values to a string which can be logged.
+ * Helper method converting an array of arbitrary values to a string which can be logged.
  *
  * @private
  * @param args Arguments to stringify.
  * @returns String containing stringified arguments.
  */
 const stringifyArgs = (args: any[]): string =>
-    args.map(val => {
-        if (isObject(val)) {
-            return JSON.stringify(val);
-        }
+    args
+        .map(val => {
+            if (isObject(val)) {
+                return JSON.stringify(val);
+            }
 
-        return val;
-    }).join(" ");
+            return val;
+        })
+        .join(" ");
 
 /**
  * Logby appender streaming the output to a file on the disk.
@@ -31,7 +33,9 @@ const createFileStreamAppender = async (path: string): Promise<AppenderFn> => {
     const writeStream = createWriteStream(path); //TODO find a way to properly close the stream on shutdown
 
     return (name, level, args) => {
-        writeStream.write(`${createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`);
+        writeStream.write(
+            `${createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`
+        );
     };
 };
 

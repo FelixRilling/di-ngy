@@ -3,13 +3,13 @@ import { Client, Message } from "discord.js";
 import { isNil, objDefaultsDeep } from "lightdash";
 import * as path from "path";
 import { DEFAULT_CONFIG } from "./config/config.default";
-import { IConfig } from "./config/IConfig";
+import { Config } from "./config/Config";
 import { dingyChevron, DingyDiKeys } from "./di";
 import { dingyLogby } from "./logger";
 import { createSlimMessage } from "./message/createSlimMessage";
 import { MessageReceiverService } from "./message/MessageReceiverService";
-import { IInitializableStorage } from "./storage/IInitializableStorage";
-import { IStorage } from "./storage/IStorage";
+import { InitializableStorage } from "./storage/InitializableStorage";
+import { Storage } from "./storage/Storage";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
 import { AnyObject } from "lightdash/dist/esm/src/obj/lib/AnyObject";
@@ -24,10 +24,10 @@ class Dingy {
     private static readonly logger: Logger = dingyLogby.getLogger(Dingy);
     private static readonly DATA_DIRECTORY = "data";
 
-    public readonly config: IConfig;
+    public readonly config: Config;
     public readonly client: Client;
-    public readonly memoryStorage: IStorage<any>;
-    public readonly persistentStorage: IInitializableStorage<any>;
+    public readonly memoryStorage: Storage<any>;
+    public readonly persistentStorage: InitializableStorage<any>;
 
     private readonly messageReceiverService: MessageReceiverService;
 
@@ -39,16 +39,16 @@ class Dingy {
      * @param {object?} memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
      * @param {object?} persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
-    constructor(
+    public constructor(
         commands: AnyObject,
         config: AnyObject = {},
-        memoryStorage?: IStorage<any>,
-        persistentStorage?: IInitializableStorage<any>
+        memoryStorage?: Storage<any>,
+        persistentStorage?: InitializableStorage<any>
     ) {
         Dingy.logger.info("Creating instance.");
 
         Dingy.logger.debug("Applying config.");
-        this.config = <IConfig>objDefaultsDeep(config, DEFAULT_CONFIG);
+        this.config = <Config>objDefaultsDeep(config, DEFAULT_CONFIG);
 
         Dingy.logger.info("Initializing Storage.");
         Dingy.logger.debug("Creating memory storage.");
@@ -125,14 +125,14 @@ class Dingy {
         Dingy.logger.info("Disconnected.");
     }
 
-    private bindEvents() {
+    private bindEvents(): void {
         this.client.on("error", err =>
             Dingy.logger.error("An error occurred, trying to continue.", err)
         );
         this.client.on("message", msg => this.messageHandler(msg));
     }
 
-    private messageHandler(msg: Message) {
+    private messageHandler(msg: Message): void {
         Dingy.logger.trace("A message was sent.", createSlimMessage(msg));
         this.messageReceiverService.handleMessage(msg);
     }

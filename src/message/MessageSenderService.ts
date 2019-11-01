@@ -4,8 +4,8 @@ import { isNil, isPromise, isString } from "lightdash";
 import { dingyChevron, DingyDiKeys } from "../di";
 import { Dingy } from "../Dingy";
 import { dingyLogby } from "../logger";
-import { ICommandResponse } from "./response/ICommandResponse";
-import { sendable } from "./response/sendable";
+import { CommandResponse } from "./response/CommandResponse";
+import { Sendable } from "./response/Sendable";
 import { Logger } from "logby";
 
 /**
@@ -21,7 +21,7 @@ class MessageSenderService {
 
     private readonly dingy: Dingy;
 
-    constructor(dingy: Dingy) {
+    public constructor(dingy: Dingy) {
         this.dingy = dingy;
     }
 
@@ -33,7 +33,7 @@ class MessageSenderService {
      */
     public sendResult(
         msg: Message,
-        value: sendable<string | ICommandResponse>
+        value: Sendable<string | CommandResponse>
     ): void {
         if (isPromise(value)) {
             MessageSenderService.logger.debug("Value is a promise, waiting.");
@@ -50,14 +50,14 @@ class MessageSenderService {
         }
     }
 
-    private send(msg: Message, value: string | ICommandResponse): void {
+    private send(msg: Message, value: string | CommandResponse): void {
         MessageSenderService.logger.trace("Preparing sending of message.", {
             value
         });
         const isPlainValue = isString(value);
         const options: MessageOptions = {
-            code: isPlainValue ? false : (<ICommandResponse>value).code,
-            files: isPlainValue ? [] : (<ICommandResponse>value).files
+            code: isPlainValue ? false : (<CommandResponse>value).code,
+            files: isPlainValue ? [] : (<CommandResponse>value).files
         };
         const content = this.determineContent(value, isPlainValue);
 
@@ -68,8 +68,8 @@ class MessageSenderService {
         msg.channel
             .send(content, options)
             .then(sentMsg => {
-                if (!isPlainValue && !isNil((<ICommandResponse>value).onSend)) {
-                    (<ICommandResponse>value).onSend!(sentMsg);
+                if (!isPlainValue && !isNil((<CommandResponse>value).onSend)) {
+                    (<CommandResponse>value).onSend!(sentMsg);
                 }
                 MessageSenderService.logger.debug("Sent message.", {
                     content,
@@ -85,12 +85,12 @@ class MessageSenderService {
     }
 
     private determineContent(
-        value: string | ICommandResponse,
+        value: string | CommandResponse,
         isPlainValue: boolean
-    ) {
-        let content: string = isPlainValue
+    ): string {
+        const content: string = isPlainValue
             ? <string>value
-            : (<ICommandResponse>value).val;
+            : (<CommandResponse>value).val;
 
         if (content.length > MessageSenderService.MAX_LENGTH) {
             MessageSenderService.logger.warn(

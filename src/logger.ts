@@ -13,6 +13,7 @@ const dingyLogby = new Logby();
 
 createFileStreamAppender(logFilePath)
     .then(fileStreamAppender => dingyLogby.appenders.add(fileStreamAppender))
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     .catch(console.error);
 
 clingyLogby.appenders.add(createDelegatingAppender(dingyLogby));

@@ -1,4 +1,4 @@
-import { IConfig } from "./IConfig";
+import { Config } from "./Config";
 
 /**
  * Default role for every user.
@@ -15,7 +15,7 @@ const DEFAULT_ROLE = {
  *
  * @private
  */
-const DEFAULT_CONFIG: IConfig = {
+const DEFAULT_CONFIG: Config = {
     prefix: "$",
     roles: [DEFAULT_ROLE],
 
@@ -42,7 +42,6 @@ const DEFAULT_CONFIG: IConfig = {
 
     clingy: {
         caseSensitive: false,
-        // tslint:disable-next-line:quotemark
         legalQuotes: ['"']
     }
 };

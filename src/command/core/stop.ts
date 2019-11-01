@@ -1,4 +1,4 @@
-import { IDingyCommand } from "../IDingyCommand";
+import { DingyCommand } from "../DingyCommand";
 
 const EXIT_CODE_STOP = 10;
 
@@ -7,7 +7,7 @@ const EXIT_CODE_STOP = 10;
  *
  * @private
  */
-const stop: IDingyCommand = {
+const stop: DingyCommand = {
     alias: ["die", "shutdown"],
     args: [],
     sub: null,

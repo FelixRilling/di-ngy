@@ -1,3 +1,4 @@
+import { InjectableType } from "chevronjs";
 import { isNil, isPromise, isString } from "lightdash";
 import { dingyChevron, DingyDiKeys } from "../di";
 import { dingyLogby } from "../logger";
@@ -55,7 +56,7 @@ class MessageSenderService {
             .catch(err => MessageSenderService.logger.error("Could not send message.", err));
     }
     determineContent(value, isPlainValue) {
-        let content = isPlainValue
+        const content = isPlainValue
             ? value
             : value.val;
         if (content.length > MessageSenderService.MAX_LENGTH) {
@@ -71,6 +72,6 @@ class MessageSenderService {
 }
 MessageSenderService.logger = dingyLogby.getLogger(MessageSenderService);
 MessageSenderService.MAX_LENGTH = 2000;
-dingyChevron.set("factory" /* FACTORY */, [DingyDiKeys.CLASS], MessageSenderService);
+dingyChevron.set(InjectableType.FACTORY, [DingyDiKeys.CLASS], MessageSenderService);
 export { MessageSenderService };
 //# sourceMappingURL=MessageSenderService.js.map

@@ -1,3 +1,4 @@
+import { InjectableType } from "chevronjs";
 import { Client } from "discord.js";
 import { isNil, objDefaultsDeep } from "lightdash";
 import * as path from "path";
@@ -36,8 +37,8 @@ class Dingy {
             ? new JSONStorage(path.join("./", Dingy.DATA_DIRECTORY, "storage.json"))
             : persistentStorage;
         Dingy.logger.debug("Initializing DI.");
-        dingyChevron.set("plain" /* PLAIN */, [], this, DingyDiKeys.CLASS);
-        dingyChevron.set("plain" /* PLAIN */, [], commands, DingyDiKeys.COMMANDS);
+        dingyChevron.set(InjectableType.PLAIN, [], this, DingyDiKeys.CLASS);
+        dingyChevron.set(InjectableType.PLAIN, [], commands, DingyDiKeys.COMMANDS);
         Dingy.logger.debug("Creating MessageReceiverService.");
         this.messageReceiverService = dingyChevron.get(MessageReceiverService);
         Dingy.logger.info("Creating Client.");

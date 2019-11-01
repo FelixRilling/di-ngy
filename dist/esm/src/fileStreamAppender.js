@@ -1,19 +1,21 @@
 import { createWriteStream, ensureFile } from "fs-extra";
 import { isObject } from "lightdash";
-import { createDefaultLogPrefix } from "logby/src/appender/defaultLoggingAppender";
+import { createDefaultLogPrefix } from "logby";
 /**
- * helper method converting an array of arbitrary values to a string which can be logged.
+ * Helper method converting an array of arbitrary values to a string which can be logged.
  *
  * @private
  * @param args Arguments to stringify.
  * @returns String containing stringified arguments.
  */
-const stringifyArgs = (args) => args.map(val => {
+const stringifyArgs = (args) => args
+    .map(val => {
     if (isObject(val)) {
         return JSON.stringify(val);
     }
     return val;
-}).join(" ");
+})
+    .join(" ");
 /**
  * Logby appender streaming the output to a file on the disk.
  *

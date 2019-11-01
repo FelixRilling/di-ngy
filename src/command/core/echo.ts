@@ -1,4 +1,4 @@
-import { IDingyCommand } from "../IDingyCommand";
+import { DingyCommand } from "../DingyCommand";
 import { ResolvedArgumentMap } from "cli-ngy/dist/esm/src/argument/ResolvedArgumentMap";
 
 /**
@@ -6,7 +6,7 @@ import { ResolvedArgumentMap } from "cli-ngy/dist/esm/src/argument/ResolvedArgum
  *
  * @private
  */
-const echo: IDingyCommand = {
+const echo: DingyCommand = {
     alias: ["say", "send"],
     args: [
         {

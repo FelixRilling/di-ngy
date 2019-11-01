@@ -1,7 +1,7 @@
 import { Client } from "discord.js";
-import { IConfig } from "./config/IConfig";
-import { IInitializableStorage } from "./storage/IInitializableStorage";
-import { IStorage } from "./storage/IStorage";
+import { Config } from "./config/Config";
+import { InitializableStorage } from "./storage/InitializableStorage";
+import { Storage } from "./storage/Storage";
 import { AnyObject } from "lightdash/dist/esm/src/obj/lib/AnyObject";
 /**
  * Main Dingy class.
@@ -11,10 +11,10 @@ import { AnyObject } from "lightdash/dist/esm/src/obj/lib/AnyObject";
 declare class Dingy {
     private static readonly logger;
     private static readonly DATA_DIRECTORY;
-    readonly config: IConfig;
+    readonly config: Config;
     readonly client: Client;
-    readonly memoryStorage: IStorage<any>;
-    readonly persistentStorage: IInitializableStorage<any>;
+    readonly memoryStorage: Storage<any>;
+    readonly persistentStorage: InitializableStorage<any>;
     private readonly messageReceiverService;
     /**
      * Creates a new Dingy instance.
@@ -24,7 +24,7 @@ declare class Dingy {
      * @param {object?} memoryStorage Storage instance handling runtime data. Falls back to {@link MemoryStorage}.
      * @param {object?} persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
-    constructor(commands: AnyObject, config?: AnyObject, memoryStorage?: IStorage<any>, persistentStorage?: IInitializableStorage<any>);
+    constructor(commands: AnyObject, config?: AnyObject, memoryStorage?: Storage<any>, persistentStorage?: InitializableStorage<any>);
     /**
      * Connects the instance to the Discord API.
      *

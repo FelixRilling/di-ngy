@@ -44,7 +44,7 @@ class JSONStorage {
             JSONStorage.logger.trace("JSON was changed, attempting to save it.");
             this.dirty = false;
             // We don't need to wait for the saving to finish
-            // this *could* lead to locking/access issues but hey, probably works.
+            // This *could* lead to locking/access issues but hey, probably works.
             writeJson(this.path, this.data)
                 .then(() => JSONStorage.logger.trace(`Saved JSON '${this.path}'.`))
                 .catch(e => JSONStorage.logger.error(`Could not save JSON '${this.path}'.`, e));

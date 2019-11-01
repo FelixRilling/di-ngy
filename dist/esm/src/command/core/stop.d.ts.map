@@ -1,1 +1,1 @@
-{"version":3,"file":"stop.d.ts","sourceRoot":"","sources":["../../../../../src/command/core/stop.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,MAAM,kBAAkB,CAAC;AAIjD;;;;GAIG;AACH,QAAA,MAAM,IAAI,EAAE,aAkBX,CAAC;AAEF,OAAO,EAAE,IAAI,EAAE,CAAC"}
+{"version":3,"file":"stop.d.ts","sourceRoot":"","sources":["../../../../../src/command/core/stop.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,iBAAiB,CAAC;AAI/C;;;;GAIG;AACH,QAAA,MAAM,IAAI,EAAE,YAkBX,CAAC;AAEF,OAAO,EAAE,IAAI,EAAE,CAAC"}

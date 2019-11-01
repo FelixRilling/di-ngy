@@ -1,4 +1,4 @@
-import { IConfig } from "./IConfig";
+import { Config } from "./Config";
 /**
  * Default role for every user.
  *
@@ -13,6 +13,6 @@ declare const DEFAULT_ROLE: {
  *
  * @private
  */
-declare const DEFAULT_CONFIG: IConfig;
+declare const DEFAULT_CONFIG: Config;
 export { DEFAULT_CONFIG, DEFAULT_ROLE };
 //# sourceMappingURL=config.default.d.ts.map

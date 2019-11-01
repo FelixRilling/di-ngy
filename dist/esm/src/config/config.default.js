@@ -34,7 +34,6 @@ const DEFAULT_CONFIG = {
     },
     clingy: {
         caseSensitive: false,
-        // tslint:disable-next-line:quotemark
         legalQuotes: ['"']
     }
 };

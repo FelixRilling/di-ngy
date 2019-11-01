@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { Dingy } from "../Dingy";
-import { ICommandResponse } from "./response/ICommandResponse";
-import { sendable } from "./response/sendable";
+import { CommandResponse } from "./response/CommandResponse";
+import { Sendable } from "./response/Sendable";
 /**
  * Handles sending messages.
  *
@@ -18,7 +18,7 @@ declare class MessageSenderService {
      * @param msg Message to respond to.
      * @param value Value to send.
      */
-    sendResult(msg: Message, value: sendable<string | ICommandResponse>): void;
+    sendResult(msg: Message, value: Sendable<string | CommandResponse>): void;
     private send;
     private determineContent;
 }

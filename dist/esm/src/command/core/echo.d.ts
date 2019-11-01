@@ -1,9 +1,9 @@
-import { IDingyCommand } from "../IDingyCommand";
+import { DingyCommand } from "../DingyCommand";
 /**
  * Built-in "echo" command.
  *
  * @private
  */
-declare const echo: IDingyCommand;
+declare const echo: DingyCommand;
 export { echo };
 //# sourceMappingURL=echo.d.ts.map

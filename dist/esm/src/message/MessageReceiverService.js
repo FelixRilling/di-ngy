@@ -1,3 +1,4 @@
+import { InjectableType } from "chevronjs";
 import { Clingy } from "cli-ngy";
 import { DMChannel } from "discord.js";
 import { isInstanceOf, isRegExp, objDefaultsDeep } from "lightdash";
@@ -61,7 +62,7 @@ class MessageReceiverService {
             this.handleLookupNotFound(msg, lookupResultNotFound);
         }
         else if (lookupResult.type === ResultType.ERROR_MISSING_ARGUMENT) {
-            const lookupResultMissingArg = (lookupResult);
+            const lookupResultMissingArg = lookupResult;
             MessageReceiverService.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}.`);
             this.handleLookupMissingArg(msg, lookupResultMissingArg);
         }
@@ -116,6 +117,6 @@ class MessageReceiverService {
     }
 }
 MessageReceiverService.logger = dingyLogby.getLogger(MessageReceiverService);
-dingyChevron.set("factory" /* FACTORY */, [DingyDiKeys.CLASS, DingyDiKeys.COMMANDS], MessageReceiverService);
+dingyChevron.set(InjectableType.FACTORY, [DingyDiKeys.CLASS, DingyDiKeys.COMMANDS], MessageReceiverService);
 export { MessageReceiverService };
 //# sourceMappingURL=MessageReceiverService.js.map

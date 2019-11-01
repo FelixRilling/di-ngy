@@ -2,14 +2,13 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var chevronjs = require('chevronjs');
 var discord_js = require('discord.js');
 var lightdash = require('lightdash');
 var path = require('path');
-var chevronjs = require('chevronjs');
 var cliNgy = require('cli-ngy');
 var logby = require('logby');
 var fsExtra = require('fs-extra');
-var defaultLoggingAppender = require('logby/src/appender/defaultLoggingAppender');
 var yamljs = require('yamljs');
 
 /**
@@ -48,7 +47,6 @@ const DEFAULT_CONFIG = {
     },
     clingy: {
         caseSensitive: false,
-        // tslint:disable-next-line:quotemark
         legalQuotes: ['"']
     }
 };
@@ -66,18 +64,20 @@ var DingyDiKeys;
 })(DingyDiKeys || (DingyDiKeys = {}));
 
 /**
- * helper method converting an array of arbitrary values to a string which can be logged.
+ * Helper method converting an array of arbitrary values to a string which can be logged.
  *
  * @private
  * @param args Arguments to stringify.
  * @returns String containing stringified arguments.
  */
-const stringifyArgs = (args) => args.map(val => {
+const stringifyArgs = (args) => args
+    .map(val => {
     if (lightdash.isObject(val)) {
         return JSON.stringify(val);
     }
     return val;
-}).join(" ");
+})
+    .join(" ");
 /**
  * Logby appender streaming the output to a file on the disk.
  *
@@ -89,7 +89,7 @@ const createFileStreamAppender = async (path) => {
     await fsExtra.ensureFile(path);
     const writeStream = fsExtra.createWriteStream(path); //TODO find a way to properly close the stream on shutdown
     return (name, level, args) => {
-        writeStream.write(`${defaultLoggingAppender.createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`);
+        writeStream.write(`${logby.createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`);
     };
 };
 
@@ -102,6 +102,7 @@ const logFilePath = `./log/bot_${Date.now()}.log`;
 const dingyLogby = new logby.Logby();
 createFileStreamAppender(logFilePath)
     .then(fileStreamAppender => dingyLogby.appenders.add(fileStreamAppender))
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     .catch(console.error);
 cliNgy.clingyLogby.appenders.add(logby.createDelegatingAppender(dingyLogby));
 cliNgy.clingyLogby.appenders.delete(logby.defaultLoggingAppender);
@@ -144,18 +145,6 @@ const echo = {
 /**
  * @private
  */
-const createSlimCommandTree = (map) => {
-    const result = {};
-    map.forEach((command, key) => {
-        if (!command.data.hidden) {
-            result[key] = createSlimCommand(command);
-        }
-    });
-    return result;
-};
-/**
- * @private
- */
 const createSlimCommand = (command, showDetails = false) => {
     const result = {
         desc: command.data.help
@@ -178,9 +167,21 @@ const createSlimCommand = (command, showDetails = false) => {
 /**
  * @private
  */
+const createSlimCommandTree = (map) => {
+    const result = {};
+    map.forEach((command, key) => {
+        if (!command.data.hidden) {
+            result[key] = createSlimCommand(command);
+        }
+    });
+    return result;
+};
+/**
+ * @private
+ */
 const showDetailHelp = (dingy, clingy, argsAll) => {
     const lookupResult = clingy.getPath(argsAll);
-    // prematurely assume success to combine hidden + success check.
+    // Prematurely assume success to combine hidden + success check.
     const command = lookupResult.command;
     if (!lookupResult.successful || command.data.hidden) {
         return {
@@ -334,7 +335,7 @@ class MessageSenderService {
             .catch(err => MessageSenderService.logger.error("Could not send message.", err));
     }
     determineContent(value, isPlainValue) {
-        let content = isPlainValue
+        const content = isPlainValue
             ? value
             : value.val;
         if (content.length > MessageSenderService.MAX_LENGTH) {
@@ -350,7 +351,7 @@ class MessageSenderService {
 }
 MessageSenderService.logger = dingyLogby.getLogger(MessageSenderService);
 MessageSenderService.MAX_LENGTH = 2000;
-dingyChevron.set("factory" /* FACTORY */, [DingyDiKeys.CLASS], MessageSenderService);
+dingyChevron.set(chevronjs.InjectableType.FACTORY, [DingyDiKeys.CLASS], MessageSenderService);
 
 var ResultType;
 (function (ResultType) {
@@ -412,7 +413,7 @@ class MessageReceiverService {
             this.handleLookupNotFound(msg, lookupResultNotFound);
         }
         else if (lookupResult.type === ResultType.ERROR_MISSING_ARGUMENT) {
-            const lookupResultMissingArg = (lookupResult);
+            const lookupResultMissingArg = lookupResult;
             MessageReceiverService.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}.`);
             this.handleLookupMissingArg(msg, lookupResultMissingArg);
         }
@@ -467,7 +468,7 @@ class MessageReceiverService {
     }
 }
 MessageReceiverService.logger = dingyLogby.getLogger(MessageReceiverService);
-dingyChevron.set("factory" /* FACTORY */, [DingyDiKeys.CLASS, DingyDiKeys.COMMANDS], MessageReceiverService);
+dingyChevron.set(chevronjs.InjectableType.FACTORY, [DingyDiKeys.CLASS, DingyDiKeys.COMMANDS], MessageReceiverService);
 
 const SAVE_INTERVAL_MS = 60 * 1000; // 1min
 /**
@@ -512,7 +513,7 @@ class JSONStorage {
             JSONStorage.logger.trace("JSON was changed, attempting to save it.");
             this.dirty = false;
             // We don't need to wait for the saving to finish
-            // this *could* lead to locking/access issues but hey, probably works.
+            // This *could* lead to locking/access issues but hey, probably works.
             fsExtra.writeJson(this.path, this.data)
                 .then(() => JSONStorage.logger.trace(`Saved JSON '${this.path}'.`))
                 .catch(e => JSONStorage.logger.error(`Could not save JSON '${this.path}'.`, e));
@@ -569,8 +570,8 @@ class Dingy {
             ? new JSONStorage(path.join("./", Dingy.DATA_DIRECTORY, "storage.json"))
             : persistentStorage;
         Dingy.logger.debug("Initializing DI.");
-        dingyChevron.set("plain" /* PLAIN */, [], this, DingyDiKeys.CLASS);
-        dingyChevron.set("plain" /* PLAIN */, [], commands, DingyDiKeys.COMMANDS);
+        dingyChevron.set(chevronjs.InjectableType.PLAIN, [], this, DingyDiKeys.CLASS);
+        dingyChevron.set(chevronjs.InjectableType.PLAIN, [], commands, DingyDiKeys.COMMANDS);
         Dingy.logger.debug("Creating MessageReceiverService.");
         this.messageReceiverService = dingyChevron.get(MessageReceiverService);
         Dingy.logger.info("Creating Client.");

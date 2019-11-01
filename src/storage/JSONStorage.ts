@@ -1,7 +1,7 @@
 import { pathExists, readJson, writeJson } from "fs-extra";
 import { isNil } from "lightdash";
 import { dingyLogby } from "../logger";
-import { IInitializableStorage } from "./IInitializableStorage";
+import { InitializableStorage } from "./InitializableStorage";
 import { Logger } from "logby";
 
 const SAVE_INTERVAL_MS = 60 * 1000; // 1min
@@ -11,15 +11,15 @@ const SAVE_INTERVAL_MS = 60 * 1000; // 1min
  *
  * @private
  */
-class JSONStorage implements IInitializableStorage<any> {
+class JSONStorage implements InitializableStorage<any> {
     private static readonly logger: Logger = dingyLogby.getLogger(JSONStorage);
 
     private readonly path: string;
     private data: { [key: string]: any };
-    private dirty: boolean = false;
+    private dirty = false;
     private saveInterval: NodeJS.Timeout | null = null;
 
-    constructor(path: string) {
+    public constructor(path: string) {
         this.data = {};
         this.path = path;
     }
@@ -62,7 +62,7 @@ class JSONStorage implements IInitializableStorage<any> {
             );
             this.dirty = false;
             // We don't need to wait for the saving to finish
-            // this *could* lead to locking/access issues but hey, probably works.
+            // This *could* lead to locking/access issues but hey, probably works.
             writeJson(this.path, this.data)
                 .then(() =>
                     JSONStorage.logger.trace(`Saved JSON '${this.path}'.`)

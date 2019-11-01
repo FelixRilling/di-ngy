@@ -1,9 +1,14 @@
 import { InjectableType } from "chevronjs";
-import { Clingy, LookupErrorMissingArgs, LookupErrorNotFound, LookupSuccess } from "cli-ngy";
+import {
+    Clingy,
+    LookupErrorMissingArgs,
+    LookupErrorNotFound,
+    LookupSuccess
+} from "cli-ngy";
 import { DMChannel, Message } from "discord.js";
 import { isInstanceOf, isRegExp, objDefaultsDeep } from "lightdash";
 import { DEFAULT_COMMANDS } from "../command/commands.default";
-import { IDingyCommand } from "../command/IDingyCommand";
+import { DingyCommand } from "../command/DingyCommand";
 import { dingyChevron, DingyDiKeys } from "../di";
 import { Dingy } from "../Dingy";
 import { dingyLogby } from "../logger";
@@ -34,7 +39,7 @@ class MessageReceiverService {
      * @param dingy Dingy instance this service belongs to.
      * @param commands Command object.
      */
-    constructor(dingy: Dingy, commands: AnyObject) {
+    public constructor(dingy: Dingy, commands: AnyObject) {
         this.dingy = dingy;
         this.clingy = new Clingy(
             dingy.config.enableDefaultCommands
@@ -110,9 +115,7 @@ class MessageReceiverService {
             );
             this.handleLookupNotFound(msg, lookupResultNotFound);
         } else if (lookupResult.type === ResultType.ERROR_MISSING_ARGUMENT) {
-            const lookupResultMissingArg = <LookupErrorMissingArgs>(
-                lookupResult
-            );
+            const lookupResultMissingArg = <LookupErrorMissingArgs>lookupResult;
             MessageReceiverService.logger.debug(
                 `Argument missing: ${lookupResultMissingArg.missing}.`
             );
@@ -168,7 +171,7 @@ class MessageReceiverService {
         msg: Message,
         lookupResultSuccess: LookupSuccess
     ): void {
-        const command = <IDingyCommand>lookupResultSuccess.command;
+        const command = <DingyCommand>lookupResultSuccess.command;
 
         if (isInstanceOf(msg.channel, DMChannel) && !command.data.usableInDMs) {
             MessageReceiverService.logger.debug("Not usable in DMs.");

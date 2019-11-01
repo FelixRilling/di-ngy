@@ -1,4 +1,4 @@
-var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, logby, fsExtra, defaultLoggingAppender, yamljs) {
+var dingy = (function (exports, chevronjs, discord_js, lightdash, path, cliNgy, logby, fsExtra, yamljs) {
     'use strict';
 
     /**
@@ -37,7 +37,6 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
         },
         clingy: {
             caseSensitive: false,
-            // tslint:disable-next-line:quotemark
             legalQuotes: ['"']
         }
     };
@@ -55,18 +54,20 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
     })(DingyDiKeys || (DingyDiKeys = {}));
 
     /**
-     * helper method converting an array of arbitrary values to a string which can be logged.
+     * Helper method converting an array of arbitrary values to a string which can be logged.
      *
      * @private
      * @param args Arguments to stringify.
      * @returns String containing stringified arguments.
      */
-    const stringifyArgs = (args) => args.map(val => {
+    const stringifyArgs = (args) => args
+        .map(val => {
         if (lightdash.isObject(val)) {
             return JSON.stringify(val);
         }
         return val;
-    }).join(" ");
+    })
+        .join(" ");
     /**
      * Logby appender streaming the output to a file on the disk.
      *
@@ -78,7 +79,7 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
         await fsExtra.ensureFile(path);
         const writeStream = fsExtra.createWriteStream(path); //TODO find a way to properly close the stream on shutdown
         return (name, level, args) => {
-            writeStream.write(`${defaultLoggingAppender.createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`);
+            writeStream.write(`${logby.createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`);
         };
     };
 
@@ -91,6 +92,7 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
     const dingyLogby = new logby.Logby();
     createFileStreamAppender(logFilePath)
         .then(fileStreamAppender => dingyLogby.appenders.add(fileStreamAppender))
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         .catch(console.error);
     cliNgy.clingyLogby.appenders.add(logby.createDelegatingAppender(dingyLogby));
     cliNgy.clingyLogby.appenders.delete(logby.defaultLoggingAppender);
@@ -133,18 +135,6 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
     /**
      * @private
      */
-    const createSlimCommandTree = (map) => {
-        const result = {};
-        map.forEach((command, key) => {
-            if (!command.data.hidden) {
-                result[key] = createSlimCommand(command);
-            }
-        });
-        return result;
-    };
-    /**
-     * @private
-     */
     const createSlimCommand = (command, showDetails = false) => {
         const result = {
             desc: command.data.help
@@ -167,9 +157,21 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
     /**
      * @private
      */
+    const createSlimCommandTree = (map) => {
+        const result = {};
+        map.forEach((command, key) => {
+            if (!command.data.hidden) {
+                result[key] = createSlimCommand(command);
+            }
+        });
+        return result;
+    };
+    /**
+     * @private
+     */
     const showDetailHelp = (dingy, clingy, argsAll) => {
         const lookupResult = clingy.getPath(argsAll);
-        // prematurely assume success to combine hidden + success check.
+        // Prematurely assume success to combine hidden + success check.
         const command = lookupResult.command;
         if (!lookupResult.successful || command.data.hidden) {
             return {
@@ -323,7 +325,7 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
                 .catch(err => MessageSenderService.logger.error("Could not send message.", err));
         }
         determineContent(value, isPlainValue) {
-            let content = isPlainValue
+            const content = isPlainValue
                 ? value
                 : value.val;
             if (content.length > MessageSenderService.MAX_LENGTH) {
@@ -339,7 +341,7 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
     }
     MessageSenderService.logger = dingyLogby.getLogger(MessageSenderService);
     MessageSenderService.MAX_LENGTH = 2000;
-    dingyChevron.set("factory" /* FACTORY */, [DingyDiKeys.CLASS], MessageSenderService);
+    dingyChevron.set(chevronjs.InjectableType.FACTORY, [DingyDiKeys.CLASS], MessageSenderService);
 
     var ResultType;
     (function (ResultType) {
@@ -401,7 +403,7 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
                 this.handleLookupNotFound(msg, lookupResultNotFound);
             }
             else if (lookupResult.type === ResultType.ERROR_MISSING_ARGUMENT) {
-                const lookupResultMissingArg = (lookupResult);
+                const lookupResultMissingArg = lookupResult;
                 MessageReceiverService.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}.`);
                 this.handleLookupMissingArg(msg, lookupResultMissingArg);
             }
@@ -456,7 +458,7 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
         }
     }
     MessageReceiverService.logger = dingyLogby.getLogger(MessageReceiverService);
-    dingyChevron.set("factory" /* FACTORY */, [DingyDiKeys.CLASS, DingyDiKeys.COMMANDS], MessageReceiverService);
+    dingyChevron.set(chevronjs.InjectableType.FACTORY, [DingyDiKeys.CLASS, DingyDiKeys.COMMANDS], MessageReceiverService);
 
     const SAVE_INTERVAL_MS = 60 * 1000; // 1min
     /**
@@ -501,7 +503,7 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
                 JSONStorage.logger.trace("JSON was changed, attempting to save it.");
                 this.dirty = false;
                 // We don't need to wait for the saving to finish
-                // this *could* lead to locking/access issues but hey, probably works.
+                // This *could* lead to locking/access issues but hey, probably works.
                 fsExtra.writeJson(this.path, this.data)
                     .then(() => JSONStorage.logger.trace(`Saved JSON '${this.path}'.`))
                     .catch(e => JSONStorage.logger.error(`Could not save JSON '${this.path}'.`, e));
@@ -558,8 +560,8 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
                 ? new JSONStorage(path.join("./", Dingy.DATA_DIRECTORY, "storage.json"))
                 : persistentStorage;
             Dingy.logger.debug("Initializing DI.");
-            dingyChevron.set("plain" /* PLAIN */, [], this, DingyDiKeys.CLASS);
-            dingyChevron.set("plain" /* PLAIN */, [], commands, DingyDiKeys.COMMANDS);
+            dingyChevron.set(chevronjs.InjectableType.PLAIN, [], this, DingyDiKeys.CLASS);
+            dingyChevron.set(chevronjs.InjectableType.PLAIN, [], commands, DingyDiKeys.COMMANDS);
             Dingy.logger.debug("Creating MessageReceiverService.");
             this.messageReceiverService = dingyChevron.get(MessageReceiverService);
             Dingy.logger.info("Creating Client.");
@@ -627,5 +629,5 @@ var dingy = (function (exports, discord_js, lightdash, path, chevronjs, cliNgy, 
 
     return exports;
 
-}({}, discord_js, l_, path, Chevron, clingy, logby, fsExtra, defaultLoggingAppender, yamljs));
+}({}, Chevron, discord_js, l_, path, clingy, logby, fsExtra, YAML));
 //# sourceMappingURL=dingy.js.map

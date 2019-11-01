@@ -1,1 +1,1 @@
-{"version":3,"file":"toFullName.js","sourceRoot":"","sources":["../../../../src/util/toFullName.ts"],"names":[],"mappings":"AAEA,qCAAqC;AACrC;;;;;;GAMG;AACH,MAAM,UAAU,GAAG,CAAC,IAAU,EAAU,EAAE,CACtC,GAAG,IAAI,CAAC,QAAQ,IAAI,IAAI,CAAC,aAAa,EAAE,CAAC;AAE7C,qCAAqC;AACrC,OAAO,EAAE,UAAU,EAAE,CAAC"}
+{"version":3,"file":"toFullName.js","sourceRoot":"","sources":["../../../../src/util/toFullName.ts"],"names":[],"mappings":"AAEA;;;;;;GAMG;AACH,MAAM,UAAU,GAAG,CAAC,IAAU,EAAU,EAAE,CACtC,GAAG,IAAI,CAAC,QAAQ,IAAI,IAAI,CAAC,aAAa,EAAE,CAAC;AAE7C,OAAO,EAAE,UAAU,EAAE,CAAC"}

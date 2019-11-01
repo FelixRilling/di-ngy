@@ -1,10 +1,10 @@
-import { IStorage } from "./IStorage";
+import { Storage } from "./Storage";
 /**
  * IStorage implementation using a simple map to store data.
  *
  * @private
  */
-declare class MemoryStorage implements IStorage<any> {
+declare class MemoryStorage implements Storage<any> {
     private readonly data;
     constructor();
     set(key: string, val: any): void;
