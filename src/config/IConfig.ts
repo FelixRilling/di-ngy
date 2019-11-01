@@ -1,5 +1,5 @@
-import { IClingyOptions } from "cli-ngy/types/IClingyOptions";
 import { IRole } from "../role/IRole";
+import { ClingyOptions } from "cli-ngy/dist/esm/src/ClingyOptions";
 
 interface IConfig {
     prefix: string | RegExp;
@@ -25,7 +25,7 @@ interface IConfig {
         separator: string;
     };
 
-    clingy: IClingyOptions;
+    clingy: ClingyOptions;
 }
 
 export { IConfig };

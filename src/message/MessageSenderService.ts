@@ -1,12 +1,12 @@
 import { InjectableType } from "chevronjs";
 import { Message, MessageOptions } from "discord.js";
 import { isNil, isPromise, isString } from "lightdash";
-import { ILogger } from "logby";
 import { dingyChevron, DingyDiKeys } from "../di";
 import { Dingy } from "../Dingy";
 import { dingyLogby } from "../logger";
 import { ICommandResponse } from "./response/ICommandResponse";
 import { sendable } from "./response/sendable";
+import { Logger } from "logby";
 
 /**
  * Handles sending messages.
@@ -14,7 +14,7 @@ import { sendable } from "./response/sendable";
  * @private
  */
 class MessageSenderService {
-    private static readonly logger: ILogger = dingyLogby.getLogger(
+    private static readonly logger: Logger = dingyLogby.getLogger(
         MessageSenderService
     );
     private static readonly MAX_LENGTH = 2000;

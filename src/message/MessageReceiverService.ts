@@ -1,13 +1,7 @@
 import { InjectableType } from "chevronjs";
-import { Clingy } from "cli-ngy";
-import { ILookupErrorMissingArgs } from "cli-ngy/types/lookup/result/ILookupErrorMissingArgs";
-import { ILookupErrorNotFound } from "cli-ngy/types/lookup/result/ILookupErrorNotFound";
-import { ResultType } from "cli-ngy/types/lookup/result/ILookupResult";
-import { ILookupSuccess } from "cli-ngy/types/lookup/result/ILookupSuccess";
+import { Clingy, LookupErrorMissingArgs, LookupErrorNotFound, LookupSuccess } from "cli-ngy";
 import { DMChannel, Message } from "discord.js";
 import { isInstanceOf, isRegExp, objDefaultsDeep } from "lightdash";
-import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
-import { ILogger } from "logby";
 import { DEFAULT_COMMANDS } from "../command/commands.default";
 import { IDingyCommand } from "../command/IDingyCommand";
 import { dingyChevron, DingyDiKeys } from "../di";
@@ -16,6 +10,9 @@ import { dingyLogby } from "../logger";
 import { hasEnoughPower } from "../role/hasEnoughPower";
 import { createSlimMessage } from "./createSlimMessage";
 import { MessageSenderService } from "./MessageSenderService";
+import { Logger } from "logby";
+import { AnyObject } from "lightdash/dist/esm/src/obj/lib/AnyObject";
+import { ResultType } from "cli-ngy/dist/esm/src/lookup/result/LookupResult";
 
 /**
  * Handles resolving messages.
@@ -23,7 +20,7 @@ import { MessageSenderService } from "./MessageSenderService";
  * @private
  */
 class MessageReceiverService {
-    private static readonly logger: ILogger = dingyLogby.getLogger(
+    private static readonly logger: Logger = dingyLogby.getLogger(
         MessageReceiverService
     );
 
@@ -37,7 +34,7 @@ class MessageReceiverService {
      * @param dingy Dingy instance this service belongs to.
      * @param commands Command object.
      */
-    constructor(dingy: Dingy, commands: IAnyObject) {
+    constructor(dingy: Dingy, commands: AnyObject) {
         this.dingy = dingy;
         this.clingy = new Clingy(
             dingy.config.enableDefaultCommands
@@ -107,13 +104,13 @@ class MessageReceiverService {
         MessageReceiverService.logger.trace("Parsed content.", lookupResult);
 
         if (lookupResult.type === ResultType.ERROR_NOT_FOUND) {
-            const lookupResultNotFound = <ILookupErrorNotFound>lookupResult;
+            const lookupResultNotFound = <LookupErrorNotFound>lookupResult;
             MessageReceiverService.logger.debug(
                 `Command not found: ${lookupResultNotFound.missing}.`
             );
             this.handleLookupNotFound(msg, lookupResultNotFound);
         } else if (lookupResult.type === ResultType.ERROR_MISSING_ARGUMENT) {
-            const lookupResultMissingArg = <ILookupErrorMissingArgs>(
+            const lookupResultMissingArg = <LookupErrorMissingArgs>(
                 lookupResult
             );
             MessageReceiverService.logger.debug(
@@ -121,7 +118,7 @@ class MessageReceiverService {
             );
             this.handleLookupMissingArg(msg, lookupResultMissingArg);
         } else if (lookupResult.type === ResultType.SUCCESS) {
-            const lookupResultSuccess = <ILookupSuccess>lookupResult;
+            const lookupResultSuccess = <LookupSuccess>lookupResult;
             MessageReceiverService.logger.trace(
                 "Lookup successful.",
                 lookupResultSuccess
@@ -137,7 +134,7 @@ class MessageReceiverService {
 
     private handleLookupNotFound(
         msg: Message,
-        lookupResultNotFound: ILookupErrorNotFound
+        lookupResultNotFound: LookupErrorNotFound
     ): void {
         if (this.dingy.config.answerToMissingCommand) {
             MessageReceiverService.logger.debug(
@@ -153,7 +150,7 @@ class MessageReceiverService {
 
     private handleLookupMissingArg(
         msg: Message,
-        lookupResultMissingArg: ILookupErrorMissingArgs
+        lookupResultMissingArg: LookupErrorMissingArgs
     ): void {
         if (this.dingy.config.answerToMissingArgs) {
             MessageReceiverService.logger.debug("Answering to missing arg.");
@@ -169,7 +166,7 @@ class MessageReceiverService {
 
     private handleLookupSuccess(
         msg: Message,
-        lookupResultSuccess: ILookupSuccess
+        lookupResultSuccess: LookupSuccess
     ): void {
         const command = <IDingyCommand>lookupResultSuccess.command;
 

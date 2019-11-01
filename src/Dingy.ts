@@ -1,8 +1,6 @@
 import { InjectableType } from "chevronjs";
 import { Client, Message } from "discord.js";
 import { isNil, objDefaultsDeep } from "lightdash";
-import { IAnyObject } from "lightdash/types/obj/lib/IAnyObject";
-import { ILogger } from "logby";
 import * as path from "path";
 import { DEFAULT_CONFIG } from "./config/config.default";
 import { IConfig } from "./config/IConfig";
@@ -14,6 +12,8 @@ import { IInitializableStorage } from "./storage/IInitializableStorage";
 import { IStorage } from "./storage/IStorage";
 import { JSONStorage } from "./storage/JSONStorage";
 import { MemoryStorage } from "./storage/MemoryStorage";
+import { AnyObject } from "lightdash/dist/esm/src/obj/lib/AnyObject";
+import { Logger } from "logby";
 
 /**
  * Main Dingy class.
@@ -21,7 +21,7 @@ import { MemoryStorage } from "./storage/MemoryStorage";
  * @public
  */
 class Dingy {
-    private static readonly logger: ILogger = dingyLogby.getLogger(Dingy);
+    private static readonly logger: Logger = dingyLogby.getLogger(Dingy);
     private static readonly DATA_DIRECTORY = "data";
 
     public readonly config: IConfig;
@@ -40,8 +40,8 @@ class Dingy {
      * @param {object?} persistentStorage Storage instance handling persistent data; Falls back to {@link JSONStorage}.
      */
     constructor(
-        commands: IAnyObject,
-        config: IAnyObject = {},
+        commands: AnyObject,
+        config: AnyObject = {},
         memoryStorage?: IStorage<any>,
         persistentStorage?: IInitializableStorage<any>
     ) {

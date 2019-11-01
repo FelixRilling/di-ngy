@@ -1,7 +1,7 @@
 import { createWriteStream, ensureFile } from "fs-extra";
 import { isObject } from "lightdash";
 import { createDefaultLogPrefix } from "logby/src/appender/defaultLoggingAppender";
-import { appenderFn } from "logby/types/appender/appenderFn";
+import { AppenderFn } from "logby/dist/esm/src/appender/AppenderFn";
 
 /**
  * helper method converting an array of arbitrary values to a string which can be logged.
@@ -26,7 +26,7 @@ const stringifyArgs = (args: any[]): string =>
  * @param path Path to use for the file, will be created if it does not exist.
  * @returns File stream appender.
  */
-const createFileStreamAppender = async (path: string): Promise<appenderFn> => {
+const createFileStreamAppender = async (path: string): Promise<AppenderFn> => {
     await ensureFile(path);
     const writeStream = createWriteStream(path); //TODO find a way to properly close the stream on shutdown
 

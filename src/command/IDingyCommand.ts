@@ -1,7 +1,7 @@
-import { ICommand } from "cli-ngy/types/command/ICommand";
 import { commandFn } from "./commandFn";
+import { Command } from "cli-ngy/dist/esm/src/command/Command";
 
-interface IDingyCommand extends ICommand {
+interface IDingyCommand extends Command {
     fn: commandFn;
     data: {
         hidden: boolean;

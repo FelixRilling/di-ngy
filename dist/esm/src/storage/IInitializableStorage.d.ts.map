@@ -1,0 +1,1 @@
+{"version":3,"file":"IInitializableStorage.d.ts","sourceRoot":"","sources":["../../../../src/storage/IInitializableStorage.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,YAAY,CAAC;AAEtC,UAAU,qBAAqB,CAAC,CAAC,CAAE,SAAQ,QAAQ,CAAC,CAAC,CAAC;IAClD,IAAI,IAAI,OAAO,CAAC,IAAI,CAAC,CAAC;CACzB;AAED,OAAO,EAAE,qBAAqB,EAAE,CAAC"}

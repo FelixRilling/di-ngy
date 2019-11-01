@@ -1,5 +1,5 @@
-import { resolvedArgumentMap } from "cli-ngy/types/argument/resolvedArgumentMap";
 import { IDingyCommand } from "../IDingyCommand";
+import { ResolvedArgumentMap } from "cli-ngy/dist/esm/src/argument/ResolvedArgumentMap";
 
 /**
  * Built-in "echo" command.
@@ -21,7 +21,7 @@ const echo: IDingyCommand = {
         usableInDMs: true,
         help: "Echoes a text."
     },
-    fn: (args: resolvedArgumentMap) => args.get("val")!
+    fn: (args: ResolvedArgumentMap) => args.get("val")!
 };
 
 export { echo };

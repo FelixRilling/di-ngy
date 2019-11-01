@@ -1,0 +1,1 @@
+{"version":3,"file":"IRole.d.ts","sourceRoot":"","sources":["../../../../src/role/IRole.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,YAAY,CAAC;AAErC,UAAU,KAAK;IACX,KAAK,EAAE,MAAM,CAAC;IACd,KAAK,EAAE,CAAC,GAAG,EAAE,OAAO,KAAK,OAAO,CAAC;CACpC;AAED,OAAO,EAAE,KAAK,EAAE,CAAC"}

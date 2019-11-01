@@ -9,6 +9,7 @@ var chevronjs = require('chevronjs');
 var cliNgy = require('cli-ngy');
 var logby = require('logby');
 var fsExtra = require('fs-extra');
+var defaultLoggingAppender = require('logby/src/appender/defaultLoggingAppender');
 var yamljs = require('yamljs');
 
 /**
@@ -58,22 +59,11 @@ const DEFAULT_CONFIG = {
  * @public
  */
 const dingyChevron = new chevronjs.Chevron();
-
-/**
- * Default level-list. Can be used to set the level of a {@link Logby} instance.
- *
- * @public
- */
-
-/**
- * Helper method for creating log entry prefix.
- *
- * @private
- * @param name Name of the logger instance.
- * @param level Level of the entry to log.
- * @returns Log entry prefix.
- */
-const createDefaultLogPrefix = (name, level) => `${new Date().toISOString()} ${level.name} ${name}`;
+var DingyDiKeys;
+(function (DingyDiKeys) {
+    DingyDiKeys["CLASS"] = "_DINGY";
+    DingyDiKeys["COMMANDS"] = "_DINGY_COMMANDS";
+})(DingyDiKeys || (DingyDiKeys = {}));
 
 /**
  * helper method converting an array of arbitrary values to a string which can be logged.
@@ -99,7 +89,7 @@ const createFileStreamAppender = async (path) => {
     await fsExtra.ensureFile(path);
     const writeStream = fsExtra.createWriteStream(path); //TODO find a way to properly close the stream on shutdown
     return (name, level, args) => {
-        writeStream.write(`${createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`);
+        writeStream.write(`${defaultLoggingAppender.createDefaultLogPrefix(name, level)} - ${stringifyArgs(args)}\n`);
     };
 };
 
@@ -360,7 +350,14 @@ class MessageSenderService {
 }
 MessageSenderService.logger = dingyLogby.getLogger(MessageSenderService);
 MessageSenderService.MAX_LENGTH = 2000;
-dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */], MessageSenderService);
+dingyChevron.set("factory" /* FACTORY */, [DingyDiKeys.CLASS], MessageSenderService);
+
+var ResultType;
+(function (ResultType) {
+    ResultType[ResultType["SUCCESS"] = 0] = "SUCCESS";
+    ResultType[ResultType["ERROR_NOT_FOUND"] = 1] = "ERROR_NOT_FOUND";
+    ResultType[ResultType["ERROR_MISSING_ARGUMENT"] = 2] = "ERROR_MISSING_ARGUMENT";
+})(ResultType || (ResultType = {}));
 
 /**
  * Handles resolving messages.
@@ -409,17 +406,17 @@ class MessageReceiverService {
         MessageReceiverService.logger.debug("Parsing content.", createSlimMessage(msg));
         const lookupResult = this.clingy.parse(msgContent);
         MessageReceiverService.logger.trace("Parsed content.", lookupResult);
-        if (lookupResult.type === 1 /* ERROR_NOT_FOUND */) {
+        if (lookupResult.type === ResultType.ERROR_NOT_FOUND) {
             const lookupResultNotFound = lookupResult;
             MessageReceiverService.logger.debug(`Command not found: ${lookupResultNotFound.missing}.`);
             this.handleLookupNotFound(msg, lookupResultNotFound);
         }
-        else if (lookupResult.type === 2 /* ERROR_MISSING_ARGUMENT */) {
+        else if (lookupResult.type === ResultType.ERROR_MISSING_ARGUMENT) {
             const lookupResultMissingArg = (lookupResult);
             MessageReceiverService.logger.debug(`Argument missing: ${lookupResultMissingArg.missing}.`);
             this.handleLookupMissingArg(msg, lookupResultMissingArg);
         }
-        else if (lookupResult.type === 0 /* SUCCESS */) {
+        else if (lookupResult.type === ResultType.SUCCESS) {
             const lookupResultSuccess = lookupResult;
             MessageReceiverService.logger.trace("Lookup successful.", lookupResultSuccess);
             this.handleLookupSuccess(msg, lookupResultSuccess);
@@ -470,7 +467,7 @@ class MessageReceiverService {
     }
 }
 MessageReceiverService.logger = dingyLogby.getLogger(MessageReceiverService);
-dingyChevron.set("factory" /* FACTORY */, ["_DINGY" /* CLASS */, "_DINGY_COMMANDS" /* COMMANDS */], MessageReceiverService);
+dingyChevron.set("factory" /* FACTORY */, [DingyDiKeys.CLASS, DingyDiKeys.COMMANDS], MessageReceiverService);
 
 const SAVE_INTERVAL_MS = 60 * 1000; // 1min
 /**
@@ -572,8 +569,8 @@ class Dingy {
             ? new JSONStorage(path.join("./", Dingy.DATA_DIRECTORY, "storage.json"))
             : persistentStorage;
         Dingy.logger.debug("Initializing DI.");
-        dingyChevron.set("plain" /* PLAIN */, [], this, "_DINGY" /* CLASS */);
-        dingyChevron.set("plain" /* PLAIN */, [], commands, "_DINGY_COMMANDS" /* COMMANDS */);
+        dingyChevron.set("plain" /* PLAIN */, [], this, DingyDiKeys.CLASS);
+        dingyChevron.set("plain" /* PLAIN */, [], commands, DingyDiKeys.COMMANDS);
         Dingy.logger.debug("Creating MessageReceiverService.");
         this.messageReceiverService = dingyChevron.get(MessageReceiverService);
         Dingy.logger.info("Creating Client.");
@@ -638,3 +635,4 @@ Dingy.DATA_DIRECTORY = "data";
 exports.DEFAULT_ROLE = DEFAULT_ROLE;
 exports.Dingy = Dingy;
 exports.dingyLogby = dingyLogby;
+//# sourceMappingURL=dingy.common.js.map

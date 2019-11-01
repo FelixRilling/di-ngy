@@ -1,17 +1,18 @@
-import { Clingy, ILookupSuccess } from "cli-ngy";
-import { IArgument } from "cli-ngy/types/argument/IArgument";
-import { CommandMap } from "cli-ngy/types/command/CommandMap";
+import { Clingy, LookupSuccess } from "cli-ngy";
+
 import { stringify } from "yamljs";
 import { Dingy } from "../../Dingy";
 import { ICommandResponse } from "../../message/response/ICommandResponse";
 import { IDingyCommand } from "../IDingyCommand";
+import { Argument } from "cli-ngy/dist/esm/src/argument/Argument";
+import { CommandMap } from "cli-ngy/dist/esm/src/command/CommandMap";
 
 interface ISlimCommand {
     desc: string;
     powerRequired?: number;
     usableInDMs?: boolean;
     alias?: string[];
-    args?: IArgument[];
+    args?: Argument[];
     sub?: string[];
 }
 
@@ -70,7 +71,7 @@ const showDetailHelp = (
     const lookupResult = clingy.getPath(argsAll);
 
     // prematurely assume success to combine hidden + success check.
-    const command = <IDingyCommand>(<ILookupSuccess>lookupResult).command;
+    const command = <IDingyCommand>(<LookupSuccess>lookupResult).command;
     if (!lookupResult.successful || command.data.hidden) {
         return {
             val: `Command '${argsAll.join("->")}' does not exist.`,

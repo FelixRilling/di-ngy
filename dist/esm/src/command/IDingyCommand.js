@@ -1,0 +1,1 @@
+//# sourceMappingURL=IDingyCommand.js.map
